@@ -1,0 +1,33 @@
+[project]
+name = "x-create-cv-x"
+version = "0.0.1"
+description = "Privacy-first CLI factory for app-native CV and resume JSON."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black==24.10.0",
+    "mypy==1.14.1",
+    "pytest==8.3.4",
+    "ruff==0.8.6",
+]
+
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["B", "C4", "E", "F", "I", "RUF", "SIM", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["x_create_cv_factory_x.py", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,97 @@
+{
+  "profile": {
+    "id": "profile_fake",
+    "person_id": "person_fake",
+    "label": "Fake Public Demo Profile",
+    "created_at": "2026-07-01T00:00:00Z",
+    "updated_at": "2026-07-01T00:00:00Z"
+  },
+  "person": {
+    "id": "person_fake",
+    "display_name": "Ada Example",
+    "preferred_name": "Ada"
+  },
+  "contact_method": {
+    "id": "contact_fake_email",
+    "person_id": "person_fake",
+    "kind": "email",
+    "value": "ada.example@example.test",
+    "is_primary": true
+  },
+  "address": {
+    "id": "address_fake",
+    "label": "Public demo address",
+    "address_text": "100 Example Avenue, Fictional City, ZZ"
+  },
+  "project": {
+    "id": "project_fake",
+    "name": "Resume Data Factory"
+  },
+  "achievement": {
+    "id": "achievement_fake",
+    "text": "Built a deterministic resume data workflow from structured records.",
+    "job_id": "job_fake"
+  },
+  "job": {
+    "id": "job_fake",
+    "label": "Fake Experience",
+    "job_title": "Automation Engineer",
+    "employer": "Example Systems",
+    "start_date": "2024-01",
+    "end_date": "present",
+    "address_id": "address_fake",
+    "project_ids": [
+      "project_fake"
+    ],
+    "achievement_ids": [
+      "achievement_fake"
+    ]
+  },
+  "skill": {
+    "id": "skill_fake_python",
+    "name": "Python automation",
+    "category": "software"
+  },
+  "text_block": {
+    "id": "text_fake_summary",
+    "text": "Fake public resume summary for automated tests.",
+    "section_label": "Summary",
+    "used_in_resume_ids": [
+      "resume_2017",
+      "resume_2023"
+    ],
+    "is_job_related": false
+  },
+  "resumes": [
+    {
+      "id": "resume_2017",
+      "label": "Fake 2017 Resume",
+      "status": "active",
+      "section_id": "section_summary",
+      "item_id": "item_summary",
+      "created_at": "2026-07-01T00:00:00Z",
+      "updated_at": "2026-07-01T00:00:00Z"
+    },
+    {
+      "id": "resume_2023",
+      "label": "Fake 2023 Resume",
+      "status": "active",
+      "section_id": "section_summary",
+      "item_id": "item_summary",
+      "created_at": "2026-07-01T00:00:00Z",
+      "updated_at": "2026-07-01T00:00:00Z"
+    }
+  ],
+  "formatting": {
+    "block_style": null,
+    "numbering": null,
+    "runs": [
+      {
+        "text": "Fake public resume summary for automated tests.",
+        "bold": false,
+        "italic": false,
+        "underline": false
+      }
+    ]
+  }
+}

@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Private CV source data and generated local outputs
+data/private/
+temp data/
