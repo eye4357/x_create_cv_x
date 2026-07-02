@@ -826,6 +826,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     with zipfile.ZipFile(document_path) as document:
         content_types_xml = document.read("[Content_Types].xml").decode("utf-8")
         root_relationships_xml = document.read("_rels/.rels").decode("utf-8")
+        settings_xml = document.read("word/settings.xml").decode("utf-8")
         font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
         web_settings_xml = document.read("word/webSettings.xml").decode("utf-8")
         footnotes_xml = document.read("word/footnotes.xml").decode("utf-8")
@@ -838,6 +839,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     structure_summary = app.docx_structure_summary(document_path)
 
     assert "word/theme/theme1.xml" in part_names
+    assert "word/settings.xml" in part_names
     assert "word/fontTable.xml" in part_names
     assert "word/webSettings.xml" in part_names
     assert "word/footnotes.xml" in part_names
@@ -859,6 +861,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert (
         '<Override PartName="/word/numbering.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/settings.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'
         in content_types_xml
     )
     assert (
@@ -903,6 +910,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     )
     assert "core-properties" not in root_relationships_xml
     assert "extended-properties" not in root_relationships_xml
+    assert f'<w:settings xmlns:w="{app.WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>' in settings_xml
     assert '<w:font w:name="Calibri"/><w:font w:name="Symbol"/><w:font w:name="Courier New"/>' in font_table_xml
     assert f'<w:webSettings xmlns:w="{app.WORD_NS}"/>' in web_settings_xml
     assert '<w:footnote w:type="separator" w:id="-1">' in footnotes_xml
