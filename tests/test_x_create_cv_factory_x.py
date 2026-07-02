@@ -871,8 +871,31 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         in content_types_xml
     )
     assert (
+        '<Override PartName="/word/webSettings.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/footnotes.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/endnotes.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/customXml/itemProps1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.customXmlProperties+xml"/>' in content_types_xml
+    )
+    assert (
         '<Override PartName="/word/header1.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/footer1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>' in content_types_xml
     )
     assert (
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
