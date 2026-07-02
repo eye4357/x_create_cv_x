@@ -924,6 +924,15 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" '
         'Target="itemProps1.xml"' in custom_relationships_xml
     )
+    assert header_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:hdr xmlns:w="{app.WORD_NS}"><w:p><w:r><w:rPr><w:b/></w:rPr>'
+        '<w:t xml:space="preserve">Header</w:t></w:r></w:p></w:hdr>'
+    )
+    assert footer_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:ftr xmlns:w="{app.WORD_NS}"><w:p><w:r><w:t xml:space="preserve">1</w:t></w:r></w:p></w:ftr>'
+    )
     assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Header</w:t></w:r>' in header_xml
     assert '<w:r><w:t xml:space="preserve">1</w:t></w:r>' in footer_xml
     expected_relationships = [
