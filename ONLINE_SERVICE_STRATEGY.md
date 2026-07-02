@@ -78,7 +78,60 @@ For the hosted version, move to one of these:
 
 Do not store real user PII in the public repo. Public examples should use fake data only.
 
-### 3. API Layer
+The production code should talk to a storage boundary, not directly to Git, local folders, or a database. A minimal interface could look like:
+
+```text
+UserWorkspace
+  load_profile(user_id)
+  save_profile(user_id, profile)
+  list_resumes(user_id)
+  save_resume(user_id, resume)
+  write_generated_artifact(user_id, artifact)
+  write_validation_report(user_id, report)
+  export_snapshot(user_id)
+  delete_user(user_id)
+```
+
+That keeps the current private-repo workflow useful without making Git the only production storage answer.
+
+### 3. Hosted Production Architecture
+
+Hosted production should separate public code, operational metadata, private user data, and generated artifacts.
+
+Recommended layers:
+
+- Public application code: `x_create_cv_x`, deployed from the public repository with fake fixtures only.
+- Control plane: authentication, account records, workspace registry, billing/status metadata, audit events, and deletion state.
+- Private data plane: encrypted per-user master profiles, resumes, generated Office files, reports, snapshots, and imports.
+- Rendering workers: isolated jobs that generate DOCX/XLSX/PDF outputs from structured JSON without logging PII.
+- Evidence/test data: `x_create_cv_test_data_x`, kept separate as the private regression corpus, not used as live user storage.
+
+The first hosted backend should use Postgres for indexed operational data and encrypted object storage for larger or versioned artifacts. Keep PII-bearing JSON encrypted at rest, either in application-managed encrypted blobs or database fields protected by a key-management service. Generated Office files, imports, exports, and reports belong in object storage with per-user paths and short-lived signed URLs.
+
+Private Git user repositories such as `x_create_cv_user_foo_x`, `x_create_cv_user_bar_x`, and `x_create_cv_user_foobar_x` are a good production-compatible backend for local-first, single-tenant, operator-controlled, or customer-owned deployment modes. They are not the only hosted SaaS backend. Treat them as one `UserWorkspace` implementation:
+
+```text
+GitUserWorkspace       # private repo per user or tenant
+LocalFolderWorkspace   # offline/local development and power-user mode
+DatabaseWorkspace      # hosted SaaS indexed profile/resume state
+EncryptedBlobWorkspace # hosted snapshots, generated files, imports, exports
+```
+
+Hosted SaaS should default to `DatabaseWorkspace` plus `EncryptedBlobWorkspace`. Private Git workspaces remain valuable for fixtures, portability, customer-owned deployments, backup/export workflows, and proving that the domain core is not coupled to one storage provider.
+
+Production requirements before real hosted PII:
+
+- Authentication and tenant isolation on every request.
+- Per-user authorization checks at the command boundary, not only in routes.
+- Encryption at rest for profiles, resumes, generated documents, imports, exports, and backups.
+- No request-body logging for profile data or generated document content.
+- Structured audit logs that record actor, action, object id, and timestamp without storing resume content.
+- Account deletion that removes active records, generated artifacts, imports, exports, reports, and scheduled jobs.
+- Export/import so users can leave with their structured data.
+- Backups with documented retention and deletion behavior.
+- A privacy policy and operator runbook before accepting real third-party users.
+
+### 4. API Layer
 
 Use FastAPI for the first web service layer. It fits the Python project and gives automatic OpenAPI docs.
 
@@ -103,7 +156,7 @@ POST   /profiles/{profile_id}/resumes/{resume_id}/export
 
 Each endpoint should map to a granular domain command. That preserves the “button-like” design and makes later GUI work straightforward.
 
-### 4. Frontend
+### 5. Frontend
 
 The frontend should be an app, not a landing page.
 
@@ -204,6 +257,16 @@ Test layers:
 - Add account deletion.
 - Add import/export.
 - Add user-owned deployment docs.
+- Add a `UserWorkspace` storage boundary so private Git repos, local folders, database-backed storage, and encrypted object storage can share the same domain commands.
+
+### Phase 6: Hosted Production
+
+- Add tenant-aware authorization at the command boundary.
+- Move indexed operational data to Postgres.
+- Store generated files, imports, exports, and reports in encrypted object storage.
+- Add rendering workers with PII-safe logs and short-lived artifact URLs.
+- Add audit events, retention controls, deletion workflows, backup policy, and operational runbooks.
+- Keep private Git user repos as a supported customer-owned or local-first backend, not the default SaaS data store.
 
 ## Showcase Features
 
