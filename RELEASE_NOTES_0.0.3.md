@@ -54,6 +54,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX paragraph property binding.
 - Added public fake-fixture coverage for DOCX tab run and following text adjacency.
 - Added public fake-fixture coverage for DOCX table cell content binding.
+- Added public fake-fixture coverage for explicit DOCX empty table paragraph binding.
 - Added public fake-fixture coverage for XLSX package part and relationship audit metrics.
 - Added public fake-fixture coverage for XLSX page-margin audit metrics.
 - Added public fake-fixture coverage for XLSX row, column, styled-cell, and column-width report metrics.

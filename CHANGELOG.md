@@ -63,6 +63,7 @@
 - Extended public fake Office tests to assert DOCX paragraph property binding without private data.
 - Extended public fake Office tests to assert DOCX tab run and following text adjacency without private data.
 - Extended public fake Office tests to assert DOCX table cell content binding without private data.
+- Extended public fake Office tests to assert explicit DOCX empty table paragraph binding without private data.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 - Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.

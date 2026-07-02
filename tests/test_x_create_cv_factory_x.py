@@ -826,6 +826,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         '<w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/></w:tcPr>'
         '<w:p><w:r><w:t xml:space="preserve">Right</w:t></w:r></w:p></w:tc></w:tr>' in document_xml
     )
+    assert '<w:p><w:r><w:t xml:space="preserve">Bottom</w:t></w:r></w:p><w:p><w:r></w:r></w:p>' in document_xml
     assert document_xml.count("<w:p>") == 6
     assert document_xml.count("<w:tr>") == 2
     assert document_xml.count("<w:tc>") == 4
