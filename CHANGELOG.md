@@ -25,6 +25,8 @@
 - Expanded DOCX structure reporting to include relationship types, body child counts, hyperlinks, tabs, package scaffolding, and font names.
 - Added non-sensitive Office structure metrics to the private comparison report.
 - Added a world-class CV creation glidepath that versions the path from the `0.0.2` contract-and-audit lock through a stable `1.0.0` CV compiler baseline.
+- Added public JSON Schema contracts for master profile, resume, workbook layout, and document layout JSON.
+- Added `validate-schema` to validate generated JSON against the public contract schemas.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 
@@ -37,6 +39,7 @@
 - Moved private seed scripts, generated JSON, legacy JSON, and the legacy private zip out of the public repo and into `x_create_cv_test_data_x`.
 - Optimized generated workbook sheets to skip redundant collection placeholder rows while preserving named app-native columns.
 - Updated the Office regeneration plan to include the current 2024 resume as the fourth golden source.
+- Extended generated JSON writes and the private golden exercise to validate schema-backed API contracts.
 
 ### Security
 

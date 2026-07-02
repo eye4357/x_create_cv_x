@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/x_create_cv_x/schemas/document_layout.schema.json",
+  "title": "x_create_cv_x document layout contract",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "margins": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "page_size": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "w": {
+          "type": "string"
+        },
+        "h": {
+          "type": "string"
+        },
+        "orient": {
+          "type": "string"
+        }
+      }
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "core_properties": {
+          "type": "boolean"
+        },
+        "extended_properties": {
+          "type": "boolean"
+        },
+        "theme": {
+          "type": "boolean"
+        },
+        "font_table": {
+          "type": "boolean"
+        },
+        "web_settings": {
+          "type": "boolean"
+        },
+        "footnotes": {
+          "type": "boolean"
+        },
+        "endnotes": {
+          "type": "boolean"
+        },
+        "custom_xml": {
+          "type": "boolean"
+        },
+        "fonts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "styles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "numbering": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "bullet_text": {
+          "type": "string"
+        },
+        "font": {
+          "type": "string"
+        },
+        "left": {
+          "type": "string"
+        },
+        "hanging": {
+          "type": "string"
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "runs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "footer": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "runs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "flow": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "item",
+              "items",
+              "paragraph",
+              "table"
+            ]
+          },
+          "item_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "runs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "paragraphs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "column_widths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

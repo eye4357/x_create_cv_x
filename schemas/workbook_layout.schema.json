@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/x_create_cv_x/schemas/workbook_layout.schema.json",
+  "title": "x_create_cv_x workbook layout contract",
+  "type": "object",
+  "required": [
+    "sheets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "styles": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "freeze_header": {
+          "type": "boolean"
+        },
+        "auto_filter": {
+          "type": "boolean"
+        },
+        "header_fill": {
+          "type": "string"
+        },
+        "header_font_color": {
+          "type": "string"
+        },
+        "body_border_color": {
+          "type": "string"
+        },
+        "page_margins": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "sheets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "collection",
+          "columns"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "collection": {
+            "type": "string"
+          },
+          "skip_placeholder_rows": {
+            "type": "boolean"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field",
+                "header"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "header": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

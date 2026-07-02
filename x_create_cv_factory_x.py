@@ -22,10 +22,17 @@ from typing import Any
 Relationship = tuple[str, str, str] | tuple[str, str, str, str]
 MASTER_FILE = "master_profile.json"
 DEFAULT_DB_DIR = Path("data/private/cv_factory_output")
+SCHEMA_DIR = Path(__file__).resolve().parent / "schemas"
 RESUME_APP_MODEL = "resume_document_crud"
 MASTER_APP_MODEL = "master_profile_crud"
 SCHEMA_VERSION = "1.0.0"
 VERSION = "0.0.2"
+CONTRACT_SCHEMA_FILES = {
+    "master_profile": "master_profile.schema.json",
+    "resume": "resume.schema.json",
+    "workbook_layout": "workbook_layout.schema.json",
+    "document_layout": "document_layout.schema.json",
+}
 DEFAULT_GOLDEN_EVIDENCE_DIR = Path("../x_create_cv_test_data_x/evidence")
 DEFAULT_EVIDENCE_MANIFEST = DEFAULT_GOLDEN_EVIDENCE_DIR / "a_priori_manifest.json"
 DEFAULT_CHAIN_MANIFEST = DEFAULT_GOLDEN_EVIDENCE_DIR / "chain_of_evidence_manifest.json"
@@ -343,6 +350,151 @@ def read_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"Expected JSON object in {path}")
     return value
+
+
+def schema_type_names(schema_type: Any) -> list[str]:
+    if isinstance(schema_type, str):
+        return [schema_type]
+    if isinstance(schema_type, list):
+        return [item for item in schema_type if isinstance(item, str)]
+    return []
+
+
+def json_type_name(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, int):
+        return "integer"
+    if isinstance(value, float):
+        return "number"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "object"
+    return type(value).__name__
+
+
+def value_matches_json_type(value: Any, type_name: str) -> bool:
+    if type_name == "null":
+        return value is None
+    if type_name == "boolean":
+        return isinstance(value, bool)
+    if type_name == "integer":
+        return isinstance(value, int) and not isinstance(value, bool)
+    if type_name == "number":
+        return isinstance(value, int | float) and not isinstance(value, bool)
+    if type_name == "string":
+        return isinstance(value, str)
+    if type_name == "array":
+        return isinstance(value, list)
+    if type_name == "object":
+        return isinstance(value, dict)
+    return True
+
+
+def child_json_path(path: str, key: str) -> str:
+    return f"{path}.{key}" if key.isidentifier() else f"{path}[{key!r}]"
+
+
+def validate_json_schema_subset(value: Any, schema: dict[str, Any], path: str = "$") -> list[str]:
+    failures: list[str] = []
+    expected_types = schema_type_names(schema.get("type"))
+    if expected_types and not any(value_matches_json_type(value, expected_type) for expected_type in expected_types):
+        failures.append(f"{path}: expected {' or '.join(expected_types)}, got {json_type_name(value)}")
+        return failures
+
+    enum_values = schema.get("enum")
+    if isinstance(enum_values, list) and value not in enum_values:
+        failures.append(f"{path}: expected one of {enum_values!r}, got {value!r}")
+
+    if isinstance(value, dict):
+        properties = schema.get("properties")
+        property_schemas = properties if isinstance(properties, dict) else {}
+        required = schema.get("required")
+        if isinstance(required, list):
+            for key in required:
+                if isinstance(key, str) and key not in value:
+                    failures.append(f"{child_json_path(path, key)}: required property is missing")
+        for key, child_schema in property_schemas.items():
+            if key in value and isinstance(key, str) and isinstance(child_schema, dict):
+                failures.extend(validate_json_schema_subset(value[key], child_schema, child_json_path(path, key)))
+        additional_properties = schema.get("additionalProperties", True)
+        if additional_properties is False:
+            for key in value:
+                if key not in property_schemas:
+                    failures.append(f"{child_json_path(path, str(key))}: additional property is not allowed")
+        elif isinstance(additional_properties, dict):
+            for key, child_value in value.items():
+                if key not in property_schemas:
+                    failures.extend(
+                        validate_json_schema_subset(child_value, additional_properties, child_json_path(path, str(key)))
+                    )
+
+    if isinstance(value, list):
+        items = schema.get("items")
+        if isinstance(items, dict):
+            for index, item in enumerate(value):
+                failures.extend(validate_json_schema_subset(item, items, f"{path}[{index}]"))
+
+    return failures
+
+
+def contract_schema_path(schema_name: str) -> Path:
+    schema_file = CONTRACT_SCHEMA_FILES.get(schema_name)
+    if schema_file is None:
+        known = ", ".join(sorted(CONTRACT_SCHEMA_FILES))
+        raise ValueError(f"Unknown contract schema {schema_name!r}; expected one of: {known}")
+    return SCHEMA_DIR / schema_file
+
+
+def load_contract_schema(schema_name: str) -> dict[str, Any]:
+    return read_json(contract_schema_path(schema_name))
+
+
+def contract_validation_failures(data: dict[str, Any], schema_name: str, path: str = "$") -> list[str]:
+    failures = validate_json_schema_subset(data, load_contract_schema(schema_name), path)
+    office_layout = data.get("office_layout")
+    if schema_name == "master_profile" and isinstance(office_layout, dict):
+        workbook = office_layout.get("workbook")
+        if isinstance(workbook, dict):
+            failures.extend(contract_validation_failures(workbook, "workbook_layout", f"{path}.office_layout.workbook"))
+    if schema_name == "resume" and isinstance(office_layout, dict):
+        document = office_layout.get("document")
+        if isinstance(document, dict):
+            failures.extend(contract_validation_failures(document, "document_layout", f"{path}.office_layout.document"))
+    return failures
+
+
+def validate_contract(data: dict[str, Any], schema_name: str) -> None:
+    failures = contract_validation_failures(data, schema_name)
+    if failures:
+        raise ValueError(f"Schema validation failed for {schema_name}:\n" + "\n".join(failures))
+
+
+def infer_contract_schema_name(data: dict[str, Any], path: Path) -> str:
+    app_model = data.get("app_model")
+    if app_model == MASTER_APP_MODEL:
+        return "master_profile"
+    if app_model == RESUME_APP_MODEL:
+        return "resume"
+    if "sheets" in data:
+        return "workbook_layout"
+    if any(
+        key in data for key in ["margins", "page_size", "package", "styles", "numbering", "header", "footer", "flow"]
+    ):
+        return "document_layout"
+    raise ValueError(f"Could not infer contract schema for {path}")
+
+
+def validate_contract_file(path: Path, schema_name: str | None = None) -> str:
+    data = read_json(path)
+    resolved_schema_name = schema_name or infer_contract_schema_name(data, path)
+    validate_contract(data, resolved_schema_name)
+    return resolved_schema_name
 
 
 def sha256_file(path: Path) -> str:
@@ -1885,12 +2037,15 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
 def load_golden_json(evidence_dir: Path) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     json_dir = evidence_dir / "generated" / "json" / "a_posteriori"
     master = read_json(json_dir / "master_profile_a_posteriori.json")
+    validate_contract(master, "master_profile")
     resumes: dict[str, dict[str, Any]] = {}
     for json_name, relative_path in GOLDEN_JSON_EXPECTATIONS.items():
         if json_name == MASTER_FILE:
             continue
         json_path = Path(relative_path)
-        resumes[json_path.stem] = read_json(json_dir / json_path.name)
+        resume = read_json(json_dir / json_path.name)
+        validate_contract(resume, "resume")
+        resumes[json_path.stem] = resume
     return master, resumes
 
 
@@ -2138,6 +2293,9 @@ def run_golden_json_scripts(evidence_dir: Path) -> int:
                 raise ValueError(f"Missing generated JSON from golden scripts: {generated_name}")
             if not expected_path.exists():
                 raise ValueError(f"Missing expected a posteriori JSON evidence: {expected_relative_path}")
+            schema_name = "master_profile" if generated_name == MASTER_FILE else "resume"
+            validate_contract_file(generated_path, schema_name)
+            validate_contract_file(expected_path, schema_name)
             if generated_path.read_bytes() != expected_path.read_bytes():
                 raise ValueError(f"Golden generated JSON mismatch: {generated_name}")
 
@@ -2212,12 +2370,15 @@ def init_database(
         shutil.rmtree(db_dir)
     if master_path(db_dir).exists():
         raise ValueError(f"Database already exists at {db_dir}; pass --force to replace it")
-    write_json(master_path(db_dir), empty_master(profile, workbook_layout_value))
+    master = empty_master(profile, workbook_layout_value)
+    validate_contract(master, "master_profile")
+    write_json(master_path(db_dir), master)
 
 
 def set_profile(db_dir: Path, profile: dict[str, Any]) -> None:
     master = read_json(master_path(db_dir))
     master["profile"] = profile
+    validate_contract(master, "master_profile")
     write_json(master_path(db_dir), master)
 
 
@@ -2230,6 +2391,7 @@ def add_master_record(db_dir: Path, collection: str, record: dict[str, Any], rep
     if not isinstance(records, list):
         raise ValueError(f"Unknown master collection: {collection}")
     append_unique(records, record, replace)
+    validate_contract(master, "master_profile")
     write_json(master_path(db_dir), master)
 
 
@@ -2242,7 +2404,9 @@ def add_resume(
     path = resume_path(db_dir, resume_id)
     if path.exists() and not replace:
         raise ValueError(f"Resume already exists: {resume_id}")
-    write_json(path, empty_resume(resume, document_layout_value))
+    resume_data = empty_resume(resume, document_layout_value)
+    validate_contract(resume_data, "resume")
+    write_json(path, resume_data)
 
 
 def add_resume_record(db_dir: Path, resume_id: str, collection: str, record: dict[str, Any], replace: bool) -> None:
@@ -2254,6 +2418,7 @@ def add_resume_record(db_dir: Path, resume_id: str, collection: str, record: dic
     if not isinstance(records, list):
         raise ValueError(f"Unknown resume collection: {collection}")
     append_unique(records, record, replace)
+    validate_contract(resume, "resume")
     write_json(resume_path(db_dir, resume_id), resume)
 
 
@@ -2793,6 +2958,12 @@ def build_parser() -> argparse.ArgumentParser:
     validate_parser.add_argument("--expected-zip", type=Path, required=True)
     validate_parser.add_argument("--zip-prefix", default="private/cv_app_crud")
 
+    schema_parser = subparsers.add_parser("validate-schema", help="Validate JSON files against public contracts")
+    schema_parser.add_argument(
+        "--schema", choices=sorted(CONTRACT_SCHEMA_FILES), help="Schema name; inferred if omitted"
+    )
+    schema_parser.add_argument("paths", nargs="+", type=Path, help="JSON contract files to validate")
+
     check_evidence_parser = subparsers.add_parser(
         "check-evidence", help="Fast-fail if private a priori Office evidence has changed"
     )
@@ -2842,6 +3013,14 @@ def run(args: argparse.Namespace) -> int:
     if command == "validate":
         validate_against_zip(args.db_dir, args.expected_zip, args.zip_prefix)
         print("Validation passed")
+        return 0
+    if command == "validate-schema":
+        schema_counts: dict[str, int] = {}
+        for path in args.paths:
+            schema_name = validate_contract_file(path, args.schema)
+            schema_counts[schema_name] = schema_counts.get(schema_name, 0) + 1
+        count_summary = ", ".join(f"{count} {schema_name}" for schema_name, count in sorted(schema_counts.items()))
+        print(f"Schema validation passed: {count_summary}")
         return 0
     if command == "check-evidence":
         checked_count = check_evidence_manifest(args.manifest)

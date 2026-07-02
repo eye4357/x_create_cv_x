@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/x_create_cv_x/schemas/resume.schema.json",
+  "title": "x_create_cv_x resume document contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "app_model",
+    "resume",
+    "collections"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "app_model": {
+      "type": "string",
+      "enum": [
+        "resume_document_crud"
+      ]
+    },
+    "resume": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "status",
+        "created_at",
+        "updated_at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "collections": {
+      "type": "object",
+      "required": [
+        "sections",
+        "items"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "kind",
+              "sort_order",
+              "item_ids",
+              "is_visible"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "sort_order": {
+                "type": "integer"
+              },
+              "item_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "is_visible": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "section_id",
+              "kind",
+              "sort_order",
+              "master_record_refs",
+              "text_override",
+              "formatting",
+              "is_visible"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "section_id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "sort_order": {
+                "type": "integer"
+              },
+              "master_record_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "text_override": {
+                "type": "string"
+              },
+              "formatting": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "block_style": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "alignment": {
+                    "type": "string"
+                  },
+                  "spacing": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "indent": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "tab_stops": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "numbering": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                      "level": {
+                        "type": "string"
+                      },
+                      "num_id": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "runs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true,
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "tab": {
+                          "type": "boolean"
+                        },
+                        "bold": {
+                          "type": "boolean"
+                        },
+                        "italic": {
+                          "type": "boolean"
+                        },
+                        "underline": {
+                          "type": "boolean"
+                        },
+                        "font": {
+                          "type": "string"
+                        },
+                        "size": {
+                          "type": "string"
+                        },
+                        "color": {
+                          "type": "string"
+                        },
+                        "link": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "is_visible": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "office_layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "document": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

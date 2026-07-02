@@ -38,6 +38,12 @@ python .\x_create_cv_factory_x.py add-resume-section --db-dir $db --resume-id re
 
 The low-level `--json` and `--json-base64` inputs remain available as escape hatches, but the preferred surface is the typed command flags above.
 
+Validate generated JSON against the public contract schemas:
+
+```powershell
+python .\x_create_cv_factory_x.py validate-schema data\private\cv_factory_output\master_profile.json data\private\cv_factory_output\resume_2023.json
+```
+
 ## Public Tests And Fake Data
 
 CI and local public validation use only synthetic data from `tests/fixtures/`. The fake fixture proves the schema and CLI workflow without exposing the private CV.
@@ -109,6 +115,7 @@ python -m py_compile .\x_create_cv_factory_x.py
 The repository includes:
 
 - `pyproject.toml` for project metadata, pytest discovery, Ruff rules, Black formatting, and strict mypy settings.
+- `schemas/` with the public JSON Schema contracts for master profile, resume, workbook layout, and document layout JSON.
 - `.vscode/settings.json` with Pylance strict type checking and pytest discovery.
 - `.github/workflows/ci.yml` to run tests, Ruff, Black, and mypy on every push and pull request.
 - Unit tests that rebuild fake CV JSON and validate zip comparison behavior without private data.

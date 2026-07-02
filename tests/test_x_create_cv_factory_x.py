@@ -222,6 +222,7 @@ def test_fake_seed_rebuilds_master_and_resume_json(tmp_path: Path) -> None:
     build_fake_database(tmp_path)
 
     master = read_json(tmp_path / app.MASTER_FILE)
+    app.validate_contract(master, "master_profile")
     assert master["schema_version"] == app.SCHEMA_VERSION
     assert master["app_model"] == app.MASTER_APP_MODEL
     assert master["collections"]["people"][0]["display_name"] == "Ada Example"
@@ -229,10 +230,42 @@ def test_fake_seed_rebuilds_master_and_resume_json(tmp_path: Path) -> None:
     assert master["collections"]["jobs"][0]["project_ids"] == ["project_fake"]
 
     resume = read_json(tmp_path / "resume_2023.json")
+    app.validate_contract(resume, "resume")
     assert resume["schema_version"] == app.SCHEMA_VERSION
     assert resume["app_model"] == app.RESUME_APP_MODEL
     assert resume["collections"]["sections"][0]["item_ids"] == ["item_summary"]
     assert resume["collections"]["items"][0]["master_record_refs"] == ["text_fake_summary"]
+
+
+def test_cli_validate_schema_accepts_generated_fake_json(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    build_fake_database(tmp_path)
+
+    assert app.main(["validate-schema", str(tmp_path / app.MASTER_FILE), str(tmp_path / "resume_2023.json")]) == 0
+
+    assert "Schema validation passed: 1 master_profile, 1 resume" in capsys.readouterr().out
+
+
+def test_schema_validation_reports_contract_path() -> None:
+    invalid_resume = app.empty_resume(
+        {
+            "id": "resume_invalid",
+            "label": "Invalid Resume",
+            "status": "draft",
+            "created_at": "2026-07-02T00:00:00Z",
+            "updated_at": "2026-07-02T00:00:00Z",
+        }
+    )
+    invalid_resume["collections"]["sections"].append(
+        {"id": "section_invalid", "title": "Broken", "kind": "summary", "sort_order": "1", "item_ids": []}
+    )
+
+    with pytest.raises(ValueError, match=r"\$\.collections\.sections\[0\]\.sort_order"):
+        app.validate_contract(invalid_resume, "resume")
+
+
+def test_layout_contract_schemas_accept_default_layouts() -> None:
+    app.validate_contract(app.default_workbook_layout(), "workbook_layout")
+    app.validate_contract(app.default_document_layout("resume_2017_a_posteriori.docx"), "document_layout")
 
 
 def test_validate_against_zip_passes_for_fake_database(tmp_path: Path) -> None:
@@ -600,29 +633,50 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
     script_dir.mkdir(parents=True)
     expected_json_dir.mkdir(parents=True)
     evidence_file.write_bytes(b"fake office package")
+    master_contract = app.empty_master(
+        {
+            "id": "profile_fake",
+            "person_id": "person_fake",
+            "label": "Fake Golden Profile",
+            "created_at": "2026-07-01T00:00:00Z",
+            "updated_at": "2026-07-01T00:00:00Z",
+        }
+    )
+    resume_contracts = {
+        resume_id: app.empty_resume(
+            {
+                "id": resume_id,
+                "label": f"Fake {resume_id}",
+                "status": "active",
+                "created_at": "2026-07-01T00:00:00Z",
+                "updated_at": "2026-07-01T00:00:00Z",
+            }
+        )
+        for resume_id in ["resume_2017", "resume_2023", "resume_2024"]
+    }
     expected_json = {
-        "master_profile.json": ('{"file":"master"}\n', "master_profile_a_posteriori.json"),
-        "resume_2017.json": ('{"file":"resume_2017"}\n', "resume_2017_a_posteriori.json"),
-        "resume_2023.json": ('{"file":"resume_2023"}\n', "resume_2023_a_posteriori.json"),
-        "resume_2024.json": ('{"file":"resume_2024"}\n', "resume_2024_a_posteriori.json"),
+        "master_profile.json": (master_contract, "master_profile_a_posteriori.json"),
+        "resume_2017.json": (resume_contracts["resume_2017"], "resume_2017_a_posteriori.json"),
+        "resume_2023.json": (resume_contracts["resume_2023"], "resume_2023_a_posteriori.json"),
+        "resume_2024.json": (resume_contracts["resume_2024"], "resume_2024_a_posteriori.json"),
     }
     script_outputs = [
-        ("01_build_master_data.py", "master_profile.json", '{"file":"master"}'),
-        ("02_build_old_resume.py", "resume_2017.json", '{"file":"resume_2017"}'),
-        ("03_build_new_resume.py", "resume_2023.json", '{"file":"resume_2023"}'),
-        ("04_build_current_resume.py", "resume_2024.json", '{"file":"resume_2024"}'),
+        ("01_build_master_data.py", "master_profile.json", master_contract),
+        ("02_build_old_resume.py", "resume_2017.json", resume_contracts["resume_2017"]),
+        ("03_build_new_resume.py", "resume_2023.json", resume_contracts["resume_2023"]),
+        ("04_build_current_resume.py", "resume_2024.json", resume_contracts["resume_2024"]),
     ]
     for script_name, output_name, output_json in script_outputs:
         (script_dir / script_name).write_text(
             "from pathlib import Path\n"
             "import os\n"
+            "import x_create_cv_factory_x as app\n"
             "out = Path(os.environ['CV_FACTORY_DB_DIR'])\n"
-            "out.mkdir(parents=True, exist_ok=True)\n"
-            f"(out / {output_name!r}).write_text({output_json!r} + '\\n', encoding='utf-8')\n",
+            f"app.write_json(out / {output_name!r}, {output_json!r})\n",
             encoding="utf-8",
         )
     for _generated_name, (content, expected_name) in expected_json.items():
-        (expected_json_dir / expected_name).write_text(content, encoding="utf-8")
+        app.write_json(expected_json_dir / expected_name, content)
     generated_office_count, report_count = app.write_golden_office_outputs(evidence_dir, write_report=False)
     assert generated_office_count == 4
     assert report_count == 0

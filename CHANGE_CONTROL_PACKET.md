@@ -15,6 +15,10 @@ Establish the next controlled development version for the side-by-side private g
 - `x_create_cv_factory_x.py`
 - `README.md`
 - `WORLD_CLASS_CV_GLIDEPATH.md`
+- `schemas/master_profile.schema.json`
+- `schemas/resume.schema.json`
+- `schemas/workbook_layout.schema.json`
+- `schemas/document_layout.schema.json`
 - `CV_OFFICE_REGENERATION_PLAN.md`
 - `ONLINE_SERVICE_STRATEGY.md`
 - `CHANGELOG.md`
@@ -60,6 +64,9 @@ Establish the next controlled development version for the side-by-side private g
 - Added non-sensitive structural Office metrics to the private comparison report.
 - Added `WORLD_CLASS_CV_GLIDEPATH.md` as the public versioned workplan from the current `0.0.2` checkpoint through a stable `1.0.0` CV compiler baseline.
 - Updated `CV_OFFICE_REGENERATION_PLAN.md` to include the current 2024 resume as the fourth golden source.
+- Added public JSON Schema contracts for master profile, resume, workbook layout, and document layout JSON.
+- Added dependency-free schema validation for generated master/resume JSON and private golden JSON checks.
+- Added `validate-schema` as the public CLI surface for checking schema-backed JSON contracts.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.
 
@@ -67,6 +74,7 @@ Establish the next controlled development version for the side-by-side private g
 
 - Run `python .\x_create_cv_factory_x.py --version`.
 - Run `python .\x_create_cv_factory_x.py --help`.
+- Run `python .\x_create_cv_factory_x.py validate-schema <json-files>` for generated master/resume JSON contract checks.
 - Run `python -m py_compile .\x_create_cv_factory_x.py`.
 - Run `python -m pytest`.
 - Run `ruff check .`.

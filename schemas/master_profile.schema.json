@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/x_create_cv_x/schemas/master_profile.schema.json",
+  "title": "x_create_cv_x master profile contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "app_model",
+    "profile",
+    "collections"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "app_model": {
+      "type": "string",
+      "enum": [
+        "master_profile_crud"
+      ]
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "id",
+        "person_id",
+        "label",
+        "created_at",
+        "updated_at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "person_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "collections": {
+      "type": "object",
+      "required": [
+        "people",
+        "contact_methods",
+        "addresses",
+        "jobs",
+        "achievements",
+        "projects",
+        "highlights",
+        "standards",
+        "education",
+        "certifications",
+        "patents",
+        "publications",
+        "lectures",
+        "residences",
+        "skills",
+        "text_blocks"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "people": {
+          "$comment": "All master collections are arrays of app-native records. Individual collections may add fields over time, but records must keep stable ids.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "contact_methods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "achievements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "highlights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "standards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "education": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "patents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "publications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "lectures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "residences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "text_blocks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "office_layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "workbook": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
