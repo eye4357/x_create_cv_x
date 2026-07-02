@@ -100,6 +100,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert optional DOCX package part XML content without private data.
 - Extended public fake Office tests to assert DOCX paragraph property binding without private data.
 - Extended public fake Office tests to assert DOCX tab run and following text adjacency without private data.
+- Extended public fake Office tests to assert DOCX table cell content binding without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Extended public fake Office tests to assert external hyperlink relationship conformance without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose paragraph style, alignment, spacing, indentation, and tab-stop counts.
