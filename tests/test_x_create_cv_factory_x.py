@@ -752,6 +752,12 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         "bgFillStyleLst": 3,
     }
     assert '<w:hyperlink r:id="rId101" w:history="1">' in document_xml
+    assert (
+        '<w:hyperlink r:id="rId101" w:history="1"><w:r><w:rPr>'
+        '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>'
+        '<w:i/><w:color w:val="0563C1"/><w:sz w:val="22"/></w:rPr>'
+        '<w:t xml:space="preserve">Inline cell</w:t></w:r></w:hyperlink>' in document_xml
+    )
     assert "<w:tab/>" in document_xml
     assert '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>' in document_xml
     assert '<w:color w:val="0563C1"/>' in document_xml

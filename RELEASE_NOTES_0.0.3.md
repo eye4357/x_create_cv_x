@@ -46,6 +46,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX section page margin XML.
 - Added public fake-fixture coverage for DOCX run property and text binding.
 - Added public fake-fixture coverage for DOCX numbering level and numbering ID binding.
+- Added public fake-fixture coverage for DOCX hyperlink relationship and formatted run binding.
 - Added public fake-fixture coverage for XLSX package part and relationship audit metrics.
 - Added public fake-fixture coverage for XLSX page-margin audit metrics.
 - Added public fake-fixture coverage for XLSX row, column, styled-cell, and column-width report metrics.
