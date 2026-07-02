@@ -10,12 +10,14 @@ Status: Development checkpoint, not a public production release
 ## Highlights
 
 - Added schema-backed per-sheet XLSX `freeze_header`, `auto_filter`, and `column_widths` controls.
+- Added schema-backed XLSX column `value_type` controls for string, number, and boolean cell rendering.
 - Made generated XLSX worksheets honor sheet-level controls over workbook defaults.
 - Expanded XLSX structure summaries with freeze-pane, autofilter, and column-width metadata.
+- Expanded XLSX audit metrics with cell-type counts.
 - Expanded the Markdown Office audit report to show generated XLSX freeze-pane and autofilter state.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Expanded DOCX audit metrics with relationship counts and external hyperlink relationship counts.
-- Added public fake-fixture coverage for the new workbook conformance controls.
+- Added public fake-fixture coverage for the new workbook conformance controls, including typed number and boolean cells.
 - Added public fake-fixture coverage for external hyperlink relationship conformance.
 
 ## Validation

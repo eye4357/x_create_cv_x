@@ -179,6 +179,11 @@ def first_worksheet_summary(path: Path) -> dict[str, Any]:
         return app.xlsx_sheet_summary(workbook, "xl/worksheets/sheet1.xml", [])
 
 
+def first_worksheet_xml(path: Path) -> str:
+    with zipfile.ZipFile(path) as workbook:
+        return workbook.read("xl/worksheets/sheet1.xml").decode("utf-8")
+
+
 def docx_document_xml(path: Path) -> str:
     with zipfile.ZipFile(path) as document:
         return document.read("word/document.xml").decode("utf-8")
@@ -365,6 +370,8 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
                             {"field": "id", "header": "ID"},
                             {"field": "label", "header": "Label"},
                             {"field": "highlights", "header": "Highlights"},
+                            {"field": "score", "header": "Score", "value_type": "number"},
+                            {"field": "is_current", "header": "Current", "value_type": "boolean"},
                         ],
                     }
                 ],
@@ -373,7 +380,14 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "collections": {
             "highlights": [
                 {"id": "highlight_000", "label": "Highlights", "highlights": ""},
-                {"id": "highlight_001", "label": "One", "a": "raw value", "highlights": "Structured value"},
+                {
+                    "id": "highlight_001",
+                    "label": "One",
+                    "a": "raw value",
+                    "highlights": "Structured value",
+                    "score": "98.5",
+                    "is_current": True,
+                },
             ]
         },
     }
@@ -382,8 +396,8 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     app.write_master_workbook(master, workbook_path)
 
     assert workbook_sheet_names(workbook_path) == ["Highlights"]
-    assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights"]
-    assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value"]
+    assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights", "Score", "Current"]
+    assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value", "", ""]
     sheet_summary = first_worksheet_summary(workbook_path)
     assert sheet_summary["freeze_pane"] == {
         "ySplit": "1",
@@ -391,8 +405,12 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "activePane": "bottomLeft",
         "state": "frozen",
     }
-    assert sheet_summary["auto_filter_ref"] == "A1:C2"
-    assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25"]
+    assert sheet_summary["auto_filter_ref"] == "A1:E2"
+    assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25", "10.00", "10.00"]
+    assert sheet_summary["cell_type_counts"] == {"inlineStr": 8, "number": 1, "b": 1}
+    worksheet_xml = first_worksheet_xml(workbook_path)
+    assert '<c r="D2" s="2"><v>98.5</v></c>' in worksheet_xml
+    assert '<c r="E2" s="2" t="b"><v>1</v></c>' in worksheet_xml
 
     resume = {
         "office_layout": {

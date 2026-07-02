@@ -80,6 +80,14 @@
                 },
                 "header": {
                   "type": "string"
+                },
+                "value_type": {
+                  "type": "string",
+                  "enum": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
                 }
               }
             }

@@ -679,9 +679,9 @@ def workbook_style_options(layout: dict[str, Any]) -> dict[str, Any]:
     return styles if isinstance(styles, dict) else {}
 
 
-def workbook_sheet_columns(sheet: dict[str, Any]) -> list[tuple[str, str]]:
+def workbook_sheet_columns(sheet: dict[str, Any]) -> list[tuple[str, str, str]]:
     columns = sheet.get("columns")
-    column_defs: list[tuple[str, str]] = []
+    column_defs: list[tuple[str, str, str]] = []
     if isinstance(columns, list):
         for column in columns:
             if not isinstance(column, dict):
@@ -690,7 +690,10 @@ def workbook_sheet_columns(sheet: dict[str, Any]) -> list[tuple[str, str]]:
             if not isinstance(field, str) or not field:
                 continue
             header = scalar_text(column.get("header")) or header_label(field)
-            column_defs.append((field, header))
+            value_type = scalar_text(column.get("value_type"))
+            if value_type not in {"string", "number", "boolean"}:
+                value_type = "string"
+            column_defs.append((field, header, value_type))
     return column_defs
 
 
@@ -699,17 +702,19 @@ def placeholder_collection_label(collection_name: str) -> str:
 
 
 def is_placeholder_workbook_record(
-    record: dict[str, Any], columns: list[tuple[str, str]], collection_name: str
+    record: dict[str, Any], columns: list[tuple[str, str, str]], collection_name: str
 ) -> bool:
     label = scalar_text(record.get("label"))
     if label != placeholder_collection_label(collection_name):
         return False
-    return all(field in {"id", "label"} or not scalar_text(record.get(field)) for field, _header in columns)
+    return all(
+        field in {"id", "label"} or not scalar_text(record.get(field)) for field, _header, _value_type in columns
+    )
 
 
 def sheet_rows(master: dict[str, Any], sheet: dict[str, Any]) -> list[list[str]]:
     columns = workbook_sheet_columns(sheet)
-    rows = [[header for _field, header in columns]]
+    rows = [[header for _field, header, _value_type in columns]]
     collections = master.get("collections")
     collection_name = sheet.get("collection")
     if not isinstance(collection_name, str) or not collection_name:
@@ -723,7 +728,7 @@ def sheet_rows(master: dict[str, Any], sheet: dict[str, Any]) -> list[list[str]]
                 record, columns, collection_name
             ):
                 continue
-            rows.append([scalar_text(record.get(field)) for field, _header in columns])
+            rows.append([scalar_text(record.get(field)) for field, _header, _value_type in columns])
     return rows
 
 
@@ -779,6 +784,46 @@ def sheet_bool(sheet: dict[str, Any], styles: dict[str, Any], key: str, default:
     return value if isinstance(value, bool) else style_bool(styles, key, default)
 
 
+def workbook_column_value_types(sheet: dict[str, Any]) -> list[str]:
+    return [value_type for _field, _header, value_type in workbook_sheet_columns(sheet)]
+
+
+def xlsx_number_value(value: str) -> str | None:
+    stripped = value.strip()
+    if not stripped:
+        return None
+    try:
+        number = float(stripped)
+    except ValueError:
+        return None
+    if number != number or number in {float("inf"), float("-inf")}:
+        return None
+    return stripped
+
+
+def xlsx_boolean_value(value: str) -> str | None:
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "yes"}:
+        return "1"
+    if normalized in {"0", "false", "no"}:
+        return "0"
+    return None
+
+
+def xlsx_cell_xml(cell_ref: str, style_id: str, value: str, value_type: str) -> str:
+    if value_type == "number":
+        number_value = xlsx_number_value(value)
+        if number_value is not None:
+            return f'<c r="{cell_ref}" s="{style_id}"><v>{xml_text(number_value)}</v></c>'
+    if value_type == "boolean":
+        boolean_value = xlsx_boolean_value(value)
+        if boolean_value is not None:
+            return f'<c r="{cell_ref}" s="{style_id}" t="b"><v>{boolean_value}</v></c>'
+    return (
+        f'<c r="{cell_ref}" s="{style_id}" t="inlineStr"><is><t xml:space="preserve">' f"{xml_text(value)}</t></is></c>"
+    )
+
+
 def style_text(styles: dict[str, Any], key: str, default: str) -> str:
     return scalar_text(styles.get(key)) or default
 
@@ -798,16 +843,17 @@ def workbook_page_margins(styles: dict[str, Any]) -> dict[str, str]:
 
 def worksheet_xml(rows: list[list[str]], layout: dict[str, Any], sheet: dict[str, Any]) -> str:
     styles = workbook_style_options(layout)
+    value_types = workbook_column_value_types(sheet)
     rendered_rows: list[str] = []
     for row_index, row in enumerate(rows, start=1):
         cells: list[str] = []
         for column_index, value in enumerate(row, start=1):
             cell_ref = f"{column_name(column_index)}{row_index}"
             style_id = "1" if row_index == 1 else "2"
-            cells.append(
-                f'<c r="{cell_ref}" s="{style_id}" t="inlineStr"><is><t xml:space="preserve">'
-                f"{xml_text(value)}</t></is></c>"
-            )
+            value_type = "string"
+            if row_index != 1 and column_index <= len(value_types):
+                value_type = value_types[column_index - 1]
+            cells.append(xlsx_cell_xml(cell_ref, style_id, value, value_type))
         rendered_rows.append(f'<row r="{row_index}">{"".join(cells)}</row>')
     widths = "".join(
         f'<col min="{index}" max="{index}" width="{width:.2f}" customWidth="1"/>'
@@ -2287,11 +2333,14 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
     rows = root.findall(".//s:row", namespace)
     max_column = 0
     styled_cell_count = 0
+    cell_type_counts: dict[str, int] = {}
     for row in rows:
         for cell in row.findall("s:c", namespace):
             max_column = max(max_column, xlsx_column_index(cell.attrib.get("r", "")))
             if "s" in cell.attrib:
                 styled_cell_count += 1
+            cell_type = cell.attrib.get("t", "number")
+            cell_type_counts[cell_type] = cell_type_counts.get(cell_type, 0) + 1
     header_row = rows[0] if rows else None
     headers = (
         []
@@ -2305,6 +2354,7 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
         "column_count": max_column,
         "headers": headers,
         "styled_cell_count": styled_cell_count,
+        "cell_type_counts": cell_type_counts,
         "auto_filter_ref": auto_filter.attrib.get("ref", "") if auto_filter is not None else "",
         "freeze_pane": dict(pane.attrib) if pane is not None else {},
         "column_widths": [col.attrib.get("width", "") for col in root.findall("s:cols/s:col", namespace)],
@@ -2556,8 +2606,8 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
             lines.extend(
                 [
                     "| Sheet | Source Dimension | Generated Dimension | Generated Freeze Pane | "
-                    "Generated Filter | Source Headers | Generated Headers |",
-                    "| --- | --- | --- | --- | --- | --- | --- |",
+                    "Generated Filter | Generated Cell Types | Source Headers | Generated Headers |",
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
                 ]
             )
             for index, generated_sheet in enumerate(generated_sheets):
@@ -2572,6 +2622,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                     f"{markdown_cell(generated_sheet.get('dimension', ''))} | "
                     f"{markdown_cell(generated_sheet.get('freeze_pane', {}))} | "
                     f"{markdown_cell(generated_sheet.get('auto_filter_ref', ''))} | "
+                    f"{markdown_cell(generated_sheet.get('cell_type_counts', {}))} | "
                     f"{markdown_cell(source_sheet.get('headers', []))} | "
                     f"{markdown_cell(generated_sheet.get('headers', []))} |"
                 )
