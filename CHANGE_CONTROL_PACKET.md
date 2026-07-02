@@ -50,6 +50,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Added XLSX source worksheet-path audit report metrics.
 - Added XLSX source row-count and column-count audit report metrics.
 - Added XLSX source styled-cell-count audit report metrics.
+- Added XLSX source cell-type-count audit report metrics.
 - Expanded XLSX structure summaries and Markdown audit reports to expose generated freeze-pane and autofilter state.
 - Expanded XLSX structure summaries and Markdown audit reports to expose cell-type counts.
 - Expanded XLSX structure summaries and Markdown audit reports to expose style color and cell-format details.
@@ -61,6 +62,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Expanded XLSX Markdown audit reports to expose source worksheet paths alongside generated worksheet paths.
 - Expanded XLSX Markdown audit reports to expose source row and column counts alongside generated counts.
 - Expanded XLSX Markdown audit reports to expose source styled-cell counts alongside generated counts.
+- Expanded XLSX Markdown audit reports to expose source cell-type counts alongside generated counts.
 - Extended public fake Office tests to assert workbook conformance controls without private data.
 - Extended public fake Office tests to assert XLSX package relationship metrics without private data.
 - Extended public fake Office tests to assert XLSX page-margin metrics without private data.
@@ -70,6 +72,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert XLSX source worksheet-path metrics without private data.
 - Extended public fake Office tests to assert XLSX source row-count and column-count metrics without private data.
 - Extended public fake Office tests to assert XLSX source styled-cell-count metrics without private data.
+- Extended public fake Office tests to assert XLSX source cell-type-count metrics without private data.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
 - Extended public fake Office tests to assert DOCX package, body-shape, font-table, and used-style metrics without private data.

@@ -978,6 +978,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| Sheet | Source Path | Generated Path |" in audit_text
     assert "Source Rows | Generated Rows | Source Columns | Generated Columns" in audit_text
     assert "Source Styled Cells | Generated Styled Cells" in audit_text
+    assert "Source Cell Types | Generated Cell Types" in audit_text
 
 
 def test_audit_policy_can_accept_explicit_drift() -> None:

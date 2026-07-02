@@ -2939,10 +2939,10 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                     "| Sheet | Source Path | Generated Path | Source Dimension | Generated Dimension | Source Rows | "
                     "Generated Rows | Source Columns | Generated Columns | Source Styled Cells | "
                     "Generated Styled Cells | Generated Freeze Pane | Generated Filter | "
-                    "Generated Page Margins | Generated Column Widths | Generated Cell Types | Source Headers | "
-                    "Generated Headers |",
+                    "Generated Page Margins | Generated Column Widths | Source Cell Types | Generated Cell Types | "
+                    "Source Headers | Generated Headers |",
                     "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | "
-                    "--- | --- | --- |",
+                    "--- | --- | --- | --- |",
                 ]
             )
             for index, generated_sheet in enumerate(generated_sheets):
@@ -2967,6 +2967,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                     f"{markdown_cell(generated_sheet.get('auto_filter_ref', ''))} | "
                     f"{markdown_cell(generated_sheet.get('page_margins', {}))} | "
                     f"{markdown_cell(generated_sheet.get('column_widths', []))} | "
+                    f"{markdown_cell(source_sheet.get('cell_type_counts', {}))} | "
                     f"{markdown_cell(generated_sheet.get('cell_type_counts', {}))} | "
                     f"{markdown_cell(source_sheet.get('headers', []))} | "
                     f"{markdown_cell(generated_sheet.get('headers', []))} |"
