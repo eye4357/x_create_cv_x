@@ -462,6 +462,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     document_path = tmp_path / "layout_contract.docx"
     app.write_resume_document(master, resume, document_path)
     document_xml = docx_document_xml(document_path)
+    structure_summary = app.docx_structure_summary(document_path)
 
     assert '<w:pStyle w:val="Heading1"/>' in document_xml
     assert '<w:numId w:val="7"/>' in document_xml
@@ -469,6 +470,12 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert "<w:b/>" in document_xml
     assert "<w:i/>" in document_xml
     assert '<w:u w:val="single"/>' in document_xml
+    assert structure_summary["numbered_paragraph_count"] == 1
+    assert structure_summary["numbering_abstract_count"] == 2
+    assert structure_summary["numbering_num_count"] == 2
+    assert structure_summary["numbering_level_count"] == 4
+    assert structure_summary["numbering_num_ids"] == ["1", "7"]
+    assert structure_summary["numbering_level_fonts"] == ["Symbol"]
 
 
 def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> None:

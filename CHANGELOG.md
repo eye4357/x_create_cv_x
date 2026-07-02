@@ -9,6 +9,7 @@
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Added DOCX paragraph property audit metrics for style, alignment, spacing, indentation, and tab stops.
 - Added DOCX table geometry audit metrics for grid widths and cell widths.
+- Added DOCX numbering definition audit metrics for abstract IDs, num IDs, levels, bullet text patterns, and fonts.
 
 ### Changed
 
@@ -18,6 +19,7 @@
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.
+- Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.
 
 ## 0.0.2 - 2026-07-01
 

@@ -2191,6 +2191,7 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         document = ET.fromstring(archive.read("word/document.xml"))
         relationships = ET.fromstring(archive.read("word/_rels/document.xml.rels"))
         font_table = ET.fromstring(archive.read("word/fontTable.xml")) if "word/fontTable.xml" in part_names else None
+        numbering = ET.fromstring(archive.read("word/numbering.xml")) if "word/numbering.xml" in part_names else None
     tables = document.findall(".//w:tbl", namespace)
     paragraphs = document.findall(".//w:p", namespace)
     runs = document.findall(".//w:r", namespace)
@@ -2279,6 +2280,32 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
                 cell_widths.append(width.attrib.get(f"{{{WORD_NS}}}w", "") if width is not None else "")
             table_rows.append(cell_widths)
         table_cell_widths.append(table_rows)
+    numbering_abstract_ids: list[str] = []
+    numbering_num_ids: list[str] = []
+    numbering_level_texts: set[str] = set()
+    numbering_level_fonts: set[str] = set()
+    numbering_level_count = 0
+    if numbering is not None:
+        for abstract_num in numbering.findall("w:abstractNum", namespace):
+            abstract_num_id = abstract_num.attrib.get(f"{{{WORD_NS}}}abstractNumId")
+            if abstract_num_id:
+                numbering_abstract_ids.append(abstract_num_id)
+            for level in abstract_num.findall("w:lvl", namespace):
+                numbering_level_count += 1
+                level_text = level.find("w:lvlText", namespace)
+                if level_text is not None:
+                    text_value = level_text.attrib.get(f"{{{WORD_NS}}}val")
+                    if text_value:
+                        numbering_level_texts.add(text_value)
+                fonts = level.find("w:rPr/w:rFonts", namespace)
+                if fonts is not None:
+                    font_value = fonts.attrib.get(f"{{{WORD_NS}}}ascii") or fonts.attrib.get(f"{{{WORD_NS}}}hAnsi")
+                    if font_value:
+                        numbering_level_fonts.add(font_value)
+        for num in numbering.findall("w:num", namespace):
+            num_id = num.attrib.get(f"{{{WORD_NS}}}numId")
+            if num_id:
+                numbering_num_ids.append(num_id)
     styles = sorted(
         {
             style.attrib[f"{{{WORD_NS}}}val"]
@@ -2316,6 +2343,13 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "table_grid_widths": table_grid_widths,
         "table_cell_widths": table_cell_widths,
         "numbered_paragraph_count": len(document.findall(".//w:numPr", namespace)),
+        "numbering_abstract_count": len(numbering_abstract_ids),
+        "numbering_num_count": len(numbering_num_ids),
+        "numbering_level_count": numbering_level_count,
+        "numbering_abstract_ids": numbering_abstract_ids,
+        "numbering_num_ids": numbering_num_ids,
+        "numbering_level_texts": sorted(numbering_level_texts),
+        "numbering_level_fonts": sorted(numbering_level_fonts),
         "font_names": font_names,
         "styles": styles,
     }
@@ -2630,6 +2664,13 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         "table_grid_widths",
         "table_cell_widths",
         "numbered_paragraph_count",
+        "numbering_abstract_count",
+        "numbering_num_count",
+        "numbering_level_count",
+        "numbering_abstract_ids",
+        "numbering_num_ids",
+        "numbering_level_texts",
+        "numbering_level_fonts",
     ]
     for comparison in comparisons:
         generated = comparison["generated"]
