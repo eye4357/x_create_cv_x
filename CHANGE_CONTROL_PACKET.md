@@ -86,6 +86,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
 - Extended public fake Office tests to assert DOCX package, body-shape, font-table, and used-style metrics without private data.
 - Extended public fake Office tests to assert XLSX style font-name, cell format count, and cell style count metrics without private data.
+- Extended public fake Office tests to assert XLSX default, header, and body cell format attributes without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Extended public fake Office tests to assert external hyperlink relationship conformance without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose paragraph style, alignment, spacing, indentation, and tab-stop counts.
