@@ -2916,6 +2916,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
             generated,
             source,
             [
+                "part_names",
                 "part_count",
                 "worksheet_part_count",
                 "has_core_properties",
@@ -2926,6 +2927,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                 "workbook_relationship_type_counts",
                 "workbook_relationship_targets",
                 "sheet_count",
+                "sheet_names",
                 "styles",
             ],
         )

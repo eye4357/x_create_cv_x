@@ -434,6 +434,16 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25", "10.00", "10.00"]
     assert sheet_summary["cell_type_counts"] == {"inlineStr": 8, "number": 1, "b": 1}
     workbook_summary = app.xlsx_structure_summary(workbook_path)
+    assert workbook_summary["part_names"] == [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "docProps/app.xml",
+        "docProps/core.xml",
+        "xl/_rels/workbook.xml.rels",
+        "xl/styles.xml",
+        "xl/workbook.xml",
+        "xl/worksheets/sheet1.xml",
+    ]
     assert workbook_summary["part_count"] == 8
     assert workbook_summary["worksheet_part_count"] == 1
     assert workbook_summary["has_core_properties"] is True
@@ -456,6 +466,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "rId1": "xl/worksheets/sheet1.xml",
         "rId2": "xl/styles.xml",
     }
+    assert workbook_summary["sheet_names"] == ["Highlights"]
     style_summary = workbook_summary["styles"]
     assert style_summary["font_count"] == 3
     assert style_summary["fill_count"] == 4

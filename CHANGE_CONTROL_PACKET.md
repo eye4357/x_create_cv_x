@@ -45,16 +45,19 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Added XLSX package audit metrics for parts, content type overrides, root relationships, and workbook relationships.
 - Added XLSX worksheet page-margin audit metrics from the schema-backed workbook style contract.
 - Added XLSX sheet row, column, styled-cell, and column-width audit report metrics.
+- Added XLSX package part-name and workbook sheet-name audit report metrics.
 - Expanded XLSX structure summaries and Markdown audit reports to expose generated freeze-pane and autofilter state.
 - Expanded XLSX structure summaries and Markdown audit reports to expose cell-type counts.
 - Expanded XLSX structure summaries and Markdown audit reports to expose style color and cell-format details.
 - Expanded XLSX structure summaries and Markdown audit reports to expose package and relationship details.
 - Expanded XLSX sheet summaries and Markdown audit reports to expose generated worksheet page margins.
 - Expanded XLSX Markdown audit reports to expose generated row counts, column counts, styled-cell counts, and column widths.
+- Expanded XLSX Markdown audit reports to expose generated package part names and workbook sheet names.
 - Extended public fake Office tests to assert workbook conformance controls without private data.
 - Extended public fake Office tests to assert XLSX package relationship metrics without private data.
 - Extended public fake Office tests to assert XLSX page-margin metrics without private data.
 - Extended public fake Office tests to assert XLSX row, column, styled-cell, and column-width metrics without private data.
+- Extended public fake Office tests to assert XLSX package part-name and sheet-name metrics without private data.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
 - Extended public fake Office tests to assert DOCX package, body-shape, font-table, and used-style metrics without private data.

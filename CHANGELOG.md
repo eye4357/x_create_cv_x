@@ -10,6 +10,7 @@
 - Added XLSX package audit metrics for parts, content types, root relationships, and workbook relationships.
 - Added XLSX worksheet page-margin audit metrics from the schema-backed workbook style contract.
 - Added XLSX sheet row, column, styled-cell, and column-width audit report metrics.
+- Added XLSX package part-name and workbook sheet-name audit report metrics.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Added DOCX paragraph property audit metrics for style, alignment, spacing, indentation, and tab stops.
 - Added DOCX table geometry audit metrics for grid widths and cell widths.
@@ -27,6 +28,7 @@
 - Expanded XLSX structure summaries and Markdown audit reports to expose package and relationship details.
 - Expanded XLSX sheet summaries and Markdown audit reports to expose generated worksheet page margins.
 - Expanded XLSX Markdown audit reports to expose generated row counts, column counts, styled-cell counts, and column widths.
+- Expanded XLSX Markdown audit reports to expose generated package part names and workbook sheet names.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
