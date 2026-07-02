@@ -52,7 +52,10 @@ Establish the next controlled development version for the side-by-side private g
 - Added DOCX flow layout support for table blocks plus optional header/footer, theme, font table, and web settings package parts.
 - Hardened generated DOCX theme packages for stricter importers such as Google Drive.
 - Added DOCX contract support for hyperlinks, tabs, run font/size/color/style, footnotes/endnotes/custom XML package parts, and explicit font tables.
+- Added DOCX contract support for paragraph alignment, spacing, indentation, tab stops, page size, and optional core/extended package properties.
+- Added the fourth golden resume path for the current 2024 private source resume.
 - Expanded DOCX structure reporting to include relationship types, body child counts, hyperlinks, tabs, package scaffolding, and font names.
+- Optimized generated workbook sheets to skip redundant collection placeholder rows while preserving named app-native columns.
 - Added non-sensitive structural Office metrics to the private comparison report.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.

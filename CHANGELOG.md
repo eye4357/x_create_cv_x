@@ -20,6 +20,8 @@
 - Added DOCX header/footer, theme, font table, and web settings package parts driven by the document layout contract.
 - Hardened generated DOCX theme packages for stricter importers such as Google Drive.
 - Added DOCX contract support for hyperlinks, tabs, run font/size/color/style, footnotes/endnotes/custom XML package parts, and explicit font tables.
+- Added DOCX contract support for paragraph alignment, spacing, indentation, tab stops, page size, and optional core/extended package properties.
+- Added the fourth golden resume path for the current 2024 private source resume.
 - Expanded DOCX structure reporting to include relationship types, body child counts, hyperlinks, tabs, package scaffolding, and font names.
 - Added non-sensitive Office structure metrics to the private comparison report.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
@@ -32,6 +34,7 @@
 - Replaced the local archive evidence layout with extracted `_a_priori` DOCX/XLSX files; generated Office files use `_a_posteriori`.
 - Moved the real `_a_priori` Office evidence contract from the public repo's ignored local folder to the private sibling repository `x_create_cv_test_data_x`.
 - Moved private seed scripts, generated JSON, legacy JSON, and the legacy private zip out of the public repo and into `x_create_cv_test_data_x`.
+- Optimized generated workbook sheets to skip redundant collection placeholder rows while preserving named app-native columns.
 
 ### Security
 

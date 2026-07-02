@@ -13,6 +13,7 @@ The project keeps source code, docs, tests, and fake fixtures public while real 
 - `master_profile.json`
 - `resume_2017.json`
 - `resume_2023.json`
+- `resume_2024.json`
 
 The master profile is built with granular CRUD-style commands such as `add-user`, `add-address`, `add-job`, `add-achievement`, `add-patent`, `add-skill`, and `add-residence`. Resume documents are built with `create-resume`, `add-resume-section`, and `add-resume-item`.
 
@@ -49,7 +50,7 @@ python -m pytest
 
 ## Private Golden Evidence
 
-The private Python rebuild scripts live in the side-by-side private repository `x_create_cv_test_data_x` under `evidence/scripts/`. They rebuild the master profile and both resume documents as readable action logs using granular functions such as `add_job(...)`, `add_patent(...)`, `add_resume_section(...)`, and `add_resume_item(...)`.
+The private Python rebuild scripts live in the side-by-side private repository `x_create_cv_test_data_x` under `evidence/scripts/`. They rebuild the master profile and resume documents as readable action logs using granular functions such as `add_job(...)`, `add_patent(...)`, `add_resume_section(...)`, and `add_resume_item(...)`.
 
 The real golden Office evidence lives in the side-by-side private repository `x_create_cv_test_data_x`, under `evidence/source_office/a_priori/`, with an `_a_priori` filename suffix. These are private evidence files, not public fixtures. Future whole-cloth regenerated Office files should use an `_a_posteriori` suffix so original evidence and generated evidence are visually distinct.
 
@@ -73,7 +74,7 @@ Generate the private `_a_posteriori` Office evidence and comparison report from 
 python .\x_create_cv_factory_x.py generate-golden-office
 ```
 
-The generated workbook keeps the nine original spreadsheet sheet names, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`. The generated DOCX files read document margins/styles, document flow, tables, optional package parts, and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
+The generated workbook keeps the nine original spreadsheet sheet names, skips redundant collection placeholder rows, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`. The generated DOCX files read document margins/styles, page size, document flow, tables, paragraph alignment/spacing/indentation/tab stops, optional package parts, and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
 
 The older `validate --expected-zip` command remains available for legacy archive checks, but the active 0.0.2 golden path is `exercise-golden` against `x_create_cv_test_data_x`.
 

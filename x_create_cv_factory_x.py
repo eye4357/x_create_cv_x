@@ -34,21 +34,25 @@ GOLDEN_SCRIPT_FILES = [
     "01_build_master_data.py",
     "02_build_old_resume.py",
     "03_build_new_resume.py",
+    "04_build_current_resume.py",
 ]
 GOLDEN_JSON_EXPECTATIONS = {
     MASTER_FILE: "generated/json/a_posteriori/master_profile_a_posteriori.json",
     "resume_2017.json": "generated/json/a_posteriori/resume_2017_a_posteriori.json",
     "resume_2023.json": "generated/json/a_posteriori/resume_2023_a_posteriori.json",
+    "resume_2024.json": "generated/json/a_posteriori/resume_2024_a_posteriori.json",
 }
 GOLDEN_OFFICE_EXPECTATIONS = {
     "master_profile_a_posteriori.xlsx": "generated/office/a_posteriori/master_profile_a_posteriori.xlsx",
     "resume_2017_a_posteriori.docx": "generated/office/a_posteriori/resume_2017_a_posteriori.docx",
     "resume_2023_a_posteriori.docx": "generated/office/a_posteriori/resume_2023_a_posteriori.docx",
+    "resume_2024_a_posteriori.docx": "generated/office/a_posteriori/resume_2024_a_posteriori.docx",
 }
 GOLDEN_SOURCE_OFFICE = {
     "master_profile_a_posteriori.xlsx": "source_office/a_priori/R_cv_2023_0501_1427_a_priori.xlsx",
     "resume_2017_a_posteriori.docx": "source_office/a_priori/R_cv_2017_1129_0848_a_priori.docx",
     "resume_2023_a_posteriori.docx": "source_office/a_priori/R_cv_2023_0315_2158_a_priori.docx",
+    "resume_2024_a_posteriori.docx": "source_office/a_priori/R_cv_2024_1206_0000_a_priori.docx",
 }
 GOLDEN_OFFICE_REPORT = "reports/a_posteriori_office_comparison.json"
 ZIP_TIMESTAMP = (2026, 7, 1, 0, 0, 0)
@@ -476,6 +480,7 @@ def default_workbook_layout() -> dict[str, Any]:
             {
                 "name": sheet_name,
                 "collection": collection_name,
+                "skip_placeholder_rows": True,
                 "columns": [{"field": field, "header": header_label(field)} for field in fields],
             }
             for sheet_name, collection_name, fields in DEFAULT_WORKBOOK_SHEETS
@@ -488,6 +493,8 @@ def default_document_layout(file_name: str) -> dict[str, Any]:
     return {
         "margins": dict(layout["margins"]),
         "package": {
+            "core_properties": True,
+            "extended_properties": True,
             "theme": True,
             "font_table": True,
             "web_settings": True,
@@ -529,6 +536,19 @@ def workbook_sheet_columns(sheet: dict[str, Any]) -> list[tuple[str, str]]:
     return column_defs
 
 
+def placeholder_collection_label(collection_name: str) -> str:
+    return " ".join(part.capitalize() for part in collection_name.split("_"))
+
+
+def is_placeholder_workbook_record(
+    record: dict[str, Any], columns: list[tuple[str, str]], collection_name: str
+) -> bool:
+    label = scalar_text(record.get("label"))
+    if label != placeholder_collection_label(collection_name):
+        return False
+    return all(field in {"id", "label"} or not scalar_text(record.get(field)) for field, _header in columns)
+
+
 def sheet_rows(master: dict[str, Any], sheet: dict[str, Any]) -> list[list[str]]:
     columns = workbook_sheet_columns(sheet)
     rows = [[header for _field, header in columns]]
@@ -541,6 +561,10 @@ def sheet_rows(master: dict[str, Any], sheet: dict[str, Any]) -> list[list[str]]
         return rows
     for record in records:
         if isinstance(record, dict):
+            if sheet.get("skip_placeholder_rows") is not False and is_placeholder_workbook_record(
+                record, columns, collection_name
+            ):
+                continue
             rows.append([scalar_text(record.get(field)) for field, _header in columns])
     return rows
 
@@ -905,19 +929,57 @@ def formatting_runs(formatting: dict[str, Any]) -> list[dict[str, Any]]:
     return rendered_runs
 
 
+def paragraph_layout_options(value: dict[str, Any]) -> dict[str, Any]:
+    options: dict[str, Any] = {}
+    alignment = scalar_text(value.get("alignment")) or scalar_text(value.get("align"))
+    if alignment:
+        options["alignment"] = alignment
+    spacing = value.get("spacing")
+    if isinstance(spacing, dict):
+        rendered_spacing = {key: scalar_text(item) for key, item in spacing.items() if scalar_text(item)}
+        if rendered_spacing:
+            options["spacing"] = rendered_spacing
+    indent = value.get("indent")
+    if isinstance(indent, dict):
+        rendered_indent = {key: scalar_text(item) for key, item in indent.items() if scalar_text(item)}
+        if rendered_indent:
+            options["indent"] = rendered_indent
+    tab_stops = value.get("tab_stops") or value.get("tabs")
+    if isinstance(tab_stops, list):
+        rendered_tab_stops = [
+            {key: scalar_text(item) for key, item in tab_stop.items() if scalar_text(item)}
+            for tab_stop in tab_stops
+            if isinstance(tab_stop, dict)
+        ]
+        rendered_tab_stops = [tab_stop for tab_stop in rendered_tab_stops if tab_stop]
+        if rendered_tab_stops:
+            options["tab_stops"] = rendered_tab_stops
+    return options
+
+
+def paragraph_contract(
+    *, style: str | None, numbering: dict[str, Any] | None, runs: list[dict[str, Any]], layout: dict[str, Any]
+) -> dict[str, Any]:
+    paragraph: dict[str, Any] = {"style": style, "numbering": numbering, "runs": runs}
+    paragraph.update(paragraph_layout_options(layout))
+    return paragraph
+
+
 def item_paragraphs(item: dict[str, Any], records_by_id: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     formatting = item_formatting(item)
     style = formatting_style(formatting)
     numbering = formatting_numbering(formatting)
     runs = formatting_runs(formatting)
     if runs:
-        return [{"style": style, "numbering": numbering, "runs": runs}]
+        return [paragraph_contract(style=style, numbering=numbering, runs=runs, layout=formatting)]
 
     text = resume_item_text(item, records_by_id)
     paragraphs: list[dict[str, Any]] = []
     for paragraph in text.splitlines() or [text]:
         if paragraph.strip():
-            paragraphs.append({"style": style, "numbering": numbering, "runs": [{"text": paragraph}]})
+            paragraphs.append(
+                paragraph_contract(style=style, numbering=numbering, runs=[{"text": paragraph}], layout=formatting)
+            )
     return paragraphs
 
 
@@ -929,11 +991,11 @@ def layout_paragraphs(value: dict[str, Any]) -> list[dict[str, Any]]:
     numbering = formatting_numbering(value)
     runs = formatting_runs(value)
     if runs:
-        return [{"style": style, "numbering": numbering, "runs": runs}]
+        return [paragraph_contract(style=style, numbering=numbering, runs=runs, layout=value)]
     if value.get("empty") is True:
-        return [{"style": style, "numbering": numbering, "runs": [{"text": ""}]}]
+        return [paragraph_contract(style=style, numbering=numbering, runs=[{"text": ""}], layout=value)]
     text = scalar_text(value.get("text"))
-    return [{"style": style, "numbering": numbering, "runs": [{"text": text}]}] if text else []
+    return [paragraph_contract(style=style, numbering=numbering, runs=[{"text": text}], layout=value)] if text else []
 
 
 def resume_item_records(resume: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1116,11 +1178,73 @@ def docx_paragraph_run(run: dict[str, Any], hyperlink_ids: dict[str, str]) -> st
     return run_xml
 
 
+def docx_paragraph_spacing(paragraph: dict[str, Any]) -> str:
+    spacing = paragraph.get("spacing")
+    if not isinstance(spacing, dict):
+        return ""
+    attrs: list[str] = []
+    for key, word_key in [("before", "before"), ("after", "after"), ("line", "line"), ("line_rule", "lineRule")]:
+        value = scalar_text(spacing.get(key)) or scalar_text(spacing.get(word_key))
+        if value:
+            attrs.append(f'w:{word_key}="{xml_attr(value)}"')
+    return f'<w:spacing {" ".join(attrs)}/>' if attrs else ""
+
+
+def docx_paragraph_indent(paragraph: dict[str, Any]) -> str:
+    indent = paragraph.get("indent")
+    if not isinstance(indent, dict):
+        return ""
+    attrs: list[str] = []
+    for key, word_key in [
+        ("left", "left"),
+        ("right", "right"),
+        ("hanging", "hanging"),
+        ("first_line", "firstLine"),
+    ]:
+        value = scalar_text(indent.get(key)) or scalar_text(indent.get(word_key))
+        if value:
+            attrs.append(f'w:{word_key}="{xml_attr(value)}"')
+    return f'<w:ind {" ".join(attrs)}/>' if attrs else ""
+
+
+def docx_paragraph_tab_stops(paragraph: dict[str, Any]) -> str:
+    tab_stops = paragraph.get("tab_stops")
+    if not isinstance(tab_stops, list):
+        return ""
+    rendered: list[str] = []
+    for tab_stop in tab_stops:
+        if not isinstance(tab_stop, dict):
+            continue
+        value = scalar_text(tab_stop.get("value") or tab_stop.get("val"))
+        position = scalar_text(tab_stop.get("position") or tab_stop.get("pos"))
+        leader = scalar_text(tab_stop.get("leader"))
+        attrs = []
+        if value:
+            attrs.append(f'w:val="{xml_attr(value)}"')
+        if leader:
+            attrs.append(f'w:leader="{xml_attr(leader)}"')
+        if position:
+            attrs.append(f'w:pos="{xml_attr(position)}"')
+        if attrs:
+            rendered.append(f'<w:tab {" ".join(attrs)}/>')
+    return f'<w:tabs>{"".join(rendered)}</w:tabs>' if rendered else ""
+
+
 def docx_paragraph(paragraph: dict[str, Any], hyperlink_ids: dict[str, str] | None = None) -> str:
     paragraph_properties: list[str] = []
     style = paragraph.get("style")
     if isinstance(style, str) and style:
         paragraph_properties.append(f'<w:pStyle w:val="{xml_attr(style)}"/>')
+    for property_xml in [
+        docx_paragraph_tab_stops(paragraph),
+        docx_paragraph_spacing(paragraph),
+        docx_paragraph_indent(paragraph),
+    ]:
+        if property_xml:
+            paragraph_properties.append(property_xml)
+    alignment = scalar_text(paragraph.get("alignment"))
+    if alignment:
+        paragraph_properties.append(f'<w:jc w:val="{xml_attr(alignment)}"/>')
     numbering = paragraph.get("numbering")
     if isinstance(numbering, dict):
         level = scalar_text(numbering.get("level")) or "0"
@@ -1229,6 +1353,20 @@ def docx_margins(layout: dict[str, Any]) -> dict[str, str]:
     }
 
 
+def docx_page_size(layout: dict[str, Any]) -> dict[str, str]:
+    value = layout.get("page_size")
+    if not isinstance(value, dict):
+        value = {}
+    page_size = {
+        "w": scalar_text(value.get("w") or "12240"),
+        "h": scalar_text(value.get("h") or "15840"),
+    }
+    orientation = scalar_text(value.get("orient") or value.get("orientation"))
+    if orientation:
+        page_size["orient"] = orientation
+    return page_size
+
+
 def docx_section_references(layout: dict[str, Any]) -> str:
     references = ""
     if isinstance(layout.get("header"), dict):
@@ -1241,10 +1379,13 @@ def docx_section_references(layout: dict[str, Any]) -> str:
 def docx_document_xml(blocks: list[dict[str, Any]], layout: dict[str, Any], hyperlink_ids: dict[str, str]) -> str:
     body_xml = "".join(docx_body_block(block, hyperlink_ids) for block in blocks)
     margins = docx_margins(layout)
+    page_size = docx_page_size(layout)
+    orientation_xml = f' w:orient="{xml_attr(page_size["orient"])}"' if "orient" in page_size else ""
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:document xmlns:w="{WORD_NS}" xmlns:r="{REL_NS}"><w:body>{body_xml}'
-        f'<w:sectPr>{docx_section_references(layout)}<w:pgSz w:w="12240" w:h="15840"/>'
+        f"<w:sectPr>{docx_section_references(layout)}"
+        f'<w:pgSz w:w="{xml_attr(page_size["w"])}" w:h="{xml_attr(page_size["h"])}"{orientation_xml}/>'
         f'<w:pgMar w:top="{margins["top"]}" w:right="{margins["right"]}" '
         f'w:bottom="{margins["bottom"]}" w:left="{margins["left"]}" '
         f'w:header="{margins["header"]}" w:footer="{margins["footer"]}" w:gutter="0"/></w:sectPr>'
@@ -1304,6 +1445,16 @@ def document_content_types(layout: dict[str, Any]) -> str:
             '<Override PartName="/word/footer1.xml" '
             'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>'
         )
+    if package_enabled(layout, "core_properties"):
+        optional_overrides += (
+            '<Override PartName="/docProps/core.xml" '
+            'ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+        )
+    if package_enabled(layout, "extended_properties"):
+        optional_overrides += (
+            '<Override PartName="/docProps/app.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
+        )
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
@@ -1318,10 +1469,6 @@ def document_content_types(layout: dict[str, Any]) -> str:
         '<Override PartName="/word/settings.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'
         f"{optional_overrides}"
-        '<Override PartName="/docProps/core.xml" '
-        'ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
-        '<Override PartName="/docProps/app.xml" '
-        'ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
         "</Types>"
     )
 
@@ -1649,57 +1796,65 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
     resume_value = resume.get("resume")
     resume_meta = resume_value if isinstance(resume_value, dict) else {}
     title = scalar_text(resume_meta.get("label") or "Resume")
+    root_relationships: list[Relationship] = [
+        (
+            "rId1",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+            "word/document.xml",
+        )
+    ]
+    if package_enabled(layout, "core_properties"):
+        root_relationships.append(
+            (
+                "rId2",
+                "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties",
+                "docProps/core.xml",
+            )
+        )
+    if package_enabled(layout, "extended_properties"):
+        root_relationships.append(
+            (
+                "rId3",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties",
+                "docProps/app.xml",
+            )
+        )
     entries = [
         ("[Content_Types].xml", document_content_types(layout)),
-        (
-            "_rels/.rels",
-            relationships_xml(
-                [
-                    (
-                        "rId1",
-                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
-                        "word/document.xml",
-                    ),
-                    (
-                        "rId2",
-                        "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties",
-                        "docProps/core.xml",
-                    ),
-                    (
-                        "rId3",
-                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties",
-                        "docProps/app.xml",
-                    ),
-                ]
-            ),
-        ),
+        ("_rels/.rels", relationships_xml(root_relationships)),
         ("word/_rels/document.xml.rels", docx_document_relationships_with_links_xml(layout, blocks)),
         ("word/document.xml", docx_document_xml(blocks, layout, docx_hyperlink_relationship_ids(blocks))),
         ("word/styles.xml", docx_styles_xml(layout)),
         ("word/numbering.xml", docx_numbering_xml(paragraphs, layout)),
         ("word/settings.xml", docx_settings_xml()),
-        (
-            "docProps/core.xml",
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
-            'xmlns:dc="http://purl.org/dc/elements/1.1/" '
-            'xmlns:dcterms="http://purl.org/dc/terms/" '
-            'xmlns:dcmitype="http://purl.org/dc/dcmitype/" '
-            'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-            f"<dc:title>{xml_text(title)}</dc:title><dc:creator>x_create_cv_x</dc:creator>"
-            "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>"
-            '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>'
-            '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>'
-            "</cp:coreProperties>",
-        ),
-        (
-            "docProps/app.xml",
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
-            'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
-            "<Application>x_create_cv_x</Application></Properties>",
-        ),
     ]
+    if package_enabled(layout, "core_properties"):
+        entries.append(
+            (
+                "docProps/core.xml",
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
+                'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+                'xmlns:dcterms="http://purl.org/dc/terms/" '
+                'xmlns:dcmitype="http://purl.org/dc/dcmitype/" '
+                'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                f"<dc:title>{xml_text(title)}</dc:title><dc:creator>x_create_cv_x</dc:creator>"
+                "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>"
+                '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>'
+                '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>'
+                "</cp:coreProperties>",
+            )
+        )
+    if package_enabled(layout, "extended_properties"):
+        entries.append(
+            (
+                "docProps/app.xml",
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
+                'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+                "<Application>x_create_cv_x</Application></Properties>",
+            )
+        )
     if package_enabled(layout, "theme"):
         entries.append(("word/theme/theme1.xml", docx_theme_xml()))
     if package_enabled(layout, "font_table"):
@@ -1727,13 +1882,16 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
     write_zip_entries(path, entries)
 
 
-def load_golden_json(evidence_dir: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+def load_golden_json(evidence_dir: Path) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     json_dir = evidence_dir / "generated" / "json" / "a_posteriori"
-    return (
-        read_json(json_dir / "master_profile_a_posteriori.json"),
-        read_json(json_dir / "resume_2017_a_posteriori.json"),
-        read_json(json_dir / "resume_2023_a_posteriori.json"),
-    )
+    master = read_json(json_dir / "master_profile_a_posteriori.json")
+    resumes: dict[str, dict[str, Any]] = {}
+    for json_name, relative_path in GOLDEN_JSON_EXPECTATIONS.items():
+        if json_name == MASTER_FILE:
+            continue
+        json_path = Path(relative_path)
+        resumes[json_path.stem] = read_json(json_dir / json_path.name)
+    return master, resumes
 
 
 def docx_text_lines(path: Path) -> list[str]:
@@ -1919,12 +2077,15 @@ def write_office_comparison_report(evidence_dir: Path) -> Path:
 def write_golden_office_outputs(
     evidence_dir: Path, output_root: Path | None = None, *, write_report: bool = True
 ) -> tuple[int, int]:
-    master, resume_2017, resume_2023 = load_golden_json(evidence_dir)
+    master, resumes = load_golden_json(evidence_dir)
     target_root = output_root or evidence_dir
     output_dir = target_root / "generated" / "office" / "a_posteriori"
     write_master_workbook(master, output_dir / "master_profile_a_posteriori.xlsx")
-    write_resume_document(master, resume_2017, output_dir / "resume_2017_a_posteriori.docx")
-    write_resume_document(master, resume_2023, output_dir / "resume_2023_a_posteriori.docx")
+    for office_name, relative_path in GOLDEN_OFFICE_EXPECTATIONS.items():
+        if office_name == "master_profile_a_posteriori.xlsx":
+            continue
+        resume = resumes[office_name.removesuffix(".docx")]
+        write_resume_document(master, resume, output_dir / Path(relative_path).name)
     report_count = 0
     if write_report:
         write_office_comparison_report(evidence_dir)

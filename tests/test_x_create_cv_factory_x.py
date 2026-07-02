@@ -317,6 +317,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
                     {
                         "name": "Highlights",
                         "collection": "highlights",
+                        "skip_placeholder_rows": True,
                         "columns": [
                             {"field": "id", "header": "ID"},
                             {"field": "label", "header": "Label"},
@@ -327,7 +328,10 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
             }
         },
         "collections": {
-            "highlights": [{"id": "highlight_001", "label": "One", "a": "raw value", "highlights": "Structured value"}]
+            "highlights": [
+                {"id": "highlight_000", "label": "Highlights", "highlights": ""},
+                {"id": "highlight_001", "label": "One", "a": "raw value", "highlights": "Structured value"},
+            ]
         },
     }
     workbook_path = tmp_path / "layout_contract.xlsx"
@@ -347,7 +351,8 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
                     "left": "1800",
                     "header": "720",
                     "footer": "720",
-                }
+                },
+                "page_size": {"w": "12240", "h": "15840", "orient": "portrait"},
             }
         },
         "resume": {"id": "resume_api", "label": "API Resume"},
@@ -389,6 +394,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
 
     assert '<w:pStyle w:val="Heading1"/>' in document_xml
     assert '<w:numId w:val="7"/>' in document_xml
+    assert '<w:pgSz w:w="12240" w:h="15840" w:orient="portrait"/>' in document_xml
     assert "<w:b/>" in document_xml
     assert "<w:i/>" in document_xml
     assert '<w:u w:val="single"/>' in document_xml
@@ -459,7 +465,15 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
                     "sort_order": 1,
                     "master_record_refs": [],
                     "text_override": "Intro",
-                    "formatting": {"block_style": "Title", "numbering": None, "runs": [{"text": "Intro"}]},
+                    "formatting": {
+                        "block_style": "Title",
+                        "alignment": "center",
+                        "spacing": {"after": "0", "line": "240", "line_rule": "auto"},
+                        "indent": {"left": "720", "hanging": "360"},
+                        "tab_stops": [{"val": "right", "leader": "none", "pos": "10800"}],
+                        "numbering": None,
+                        "runs": [{"text": "Intro"}],
+                    },
                     "is_visible": True,
                 },
                 {
@@ -511,6 +525,10 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "customXml/_rels/item1.xml.rels" in part_names
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
+    assert '<w:tabs><w:tab w:val="right" w:leader="none" w:pos="10800"/></w:tabs>' in document_xml
+    assert '<w:spacing w:after="0" w:line="240" w:lineRule="auto"/>' in document_xml
+    assert '<w:ind w:left="720" w:hanging="360"/>' in document_xml
+    assert '<w:jc w:val="center"/>' in document_xml
     assert docx_theme_style_counts(document_path) == {
         "fillStyleLst": 3,
         "lnStyleLst": 3,
@@ -532,6 +550,47 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert '<w:footerReference w:type="default" r:id="rId8"/>' in document_xml
 
 
+def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) -> None:
+    master: dict[str, Any] = {"collections": {}}
+    resume = {
+        "office_layout": {
+            "document": {
+                "package": {
+                    "core_properties": False,
+                    "extended_properties": False,
+                    "theme": True,
+                    "font_table": True,
+                    "web_settings": False,
+                    "footnotes": False,
+                    "endnotes": False,
+                    "custom_xml": False,
+                },
+                "flow": [{"type": "paragraph", "runs": [{"text": "Lean package"}]}],
+            }
+        },
+        "resume": {"id": "resume_lean", "label": "Lean Resume"},
+        "collections": {"sections": [], "items": []},
+    }
+    document_path = tmp_path / "lean.docx"
+
+    app.write_resume_document(master, resume, document_path)
+
+    part_names = docx_part_names(document_path)
+    assert "docProps/core.xml" not in part_names
+    assert "docProps/app.xml" not in part_names
+    assert "word/webSettings.xml" not in part_names
+    assert "word/footnotes.xml" not in part_names
+    assert "word/endnotes.xml" not in part_names
+    assert "customXml/item1.xml" not in part_names
+    with zipfile.ZipFile(document_path) as document:
+        root_relationships = document.read("_rels/.rels").decode("utf-8")
+        content_types = document.read("[Content_Types].xml").decode("utf-8")
+    assert "core-properties" not in root_relationships
+    assert "extended-properties" not in root_relationships
+    assert "/docProps/core.xml" not in content_types
+    assert "/docProps/app.xml" not in content_types
+
+
 def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     evidence_dir = tmp_path / "evidence"
     evidence_file = evidence_dir / "source_office" / "a_priori" / "fake_a_priori.docx"
@@ -545,11 +604,13 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
         "master_profile.json": ('{"file":"master"}\n', "master_profile_a_posteriori.json"),
         "resume_2017.json": ('{"file":"resume_2017"}\n', "resume_2017_a_posteriori.json"),
         "resume_2023.json": ('{"file":"resume_2023"}\n', "resume_2023_a_posteriori.json"),
+        "resume_2024.json": ('{"file":"resume_2024"}\n', "resume_2024_a_posteriori.json"),
     }
     script_outputs = [
         ("01_build_master_data.py", "master_profile.json", '{"file":"master"}'),
         ("02_build_old_resume.py", "resume_2017.json", '{"file":"resume_2017"}'),
         ("03_build_new_resume.py", "resume_2023.json", '{"file":"resume_2023"}'),
+        ("04_build_current_resume.py", "resume_2024.json", '{"file":"resume_2024"}'),
     ]
     for script_name, output_name, output_json in script_outputs:
         (script_dir / script_name).write_text(
@@ -563,7 +624,7 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
     for _generated_name, (content, expected_name) in expected_json.items():
         (expected_json_dir / expected_name).write_text(content, encoding="utf-8")
     generated_office_count, report_count = app.write_golden_office_outputs(evidence_dir, write_report=False)
-    assert generated_office_count == 3
+    assert generated_office_count == 4
     assert report_count == 0
     assert workbook_sheet_names(evidence_dir / app.GOLDEN_OFFICE_EXPECTATIONS["master_profile_a_posteriori.xlsx"]) == [
         str(sheet["name"]) for sheet in app.default_workbook_layout()["sheets"]
@@ -633,8 +694,8 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
 
     assert app.main(["exercise-golden", "--evidence-dir", str(evidence_dir)]) == 0
     assert (
-        "Golden exercise passed: 1 a priori evidence files; 11 chain files; 3 generated JSON files; "
-        "3 generated Office files" in capsys.readouterr().out
+        "Golden exercise passed: 1 a priori evidence files; 14 chain files; 4 generated JSON files; "
+        "4 generated Office files" in capsys.readouterr().out
     )
 
 
