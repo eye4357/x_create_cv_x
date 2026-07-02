@@ -917,6 +917,23 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "<w:continuationSeparator/>" in footnotes_xml
     assert '<w:endnote w:type="separator" w:id="-1">' in endnotes_xml
     assert "<w:continuationSeparator/>" in endnotes_xml
+    assert (
+        custom_xml
+        == '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cv:metadata xmlns:cv="urn:x-create-cv-x"/>'
+    )
+    assert custom_props_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<ds:datastoreItem ds:itemID="{00000000-0000-0000-0000-000000000001}" '
+        'xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml">'
+        "<ds:schemaRefs/></ds:datastoreItem>"
+    )
+    assert custom_relationships_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" '
+        'Target="itemProps1.xml"/></Relationships>'
+    )
     assert '<cv:metadata xmlns:cv="urn:x-create-cv-x"/>' in custom_xml
     assert 'ds:itemID="{00000000-0000-0000-0000-000000000001}"' in custom_props_xml
     assert "<ds:schemaRefs/>" in custom_props_xml
