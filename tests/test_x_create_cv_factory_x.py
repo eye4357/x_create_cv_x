@@ -256,7 +256,7 @@ def test_cli_check_evidence_reports_missing_manifest(tmp_path: Path, capsys: pyt
 def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     evidence_dir = tmp_path / "evidence"
     evidence_file = evidence_dir / "source_office" / "a_priori" / "fake_a_priori.docx"
-    script_dir = evidence_dir / "scripts" / "a_posteriori"
+    script_dir = evidence_dir / "scripts"
     expected_json_dir = evidence_dir / "generated" / "json" / "a_posteriori"
     evidence_file.parent.mkdir(parents=True)
     script_dir.mkdir(parents=True)
@@ -316,7 +316,7 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
                 },
                 *[
                     {
-                        "path": f"scripts/a_posteriori/{script_name}",
+                        "path": f"scripts/{script_name}",
                         "bytes": (script_dir / script_name).stat().st_size,
                         "sha256": app.sha256_file(script_dir / script_name),
                     }

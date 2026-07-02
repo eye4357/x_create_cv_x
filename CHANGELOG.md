@@ -8,7 +8,7 @@
 - Added `check-evidence` to fast-fail when private `_a_priori` Office evidence does not match its SHA-256 manifest.
 - Added `exercise-golden` as the simple side-by-side smoke test for `x_create_cv_test_data_x` private golden evidence.
 - Extended `exercise-golden` to validate the full private chain-of-evidence manifest, including scripts, generated JSON, legacy references, and original Office evidence.
-- Extended `exercise-golden` to run private `_a_posteriori` scripts in a temporary directory and compare generated JSON against stored `_a_posteriori` JSON evidence.
+- Extended `exercise-golden` to run private rebuild scripts in a temporary directory and compare generated JSON against stored `_a_posteriori` JSON evidence.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 

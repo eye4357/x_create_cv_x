@@ -59,7 +59,7 @@ When `x_create_cv_test_data_x` is checked out next to this repository, run the p
 python .\x_create_cv_factory_x.py exercise-golden
 ```
 
-That command fast-fails on evidence corruption by reading both private SHA-256 manifests from `..\x_create_cv_test_data_x\evidence`: the `_a_priori` Office manifest and the full chain-of-evidence manifest covering scripts, generated JSON, legacy references, and original Office files. It then runs the private `_a_posteriori` scripts into a temporary folder and byte-compares the generated JSON against the stored `_a_posteriori` JSON evidence. The lower-level `_a_priori` check is also available:
+That command fast-fails on evidence corruption by reading both private SHA-256 manifests from `..\x_create_cv_test_data_x\evidence`: the `_a_priori` Office manifest and the full chain-of-evidence manifest covering scripts, generated JSON, legacy references, and original Office files. It then runs the private rebuild scripts into a temporary folder and byte-compares the generated JSON against the stored `_a_posteriori` JSON evidence. The lower-level `_a_priori` check is also available:
 
 ```powershell
 python .\x_create_cv_factory_x.py check-evidence

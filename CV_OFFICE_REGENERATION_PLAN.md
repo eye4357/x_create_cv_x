@@ -29,7 +29,7 @@ The XLSX comparison should allow known historical drift because the original spr
 Keep four evidence classes together locally, but do not commit private content to public Git:
 
 1. Source evidence: the three original `_a_priori` Office files under `../x_create_cv_test_data_x/evidence/source_office/a_priori/`.
-2. Rebuild scripts: Python scripts that create master data, the spreadsheet database, and each resume document from code.
+2. Rebuild scripts: present-tense Python scripts under `evidence/scripts/` that create master data, the spreadsheet database, and each resume document from code.
 3. Generated JSON evidence: `_a_posteriori` master/profile/resume JSON produced by the scripts.
 4. Regenerated Office evidence: new whole-cloth `_a_posteriori` XLSX and DOCX files produced by the scripts from JSON.
 5. Comparison evidence: SHA-256 manifests, normalized manifests, hashes, diffs, validation reports, and human approval notes proving what matches exactly and what intentionally differs.
@@ -49,7 +49,7 @@ Recommended private test-data repo layout inside `x_create_cv_test_data_x`:
 evidence/a_priori_manifest.json
 evidence/chain_of_evidence_manifest.json
 evidence/source_office/a_priori/
-evidence/scripts/a_posteriori/
+evidence/scripts/
 evidence/generated/
 evidence/normalized/
 evidence/reports/
@@ -77,7 +77,7 @@ The full Office-regeneration milestone is complete when all of the following are
 
 - The current `private.zip` validation path is replaced or downgraded to a legacy compatibility check.
 - `exercise-golden` passes against both private SHA-256 manifests in the side-by-side `x_create_cv_test_data_x` checkout before any Office regeneration exercise proceeds.
-- `exercise-golden` runs the private `_a_posteriori` scripts into a temporary directory and compares generated JSON against stored `_a_posteriori` JSON evidence.
+- `exercise-golden` runs the private rebuild scripts into a temporary directory and compares generated JSON against stored `_a_posteriori` JSON evidence.
 - Private seed scripts, generated JSON, legacy references, and Office files are all represented in `chain_of_evidence_manifest.json`.
 - The original Office files use the `_a_priori` suffix and remain under ignored local evidence folders.
 - The factory can generate the XLSX database from `master_profile.json` without manual Office editing.

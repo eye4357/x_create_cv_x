@@ -285,7 +285,7 @@ def check_evidence_manifest(manifest_path: Path) -> int:
 
 
 def run_golden_json_scripts(evidence_dir: Path) -> int:
-    script_dir = evidence_dir / "scripts" / "a_posteriori"
+    script_dir = evidence_dir / "scripts"
     public_repo_root = Path(__file__).resolve().parent
     with tempfile.TemporaryDirectory(prefix="x_create_cv_golden_") as temp_dir:
         output_dir = Path(temp_dir)
