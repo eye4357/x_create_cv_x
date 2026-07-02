@@ -619,6 +619,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     document_xml = docx_document_xml(document_path)
     with zipfile.ZipFile(document_path) as document:
         docx_styles_xml = document.read("word/styles.xml").decode("utf-8")
+        docx_numbering_xml = document.read("word/numbering.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
     assert '<w:pStyle w:val="Heading1"/>' in document_xml
@@ -665,6 +666,15 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert (
         '<w:r><w:rPr><w:i/><w:u w:val="single"/></w:rPr>' '<w:t xml:space="preserve"> run</w:t></w:r>' in document_xml
     )
+    assert f'<w:numbering xmlns:w="{app.WORD_NS}">' in docx_numbering_xml
+    assert '<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>' in docx_numbering_xml
+    assert '<w:abstractNum w:abstractNumId="7"><w:multiLevelType w:val="hybridMultilevel"/>' in docx_numbering_xml
+    assert '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>' in docx_numbering_xml
+    assert '<w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr>' in docx_numbering_xml
+    assert '<w:pPr><w:ind w:left="1440" w:hanging="360"/></w:pPr>' in docx_numbering_xml
+    assert '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr>' in docx_numbering_xml
+    assert '<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>' in docx_numbering_xml
+    assert '<w:num w:numId="7"><w:abstractNumId w:val="7"/></w:num>' in docx_numbering_xml
     assert structure_summary["numbered_paragraph_count"] == 1
     assert structure_summary["numbering_abstract_count"] == 2
     assert structure_summary["numbering_num_count"] == 2
