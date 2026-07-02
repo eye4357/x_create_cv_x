@@ -2937,12 +2937,12 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
             lines.extend(
                 [
                     "| Sheet | Source Path | Generated Path | Source Dimension | Generated Dimension | Source Rows | "
-                    "Generated Rows | Source Columns | Generated Columns | Generated Styled Cells | "
-                    "Generated Freeze Pane | Generated Filter | "
+                    "Generated Rows | Source Columns | Generated Columns | Source Styled Cells | "
+                    "Generated Styled Cells | Generated Freeze Pane | Generated Filter | "
                     "Generated Page Margins | Generated Column Widths | Generated Cell Types | Source Headers | "
                     "Generated Headers |",
                     "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | "
-                    "--- | --- |",
+                    "--- | --- | --- |",
                 ]
             )
             for index, generated_sheet in enumerate(generated_sheets):
@@ -2961,6 +2961,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                     f"{markdown_cell(generated_sheet.get('row_count', ''))} | "
                     f"{markdown_cell(source_sheet.get('column_count', ''))} | "
                     f"{markdown_cell(generated_sheet.get('column_count', ''))} | "
+                    f"{markdown_cell(source_sheet.get('styled_cell_count', ''))} | "
                     f"{markdown_cell(generated_sheet.get('styled_cell_count', ''))} | "
                     f"{markdown_cell(generated_sheet.get('freeze_pane', {}))} | "
                     f"{markdown_cell(generated_sheet.get('auto_filter_ref', ''))} | "
