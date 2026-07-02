@@ -617,6 +617,8 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     document_path = tmp_path / "layout_contract.docx"
     app.write_resume_document(master, resume, document_path)
     document_xml = docx_document_xml(document_path)
+    with zipfile.ZipFile(document_path) as document:
+        docx_styles_xml = document.read("word/styles.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
     assert '<w:pStyle w:val="Heading1"/>' in document_xml
@@ -640,6 +642,25 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert "<w:b/>" in document_xml
     assert "<w:i/>" in document_xml
     assert '<w:u w:val="single"/>' in document_xml
+    assert f'<w:styles xmlns:w="{app.WORD_NS}">' in docx_styles_xml
+    assert (
+        '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/>'
+        '<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:style>' in docx_styles_xml
+    )
+    assert (
+        '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="160" w:after="80"/></w:pPr>'
+        '<w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>' in docx_styles_xml
+    )
+    assert (
+        '<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720"/></w:pPr></w:style>' in docx_styles_xml
+    )
+    assert (
+        '<w:style w:type="paragraph" w:styleId="ListBullet"><w:name w:val="List Bullet"/>'
+        '<w:basedOn w:val="ListParagraph"/><w:pPr><w:numPr><w:ilvl w:val="0"/>'
+        '<w:numId w:val="1"/></w:numPr></w:pPr></w:style>' in docx_styles_xml
+    )
     assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Styled</w:t></w:r>' in document_xml
     assert (
         '<w:r><w:rPr><w:i/><w:u w:val="single"/></w:rPr>' '<w:t xml:space="preserve"> run</w:t></w:r>' in document_xml
