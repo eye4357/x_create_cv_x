@@ -467,6 +467,16 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert '<w:pStyle w:val="Heading1"/>' in document_xml
     assert '<w:numId w:val="7"/>' in document_xml
     assert '<w:pgSz w:w="12240" w:h="15840" w:orient="portrait"/>' in document_xml
+    assert structure_summary["page_size"] == {"w": "12240", "h": "15840", "orient": "portrait"}
+    assert structure_summary["page_margins"] == {
+        "top": "1440",
+        "right": "1800",
+        "bottom": "1440",
+        "left": "1800",
+        "header": "720",
+        "footer": "720",
+        "gutter": "0",
+    }
     assert "<w:b/>" in document_xml
     assert "<w:i/>" in document_xml
     assert '<w:u w:val="single"/>' in document_xml
@@ -638,6 +648,8 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert structure_summary["table_cell_widths"] == [[["2400", "2400"], ["2400", "2400"]]]
     assert '<w:headerReference w:type="default" r:id="rId7"/>' in document_xml
     assert '<w:footerReference w:type="default" r:id="rId8"/>' in document_xml
+    assert structure_summary["section_header_references"] == [{"type": "default", "id": "rId7"}]
+    assert structure_summary["section_footer_references"] == [{"type": "default", "id": "rId8"}]
 
 
 def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) -> None:

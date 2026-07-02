@@ -2185,7 +2185,7 @@ def normalized_text_summary(path: Path) -> dict[str, Any]:
 
 
 def docx_structure_summary(path: Path) -> dict[str, Any]:
-    namespace = {"w": WORD_NS, "rel": "http://schemas.openxmlformats.org/package/2006/relationships"}
+    namespace = {"w": WORD_NS, "r": REL_NS, "rel": "http://schemas.openxmlformats.org/package/2006/relationships"}
     with zipfile.ZipFile(path) as archive:
         part_names = archive.namelist()
         document = ET.fromstring(archive.read("word/document.xml"))
@@ -2196,6 +2196,32 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
     paragraphs = document.findall(".//w:p", namespace)
     runs = document.findall(".//w:r", namespace)
     body = document.find("w:body", namespace)
+    section = document.find(".//w:sectPr", namespace)
+    page_size: dict[str, str] = {}
+    page_margins: dict[str, str] = {}
+    section_header_references: list[dict[str, str]] = []
+    section_footer_references: list[dict[str, str]] = []
+    if section is not None:
+        page_size_element = section.find("w:pgSz", namespace)
+        if page_size_element is not None:
+            page_size = {key.rsplit("}", 1)[-1]: value for key, value in page_size_element.attrib.items()}
+        page_margins_element = section.find("w:pgMar", namespace)
+        if page_margins_element is not None:
+            page_margins = {key.rsplit("}", 1)[-1]: value for key, value in page_margins_element.attrib.items()}
+        for reference in section.findall("w:headerReference", namespace):
+            section_header_references.append(
+                {
+                    "type": reference.attrib.get(f"{{{WORD_NS}}}type", ""),
+                    "id": reference.attrib.get(f"{{{REL_NS}}}id", ""),
+                }
+            )
+        for reference in section.findall("w:footerReference", namespace):
+            section_footer_references.append(
+                {
+                    "type": reference.attrib.get(f"{{{WORD_NS}}}type", ""),
+                    "id": reference.attrib.get(f"{{{REL_NS}}}id", ""),
+                }
+            )
     body_child_counts: dict[str, int] = {}
     if body is not None:
         for child in body:
@@ -2324,6 +2350,10 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "has_custom_xml": "customXml/item1.xml" in part_names,
         "header_count": len([name for name in part_names if name.startswith("word/header")]),
         "footer_count": len([name for name in part_names if name.startswith("word/footer")]),
+        "page_size": page_size,
+        "page_margins": page_margins,
+        "section_header_references": section_header_references,
+        "section_footer_references": section_footer_references,
         "body_child_counts": body_child_counts,
         "relationship_count": relationship_count,
         "relationship_type_counts": relationship_type_counts,
@@ -2643,6 +2673,10 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         "relationship_count",
         "external_relationship_count",
         "external_hyperlink_relationship_count",
+        "page_size",
+        "page_margins",
+        "section_header_references",
+        "section_footer_references",
         "paragraph_count",
         "run_count",
         "styled_paragraph_count",
