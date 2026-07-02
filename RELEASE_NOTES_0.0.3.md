@@ -25,6 +25,7 @@ Status: Development checkpoint, not a public production release
 - Expanded XLSX audit reports with source styled-cell counts alongside generated counts.
 - Expanded XLSX audit reports with source cell-type counts alongside generated counts.
 - Expanded XLSX audit reports with source freeze-pane and autofilter state alongside generated state.
+- Expanded XLSX audit reports with source page margins and column widths alongside generated values.
 - Expanded the Markdown Office audit report to show generated XLSX freeze-pane and autofilter state.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Expanded DOCX audit reports with package flags, body child counts, font table names, and used styles.
@@ -46,6 +47,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for XLSX source styled-cell-count report metrics.
 - Added public fake-fixture coverage for XLSX source cell-type-count report metrics.
 - Added public fake-fixture coverage for XLSX source freeze-pane and autofilter report metrics.
+- Added public fake-fixture coverage for XLSX source page-margin and column-width report metrics.
 - Added public fake-fixture coverage for DOCX package flags, body child counts, font table names, and used styles.
 - Added public fake-fixture coverage for external hyperlink relationship conformance.
 - Added public fake-fixture coverage for DOCX paragraph property audit metrics.

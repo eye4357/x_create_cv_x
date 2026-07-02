@@ -980,6 +980,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "Source Styled Cells | Generated Styled Cells" in audit_text
     assert "Source Cell Types | Generated Cell Types" in audit_text
     assert "Source Freeze Pane | Generated Freeze Pane | Source Filter | Generated Filter" in audit_text
+    assert "Source Page Margins | Generated Page Margins | Source Column Widths | Generated Column Widths" in audit_text
 
 
 def test_audit_policy_can_accept_explicit_drift() -> None:

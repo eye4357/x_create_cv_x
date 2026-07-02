@@ -17,6 +17,7 @@
 - Added XLSX source styled-cell-count audit report metrics.
 - Added XLSX source cell-type-count audit report metrics.
 - Added XLSX source freeze-pane and autofilter audit report metrics.
+- Added XLSX source page-margin and column-width audit report metrics.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Added DOCX paragraph property audit metrics for style, alignment, spacing, indentation, and tab stops.
 - Added DOCX table geometry audit metrics for grid widths and cell widths.
@@ -41,6 +42,7 @@
 - Expanded XLSX Markdown audit reports to expose source styled-cell counts alongside generated counts.
 - Expanded XLSX Markdown audit reports to expose source cell-type counts alongside generated counts.
 - Expanded XLSX Markdown audit reports to expose source freeze-pane and autofilter state alongside generated state.
+- Expanded XLSX Markdown audit reports to expose source page margins and column widths alongside generated values.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
