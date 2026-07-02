@@ -482,6 +482,7 @@ def default_document_layout(file_name: str) -> dict[str, Any]:
     layout = DEFAULT_DOCUMENT_MARGINS.get(file_name, DEFAULT_DOCUMENT_MARGINS["resume_2017_a_posteriori.docx"])
     return {
         "margins": dict(layout["margins"]),
+        "package": {"theme": True, "font_table": True, "web_settings": True},
         "styles": [dict(style) for style in DEFAULT_DOCX_STYLES],
         "numbering": {"bullet_text": "•", "font": "Symbol", "left": "720", "hanging": "360"},
     }
@@ -901,6 +902,97 @@ def item_paragraphs(item: dict[str, Any], records_by_id: dict[str, dict[str, Any
     return paragraphs
 
 
+def layout_paragraphs(value: dict[str, Any]) -> list[dict[str, Any]]:
+    style = formatting_style(value)
+    if style is None:
+        explicit_style = value.get("style")
+        style = explicit_style if isinstance(explicit_style, str) and explicit_style else None
+    numbering = formatting_numbering(value)
+    runs = formatting_runs(value)
+    if runs:
+        return [{"style": style, "numbering": numbering, "runs": runs}]
+    text = scalar_text(value.get("text"))
+    return [{"style": style, "numbering": numbering, "runs": [{"text": text}]}] if text else []
+
+
+def resume_item_records(resume: dict[str, Any]) -> list[dict[str, Any]]:
+    collections_value = resume.get("collections")
+    collections = collections_value if isinstance(collections_value, dict) else {}
+    items = collections.get("items")
+    return [item for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+
+
+def visible_resume_item_lookup(resume: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        item_id: item
+        for item in resume_item_records(resume)
+        if item.get("is_visible") is not False and isinstance((item_id := item.get("id")), str)
+    }
+
+
+def flow_item_paragraphs(
+    item_ids: Any, item_lookup: dict[str, dict[str, Any]], records_by_id: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]]:
+    if not isinstance(item_ids, list):
+        return []
+    paragraphs: list[dict[str, Any]] = []
+    for item_id in item_ids:
+        if isinstance(item_id, str) and item_id in item_lookup:
+            paragraphs.extend(item_paragraphs(item_lookup[item_id], records_by_id))
+    return paragraphs
+
+
+def flow_cell_paragraphs(
+    cell: Any, item_lookup: dict[str, dict[str, Any]], records_by_id: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]]:
+    if not isinstance(cell, dict):
+        return []
+    paragraphs = flow_item_paragraphs(cell.get("item_ids"), item_lookup, records_by_id)
+    if paragraphs:
+        return paragraphs
+    return layout_paragraphs(cell)
+
+
+def resume_flow_blocks(master: dict[str, Any], resume: dict[str, Any], layout: dict[str, Any]) -> list[dict[str, Any]]:
+    flow = layout.get("flow")
+    if not isinstance(flow, list):
+        return []
+    records_by_id = master_records_by_id(master)
+    item_lookup = visible_resume_item_lookup(resume)
+    blocks: list[dict[str, Any]] = []
+    for entry in flow:
+        if not isinstance(entry, dict):
+            continue
+        entry_type = entry.get("type")
+        if entry_type == "item":
+            paragraphs = flow_item_paragraphs([entry.get("item_id")], item_lookup, records_by_id)
+            blocks.extend({"type": "paragraph", "paragraph": paragraph} for paragraph in paragraphs)
+        elif entry_type == "items":
+            paragraphs = flow_item_paragraphs(entry.get("item_ids"), item_lookup, records_by_id)
+            blocks.extend({"type": "paragraph", "paragraph": paragraph} for paragraph in paragraphs)
+        elif entry_type == "paragraph":
+            blocks.extend({"type": "paragraph", "paragraph": paragraph} for paragraph in layout_paragraphs(entry))
+        elif entry_type == "table":
+            rows_value = entry.get("rows")
+            if not isinstance(rows_value, list):
+                continue
+            rows: list[list[list[dict[str, Any]]]] = []
+            for row_value in rows_value:
+                if not isinstance(row_value, list):
+                    continue
+                row = [flow_cell_paragraphs(cell, item_lookup, records_by_id) for cell in row_value]
+                rows.append(row)
+            blocks.append(
+                {
+                    "type": "table",
+                    "rows": rows,
+                    "column_widths": entry.get("column_widths"),
+                    "style": entry.get("style"),
+                }
+            )
+    return blocks
+
+
 def resume_paragraphs(master: dict[str, Any], resume: dict[str, Any]) -> list[dict[str, Any]]:
     records_by_id = master_records_by_id(master)
     resume_value = resume.get("resume")
@@ -939,6 +1031,13 @@ def resume_paragraphs(master: dict[str, Any], resume: dict[str, Any]) -> list[di
     return [{"style": None, "numbering": None, "runs": [{"text": label}]}]
 
 
+def resume_blocks(master: dict[str, Any], resume: dict[str, Any], layout: dict[str, Any]) -> list[dict[str, Any]]:
+    flow_blocks = resume_flow_blocks(master, resume, layout)
+    if flow_blocks:
+        return flow_blocks
+    return [{"type": "paragraph", "paragraph": paragraph} for paragraph in resume_paragraphs(master, resume)]
+
+
 def docx_run(run: dict[str, Any]) -> str:
     properties: list[str] = []
     if run.get("bold") is True:
@@ -972,6 +1071,80 @@ def docx_paragraph(paragraph: dict[str, Any]) -> str:
     return f'<w:p>{properties_xml}{"".join(rendered_runs)}</w:p>'
 
 
+def table_column_widths(table: dict[str, Any], column_count: int) -> list[str]:
+    widths = table.get("column_widths")
+    if isinstance(widths, list):
+        rendered = [scalar_text(width) for width in widths[:column_count]]
+        if len(rendered) == column_count and all(rendered):
+            return rendered
+    if column_count <= 0:
+        return []
+    default_width = str(max(1, 8640 // column_count))
+    return [default_width] * column_count
+
+
+def docx_table_cell(paragraphs: list[dict[str, Any]], width: str) -> str:
+    rendered_paragraphs = "".join(docx_paragraph(paragraph) for paragraph in paragraphs) or docx_paragraph(
+        {"runs": [{"text": ""}]}
+    )
+    return f'<w:tc><w:tcPr><w:tcW w:w="{xml_attr(width)}" w:type="dxa"/></w:tcPr>{rendered_paragraphs}</w:tc>'
+
+
+def docx_table(table: dict[str, Any]) -> str:
+    rows = table.get("rows")
+    if not isinstance(rows, list):
+        return ""
+    column_count = max((len(row) for row in rows if isinstance(row, list)), default=0)
+    widths = table_column_widths(table, column_count)
+    grid = "".join(f'<w:gridCol w:w="{xml_attr(width)}"/>' for width in widths)
+    rendered_rows: list[str] = []
+    for row in rows:
+        if not isinstance(row, list):
+            continue
+        cells = "".join(
+            docx_table_cell(cell if isinstance(cell, list) else [], widths[index] if index < len(widths) else "2160")
+            for index, cell in enumerate(row)
+        )
+        rendered_rows.append(f"<w:tr>{cells}</w:tr>")
+    return (
+        '<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/>'
+        '<w:tblBorders><w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/></w:tblBorders>'
+        "</w:tblPr>"
+        f"<w:tblGrid>{grid}</w:tblGrid>{''.join(rendered_rows)}</w:tbl>"
+    )
+
+
+def docx_body_block(block: dict[str, Any]) -> str:
+    block_type = block.get("type")
+    if block_type == "table":
+        return docx_table(block)
+    paragraph = block.get("paragraph")
+    return docx_paragraph(paragraph) if isinstance(paragraph, dict) else ""
+
+
+def block_paragraphs(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    paragraphs: list[dict[str, Any]] = []
+    for block in blocks:
+        if block.get("type") == "table":
+            rows = block.get("rows")
+            if isinstance(rows, list):
+                for row in rows:
+                    if isinstance(row, list):
+                        for cell in row:
+                            if isinstance(cell, list):
+                                paragraphs.extend(paragraph for paragraph in cell if isinstance(paragraph, dict))
+        else:
+            paragraph = block.get("paragraph")
+            if isinstance(paragraph, dict):
+                paragraphs.append(paragraph)
+    return paragraphs
+
+
 def docx_margins(layout: dict[str, Any]) -> dict[str, str]:
     value = layout.get("margins")
     if not isinstance(value, dict):
@@ -986,13 +1159,22 @@ def docx_margins(layout: dict[str, Any]) -> dict[str, str]:
     }
 
 
-def docx_document_xml(paragraphs: list[dict[str, Any]], layout: dict[str, Any]) -> str:
-    paragraph_xml = "".join(docx_paragraph(paragraph) for paragraph in paragraphs)
+def docx_section_references(layout: dict[str, Any]) -> str:
+    references = ""
+    if isinstance(layout.get("header"), dict):
+        references += '<w:headerReference w:type="default" r:id="rId7"/>'
+    if isinstance(layout.get("footer"), dict):
+        references += '<w:footerReference w:type="default" r:id="rId8"/>'
+    return references
+
+
+def docx_document_xml(blocks: list[dict[str, Any]], layout: dict[str, Any]) -> str:
+    body_xml = "".join(docx_body_block(block) for block in blocks)
     margins = docx_margins(layout)
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        f'<w:document xmlns:w="{WORD_NS}"><w:body>{paragraph_xml}'
-        '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
+        f'<w:document xmlns:w="{WORD_NS}" xmlns:r="{REL_NS}"><w:body>{body_xml}'
+        f'<w:sectPr>{docx_section_references(layout)}<w:pgSz w:w="12240" w:h="15840"/>'
         f'<w:pgMar w:top="{margins["top"]}" w:right="{margins["right"]}" '
         f'w:bottom="{margins["bottom"]}" w:left="{margins["left"]}" '
         f'w:header="{margins["header"]}" w:footer="{margins["footer"]}" w:gutter="0"/></w:sectPr>'
@@ -1000,7 +1182,43 @@ def docx_document_xml(paragraphs: list[dict[str, Any]], layout: dict[str, Any]) 
     )
 
 
-def document_content_types() -> str:
+def document_package_options(layout: dict[str, Any]) -> dict[str, Any]:
+    package = layout.get("package")
+    return package if isinstance(package, dict) else {}
+
+
+def package_enabled(layout: dict[str, Any], key: str) -> bool:
+    value = document_package_options(layout).get(key)
+    return value is True
+
+
+def document_content_types(layout: dict[str, Any]) -> str:
+    optional_overrides = ""
+    if package_enabled(layout, "theme"):
+        optional_overrides += (
+            '<Override PartName="/word/theme/theme1.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
+        )
+    if package_enabled(layout, "font_table"):
+        optional_overrides += (
+            '<Override PartName="/word/fontTable.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/>'
+        )
+    if package_enabled(layout, "web_settings"):
+        optional_overrides += (
+            '<Override PartName="/word/webSettings.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/>'
+        )
+    if isinstance(layout.get("header"), dict):
+        optional_overrides += (
+            '<Override PartName="/word/header1.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>'
+        )
+    if isinstance(layout.get("footer"), dict):
+        optional_overrides += (
+            '<Override PartName="/word/footer1.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>'
+        )
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
@@ -1014,6 +1232,7 @@ def document_content_types() -> str:
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
         '<Override PartName="/word/settings.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'
+        f"{optional_overrides}"
         '<Override PartName="/docProps/core.xml" '
         'ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
         '<Override PartName="/docProps/app.xml" '
@@ -1149,14 +1368,37 @@ def docx_numbering_xml(paragraphs: list[dict[str, Any]], layout: dict[str, Any])
     )
 
 
-def docx_document_relationships_xml() -> str:
-    return relationships_xml(
-        [
-            ("rId1", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles", "styles.xml"),
-            ("rId2", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering", "numbering.xml"),
-            ("rId3", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings", "settings.xml"),
-        ]
-    )
+def docx_document_relationships_xml(layout: dict[str, Any]) -> str:
+    relationships = [
+        ("rId1", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles", "styles.xml"),
+        ("rId2", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering", "numbering.xml"),
+        ("rId3", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings", "settings.xml"),
+    ]
+    if package_enabled(layout, "theme"):
+        relationships.append(
+            ("rId4", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme", "theme/theme1.xml")
+        )
+    if package_enabled(layout, "font_table"):
+        relationships.append(
+            ("rId5", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable", "fontTable.xml")
+        )
+    if package_enabled(layout, "web_settings"):
+        relationships.append(
+            (
+                "rId6",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings",
+                "webSettings.xml",
+            )
+        )
+    if isinstance(layout.get("header"), dict):
+        relationships.append(
+            ("rId7", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header", "header1.xml")
+        )
+    if isinstance(layout.get("footer"), dict):
+        relationships.append(
+            ("rId8", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer", "footer1.xml")
+        )
+    return relationships_xml(relationships)
 
 
 def docx_settings_xml() -> str:
@@ -1166,14 +1408,56 @@ def docx_settings_xml() -> str:
     )
 
 
+def docx_font_table_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:fonts xmlns:w="{WORD_NS}"><w:font w:name="Calibri"/><w:font w:name="Symbol"/></w:fonts>'
+    )
+
+
+def docx_web_settings_xml() -> str:
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' f'<w:webSettings xmlns:w="{WORD_NS}"/>'
+
+
+def docx_theme_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Generated Office Theme">'
+        '<a:themeElements><a:clrScheme name="Generated">'
+        '<a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1>'
+        '<a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>'
+        '<a:dk2><a:srgbClr val="1F4E79"/></a:dk2><a:lt2><a:srgbClr val="EEECE1"/></a:lt2>'
+        '<a:accent1><a:srgbClr val="4F81BD"/></a:accent1><a:accent2><a:srgbClr val="C0504D"/></a:accent2>'
+        '<a:accent3><a:srgbClr val="9BBB59"/></a:accent3><a:accent4><a:srgbClr val="8064A2"/></a:accent4>'
+        '<a:accent5><a:srgbClr val="4BACC6"/></a:accent5><a:accent6><a:srgbClr val="F79646"/></a:accent6>'
+        '<a:hlink><a:srgbClr val="0000FF"/></a:hlink><a:folHlink><a:srgbClr val="800080"/></a:folHlink>'
+        '</a:clrScheme><a:fontScheme name="Generated"><a:majorFont><a:latin typeface="Calibri"/></a:majorFont>'
+        '<a:minorFont><a:latin typeface="Calibri"/></a:minorFont></a:fontScheme><a:fmtScheme name="Generated">'
+        '<a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:fillStyleLst>'
+        '<a:lnStyleLst><a:ln w="6350"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln></a:lnStyleLst>'
+        "<a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst>"
+        '<a:bgFillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:bgFillStyleLst>'
+        "</a:fmtScheme></a:themeElements></a:theme>"
+    )
+
+
+def docx_header_footer_xml(tag: str, content: dict[str, Any]) -> str:
+    paragraphs = layout_paragraphs(content) or [{"runs": [{"text": ""}]}]
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:{tag} xmlns:w="{WORD_NS}">{"".join(docx_paragraph(paragraph) for paragraph in paragraphs)}</w:{tag}>'
+    )
+
+
 def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: Path) -> None:
     layout = document_layout(resume, path.name)
-    paragraphs = resume_paragraphs(master, resume)
+    blocks = resume_blocks(master, resume, layout)
+    paragraphs = block_paragraphs(blocks)
     resume_value = resume.get("resume")
     resume_meta = resume_value if isinstance(resume_value, dict) else {}
     title = scalar_text(resume_meta.get("label") or "Resume")
     entries = [
-        ("[Content_Types].xml", document_content_types()),
+        ("[Content_Types].xml", document_content_types(layout)),
         (
             "_rels/.rels",
             relationships_xml(
@@ -1196,8 +1480,8 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
                 ]
             ),
         ),
-        ("word/_rels/document.xml.rels", docx_document_relationships_xml()),
-        ("word/document.xml", docx_document_xml(paragraphs, layout)),
+        ("word/_rels/document.xml.rels", docx_document_relationships_xml(layout)),
+        ("word/document.xml", docx_document_xml(blocks, layout)),
         ("word/styles.xml", docx_styles_xml(layout)),
         ("word/numbering.xml", docx_numbering_xml(paragraphs, layout)),
         ("word/settings.xml", docx_settings_xml()),
@@ -1223,6 +1507,18 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
             "<Application>x_create_cv_x</Application></Properties>",
         ),
     ]
+    if package_enabled(layout, "theme"):
+        entries.append(("word/theme/theme1.xml", docx_theme_xml()))
+    if package_enabled(layout, "font_table"):
+        entries.append(("word/fontTable.xml", docx_font_table_xml()))
+    if package_enabled(layout, "web_settings"):
+        entries.append(("word/webSettings.xml", docx_web_settings_xml()))
+    header = layout.get("header")
+    if isinstance(header, dict):
+        entries.append(("word/header1.xml", docx_header_footer_xml("hdr", header)))
+    footer = layout.get("footer")
+    if isinstance(footer, dict):
+        entries.append(("word/footer1.xml", docx_header_footer_xml("ftr", footer)))
     write_zip_entries(path, entries)
 
 
@@ -1299,12 +1595,61 @@ def normalized_text_summary(path: Path) -> dict[str, Any]:
     return {"line_count": len(lines), "sha256": hashlib.sha256(payload).hexdigest()}
 
 
+def docx_structure_summary(path: Path) -> dict[str, Any]:
+    namespace = {"w": WORD_NS}
+    with zipfile.ZipFile(path) as archive:
+        part_names = archive.namelist()
+        document = ET.fromstring(archive.read("word/document.xml"))
+    tables = document.findall(".//w:tbl", namespace)
+    paragraphs = document.findall(".//w:p", namespace)
+    styles = sorted(
+        {
+            style.attrib[f"{{{WORD_NS}}}val"]
+            for style in document.findall(".//w:pStyle", namespace)
+            if f"{{{WORD_NS}}}val" in style.attrib
+        }
+    )
+    return {
+        "part_count": len(part_names),
+        "has_theme": "word/theme/theme1.xml" in part_names,
+        "has_font_table": "word/fontTable.xml" in part_names,
+        "has_web_settings": "word/webSettings.xml" in part_names,
+        "header_count": len([name for name in part_names if name.startswith("word/header")]),
+        "footer_count": len([name for name in part_names if name.startswith("word/footer")]),
+        "paragraph_count": len(paragraphs),
+        "table_count": len(tables),
+        "table_row_count": len(document.findall(".//w:tr", namespace)),
+        "table_cell_count": len(document.findall(".//w:tc", namespace)),
+        "table_paragraph_count": sum(len(table.findall(".//w:p", namespace)) for table in tables),
+        "numbered_paragraph_count": len(document.findall(".//w:numPr", namespace)),
+        "styles": styles,
+    }
+
+
+def xlsx_structure_summary(path: Path) -> dict[str, Any]:
+    namespace = {"s": SHEET_NS}
+    with zipfile.ZipFile(path) as archive:
+        workbook = ET.fromstring(archive.read("xl/workbook.xml"))
+        sheet_names = [str(sheet.attrib["name"]) for sheet in workbook.findall(".//s:sheet", namespace)]
+    return {"sheet_count": len(sheet_names), "sheet_names": sheet_names}
+
+
+def office_structure_summary(path: Path) -> dict[str, Any]:
+    if path.suffix.lower() == ".docx":
+        return docx_structure_summary(path)
+    if path.suffix.lower() == ".xlsx":
+        return xlsx_structure_summary(path)
+    return {}
+
+
 def office_file_summary(relative_path: str, path: Path) -> dict[str, Any]:
     summary: dict[str, Any] = {"path": relative_path, "bytes": path.stat().st_size, "sha256": sha256_file(path)}
     try:
         summary["normalized_text"] = normalized_text_summary(path)
+        summary["structure"] = office_structure_summary(path)
     except (KeyError, ET.ParseError, zipfile.BadZipFile) as exc:
         summary["normalized_text"] = {"error": exc.__class__.__name__}
+        summary["structure"] = {"error": exc.__class__.__name__}
     return summary
 
 

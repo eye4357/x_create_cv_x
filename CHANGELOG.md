@@ -16,6 +16,9 @@
 - Promoted workbook/document layout into explicit generated JSON `office_layout` contracts consumed by the Office renderer.
 - Removed confusing raw `a`/`b`/`c` spreadsheet columns from generated XLSX output in favor of named app-native fields.
 - Updated DOCX generation to consume item `formatting.block_style`, `formatting.numbering`, and rich `formatting.runs` from the JSON contract.
+- Added DOCX document-flow layout support for JSON-backed paragraph, item, and table blocks.
+- Added DOCX header/footer, theme, font table, and web settings package parts driven by the document layout contract.
+- Added non-sensitive Office structure metrics to the private comparison report.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 

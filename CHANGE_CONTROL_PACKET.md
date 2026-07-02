@@ -49,6 +49,8 @@ Establish the next controlled development version for the side-by-side private g
 - Added explicit generated JSON `office_layout` contracts for workbook and document layout.
 - Changed the Office renderer to consume workbook sheet/column/style layout and DOCX `block_style`, `numbering`, and `runs` from generated JSON.
 - Removed raw `a`/`b`/`c` columns from generated XLSX files in favor of named app-native columns.
+- Added DOCX flow layout support for table blocks plus optional header/footer, theme, font table, and web settings package parts.
+- Added non-sensitive structural Office metrics to the private comparison report.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.
 

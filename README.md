@@ -73,7 +73,7 @@ Generate the private `_a_posteriori` Office evidence and comparison report from 
 python .\x_create_cv_factory_x.py generate-golden-office
 ```
 
-The generated workbook keeps the nine original spreadsheet sheet names, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`. The generated DOCX files read document margins/styles and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
+The generated workbook keeps the nine original spreadsheet sheet names, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`. The generated DOCX files read document margins/styles, document flow, tables, optional package parts, and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
 
 The older `validate --expected-zip` command remains available for legacy archive checks, but the active 0.0.2 golden path is `exercise-golden` against `x_create_cv_test_data_x`.
 

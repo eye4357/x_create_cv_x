@@ -179,6 +179,11 @@ def docx_document_xml(path: Path) -> str:
         return document.read("word/document.xml").decode("utf-8")
 
 
+def docx_part_names(path: Path) -> list[str]:
+    with zipfile.ZipFile(path) as document:
+        return sorted(document.namelist())
+
+
 def docx_section_margins(path: Path) -> dict[str, str]:
     namespace = {"w": app.WORD_NS}
     with zipfile.ZipFile(path) as document:
@@ -371,6 +376,100 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert "<w:b/>" in document_xml
     assert "<w:i/>" in document_xml
     assert '<w:u w:val="single"/>' in document_xml
+
+
+def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> None:
+    master: dict[str, Any] = {"collections": {}}
+    resume = {
+        "office_layout": {
+            "document": {
+                "package": {"theme": True, "font_table": True, "web_settings": True},
+                "header": {"runs": [{"text": "Header", "bold": True}]},
+                "footer": {"runs": [{"text": "1"}]},
+                "flow": [
+                    {"type": "items", "item_ids": ["item_intro"]},
+                    {
+                        "type": "table",
+                        "column_widths": ["2400", "2400"],
+                        "rows": [
+                            [{"item_ids": ["item_left"]}, {"item_ids": ["item_right"]}],
+                            [{"item_ids": ["item_bottom"]}, {"runs": [{"text": "Inline cell", "italic": True}]}],
+                        ],
+                    },
+                ],
+            }
+        },
+        "resume": {"id": "resume_api", "label": "API Resume"},
+        "collections": {
+            "sections": [
+                {
+                    "id": "section_001",
+                    "title": "API-backed section",
+                    "kind": "summary",
+                    "sort_order": 1,
+                    "item_ids": ["item_intro", "item_left", "item_right", "item_bottom"],
+                    "is_visible": True,
+                }
+            ],
+            "items": [
+                {
+                    "id": "item_intro",
+                    "section_id": "section_001",
+                    "kind": "text",
+                    "sort_order": 1,
+                    "master_record_refs": [],
+                    "text_override": "Intro",
+                    "formatting": {"block_style": "Title", "numbering": None, "runs": [{"text": "Intro"}]},
+                    "is_visible": True,
+                },
+                {
+                    "id": "item_left",
+                    "section_id": "section_001",
+                    "kind": "text",
+                    "sort_order": 2,
+                    "master_record_refs": [],
+                    "text_override": "Left",
+                    "formatting": {"block_style": None, "numbering": None, "runs": [{"text": "Left"}]},
+                    "is_visible": True,
+                },
+                {
+                    "id": "item_right",
+                    "section_id": "section_001",
+                    "kind": "text",
+                    "sort_order": 3,
+                    "master_record_refs": [],
+                    "text_override": "Right",
+                    "formatting": {"block_style": None, "numbering": None, "runs": [{"text": "Right"}]},
+                    "is_visible": True,
+                },
+                {
+                    "id": "item_bottom",
+                    "section_id": "section_001",
+                    "kind": "text",
+                    "sort_order": 4,
+                    "master_record_refs": [],
+                    "text_override": "Bottom",
+                    "formatting": {"block_style": None, "numbering": None, "runs": [{"text": "Bottom"}]},
+                    "is_visible": True,
+                },
+            ],
+        },
+    }
+    document_path = tmp_path / "flow_contract.docx"
+    app.write_resume_document(master, resume, document_path)
+    part_names = docx_part_names(document_path)
+    document_xml = docx_document_xml(document_path)
+
+    assert "word/theme/theme1.xml" in part_names
+    assert "word/fontTable.xml" in part_names
+    assert "word/webSettings.xml" in part_names
+    assert "word/header1.xml" in part_names
+    assert "word/footer1.xml" in part_names
+    assert "<w:tbl>" in document_xml
+    assert document_xml.count("<w:tr>") == 2
+    assert document_xml.count("<w:tc>") == 4
+    assert '<w:headerReference w:type="default" r:id="rId7"/>' in document_xml
+    assert '<w:footerReference w:type="default" r:id="rId8"/>' in document_xml
 
 
 def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
