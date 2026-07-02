@@ -363,6 +363,14 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
                     "header_fill": "FFABCDEF",
                     "header_font_color": "FF102030",
                     "body_border_color": "FF405060",
+                    "page_margins": {
+                        "left": "0.2",
+                        "right": "0.4",
+                        "top": "0.6",
+                        "bottom": "0.8",
+                        "header": "0.1",
+                        "footer": "0.3",
+                    },
                 },
                 "sheets": [
                     {
@@ -412,6 +420,14 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "state": "frozen",
     }
     assert sheet_summary["auto_filter_ref"] == "A1:E2"
+    assert sheet_summary["page_margins"] == {
+        "left": "0.2",
+        "right": "0.4",
+        "top": "0.6",
+        "bottom": "0.8",
+        "header": "0.1",
+        "footer": "0.3",
+    }
     assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25", "10.00", "10.00"]
     assert sheet_summary["cell_type_counts"] == {"inlineStr": 8, "number": 1, "b": 1}
     workbook_summary = app.xlsx_structure_summary(workbook_path)

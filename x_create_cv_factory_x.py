@@ -2573,6 +2573,7 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
     dimension = root.find("s:dimension", namespace)
     auto_filter = root.find("s:autoFilter", namespace)
     pane = root.find(".//s:pane", namespace)
+    page_margins = root.find("s:pageMargins", namespace)
     rows = root.findall(".//s:row", namespace)
     max_column = 0
     styled_cell_count = 0
@@ -2600,6 +2601,7 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
         "cell_type_counts": cell_type_counts,
         "auto_filter_ref": auto_filter.attrib.get("ref", "") if auto_filter is not None else "",
         "freeze_pane": dict(pane.attrib) if pane is not None else {},
+        "page_margins": dict(page_margins.attrib) if page_margins is not None else {},
         "column_widths": [col.attrib.get("width", "") for col in root.findall("s:cols/s:col", namespace)],
     }
 
@@ -2919,8 +2921,9 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
             lines.extend(
                 [
                     "| Sheet | Source Dimension | Generated Dimension | Generated Freeze Pane | "
-                    "Generated Filter | Generated Cell Types | Source Headers | Generated Headers |",
-                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "Generated Filter | Generated Page Margins | Generated Cell Types | Source Headers | "
+                    "Generated Headers |",
+                    "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
                 ]
             )
             for index, generated_sheet in enumerate(generated_sheets):
@@ -2935,6 +2938,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                     f"{markdown_cell(generated_sheet.get('dimension', ''))} | "
                     f"{markdown_cell(generated_sheet.get('freeze_pane', {}))} | "
                     f"{markdown_cell(generated_sheet.get('auto_filter_ref', ''))} | "
+                    f"{markdown_cell(generated_sheet.get('page_margins', {}))} | "
                     f"{markdown_cell(generated_sheet.get('cell_type_counts', {}))} | "
                     f"{markdown_cell(source_sheet.get('headers', []))} | "
                     f"{markdown_cell(generated_sheet.get('headers', []))} |"
