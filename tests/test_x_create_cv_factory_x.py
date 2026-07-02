@@ -913,6 +913,20 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert f'<w:settings xmlns:w="{app.WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>' in settings_xml
     assert '<w:font w:name="Calibri"/><w:font w:name="Symbol"/><w:font w:name="Courier New"/>' in font_table_xml
     assert f'<w:webSettings xmlns:w="{app.WORD_NS}"/>' in web_settings_xml
+    assert footnotes_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:footnotes xmlns:w="{app.WORD_NS}"><w:footnote w:type="separator" w:id="-1">'
+        "<w:p><w:r><w:separator/></w:r></w:p></w:footnote>"
+        '<w:footnote w:type="continuationSeparator" w:id="0"><w:p><w:r>'
+        "<w:continuationSeparator/></w:r></w:p></w:footnote></w:footnotes>"
+    )
+    assert endnotes_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:endnotes xmlns:w="{app.WORD_NS}"><w:endnote w:type="separator" w:id="-1">'
+        "<w:p><w:r><w:separator/></w:r></w:p></w:endnote>"
+        '<w:endnote w:type="continuationSeparator" w:id="0"><w:p><w:r>'
+        "<w:continuationSeparator/></w:r></w:p></w:endnote></w:endnotes>"
+    )
     assert '<w:footnote w:type="separator" w:id="-1">' in footnotes_xml
     assert "<w:continuationSeparator/>" in footnotes_xml
     assert '<w:endnote w:type="separator" w:id="-1">' in endnotes_xml
