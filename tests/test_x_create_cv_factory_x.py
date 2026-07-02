@@ -415,6 +415,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         app_properties_xml = workbook.read("docProps/app.xml").decode("utf-8")
         workbook_xml = workbook.read("xl/workbook.xml").decode("utf-8")
         workbook_relationships_xml = workbook.read("xl/_rels/workbook.xml.rels").decode("utf-8")
+        styles_xml = workbook.read("xl/styles.xml").decode("utf-8")
 
     assert workbook_sheet_names(workbook_path) == ["Highlights"]
     assert (
@@ -452,6 +453,21 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert (
         'Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
         'Target="styles.xml"' in workbook_relationships_xml
+    )
+    assert f'<styleSheet xmlns="{app.SHEET_NS}">' in styles_xml
+    assert '<fonts count="3">' in styles_xml
+    assert '<font><b/><sz val="11"/><color rgb="FF102030"/><name val="Calibri"/><family val="2"/></font>' in styles_xml
+    assert '<fills count="4">' in styles_xml
+    assert '<fgColor rgb="FFABCDEF"/>' in styles_xml
+    assert '<borders count="2">' in styles_xml
+    assert '<left style="thin"><color rgb="FF405060"/></left>' in styles_xml
+    assert '<right style="thin"><color rgb="FF405060"/></right>' in styles_xml
+    assert '<top style="thin"><color rgb="FF405060"/></top>' in styles_xml
+    assert '<bottom style="thin"><color rgb="FF405060"/></bottom>' in styles_xml
+    assert '<cellXfs count="3">' in styles_xml
+    assert (
+        '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1">'
+        '<alignment vertical="top" wrapText="1"/></xf>' in styles_xml
     )
     assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights", "Score", "Current"]
     assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value", "", ""]

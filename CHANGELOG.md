@@ -54,6 +54,7 @@
 - Extended public fake Office tests to assert XLSX workbook sheet and relationship binding without private data.
 - Extended public fake Office tests to assert XLSX content-type and root relationship package binding without private data.
 - Extended public fake Office tests to assert XLSX core and app document property metadata without private data.
+- Extended public fake Office tests to assert XLSX style XML color, border, and alignment binding without private data.
 - Extended public fake Office tests to assert DOCX table grid and cell width XML without private data.
 - Extended public fake Office tests to assert DOCX section page margin XML without private data.
 - Extended public fake Office tests to assert DOCX run property and text binding without private data.
