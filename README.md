@@ -2,7 +2,7 @@
 
 Privacy-first CLI tooling for building app-native CV and resume data as deterministic JSON.
 
-Version: `0.0.2`
+Version: `0.0.3`
 
 The project keeps source code, docs, tests, and fake fixtures public while real CV data stays in ignored local folders.
 
@@ -92,7 +92,7 @@ Use an explicit accepted-drift policy when a release has reviewed, versioned dif
 python .\x_create_cv_factory_x.py audit --policy .\audit_policies\default_office_audit_policy.json
 ```
 
-The generated workbook keeps the nine original spreadsheet sheet names, skips redundant collection placeholder rows, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`. The generated DOCX files read document margins/styles, page size, document flow, tables, paragraph alignment/spacing/indentation/tab stops, optional package parts, and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
+The generated workbook keeps the nine original spreadsheet sheet names, skips redundant collection placeholder rows, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`, including sheet-level freeze panes, autofilters, and explicit column widths. The generated DOCX files read document margins/styles, page size, document flow, tables, paragraph alignment/spacing/indentation/tab stops, optional package parts, and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
 
 The `audit` command writes both the machine-readable comparison JSON and a Markdown report with private-safe structure metrics: DOCX package parts, paragraph/run/style counts, hyperlinks, tabs, tables, numbering, XLSX sheet names, dimensions, headers, and style counts. Audit policy files live under `audit_policies/`; they version accepted drift so review-required differences must be explicitly classified before a release. The default `0.0.2` policy includes one reviewed workbook drift entry for the generated app-native ID/Label columns; all other unmatched differences remain review-required.
 
@@ -139,6 +139,7 @@ The repository includes:
 ## Documentation
 
 - See [WORLD_CLASS_CV_GLIDEPATH.md](WORLD_CLASS_CV_GLIDEPATH.md) for the versioned workplan from the current `0.0.2` checkpoint to a stable world-class CV compiler.
+- See [RELEASE_NOTES_0.0.3.md](RELEASE_NOTES_0.0.3.md) for the current renderer-conformance development checkpoint.
 - See [ONLINE_SERVICE_STRATEGY.md](ONLINE_SERVICE_STRATEGY.md) for the future showcase/service path.
 - See [CV_OFFICE_REGENERATION_PLAN.md](CV_OFFICE_REGENERATION_PLAN.md) for the `_a_priori` evidence, `_a_posteriori` generation, XLSX, and DOCX regeneration roadmap.
 - See [SECURITY.md](SECURITY.md) for private-data handling rules.

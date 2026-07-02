@@ -1,0 +1,34 @@
+# Release Notes: 0.0.3 Development Checkpoint
+
+Date: 2026-07-02
+Status: Development checkpoint, not a public production release
+
+## Summary
+
+`0.0.3` starts renderer conformance hardening after the `0.0.2` contract-and-audit lock. This checkpoint keeps the public/private evidence split intact while making XLSX sheet behavior more explicit, testable, and visible in audit reports.
+
+## Highlights
+
+- Added schema-backed per-sheet XLSX `freeze_header`, `auto_filter`, and `column_widths` controls.
+- Made generated XLSX worksheets honor sheet-level controls over workbook defaults.
+- Expanded XLSX structure summaries with freeze-pane, autofilter, and column-width metadata.
+- Expanded the Markdown Office audit report to show generated XLSX freeze-pane and autofilter state.
+- Added public fake-fixture coverage for the new workbook conformance controls.
+
+## Validation
+
+- `validate-schema`: default audit policy passed.
+- `check-evidence`: 4 source Office files.
+- `exercise-golden`: 4 `_a_priori` files, 23 chain files, 4 generated JSON files, 4 generated Office files.
+- `pytest`: 19 passed.
+- `ruff check .`: passed.
+- `black --check x_create_cv_factory_x.py tests/test_x_create_cv_factory_x.py`: passed.
+- `mypy`: passed.
+
+## Evidence Checkpoint
+
+Private evidence is checkpointed in `x_create_cv_test_data_x` with regenerated policy-backed audit reports for the `0.0.3` renderer-conformance metrics.
+
+## Release Decision
+
+This checkpoint remains in development. No public `v0.0.3` production tag is cut from `x_create_cv_x` yet.

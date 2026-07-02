@@ -53,6 +53,18 @@
           "skip_placeholder_rows": {
             "type": "boolean"
           },
+          "freeze_header": {
+            "type": "boolean"
+          },
+          "auto_filter": {
+            "type": "boolean"
+          },
+          "column_widths": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
           "columns": {
             "type": "array",
             "items": {

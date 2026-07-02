@@ -1,20 +1,21 @@
 # Change Control Packet
 
 Tool: `x_create_cv_x`
-Version: `0.0.2`
-Packet ID: `x_create_cv_x-0.0.2-2026-07-01`
-Date: `2026-07-01`
+Version: `0.0.3`
+Packet ID: `x_create_cv_x-0.0.3-2026-07-02`
+Date: `2026-07-02`
 Status: Updated
 
 ## Scope
 
-Establish the next controlled development version for the side-by-side private golden evidence workflow, `_a_priori` source-document integrity checks, full chain-of-evidence storage, and whole-cloth `_a_posteriori` XLSX/DOCX regeneration.
+Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lock while preserving the side-by-side private golden evidence workflow.
 
 ## Controlled Files
 
 - `x_create_cv_factory_x.py`
 - `README.md`
 - `WORLD_CLASS_CV_GLIDEPATH.md`
+- `RELEASE_NOTES_0.0.3.md`
 - `schemas/master_profile.schema.json`
 - `schemas/resume.schema.json`
 - `schemas/workbook_layout.schema.json`
@@ -37,6 +38,10 @@ Establish the next controlled development version for the side-by-side private g
 ## Change Summary
 
 - Bumped the development version from `0.0.1` to `0.0.2`.
+- Bumped the development version from `0.0.2` to `0.0.3`.
+- Added schema-backed per-sheet XLSX freeze-header, autofilter, and column-width controls.
+- Expanded XLSX structure summaries and Markdown audit reports to expose generated freeze-pane and autofilter state.
+- Extended public fake Office tests to assert workbook conformance controls without private data.
 - Added `CV_OFFICE_REGENERATION_PLAN.md` as the controlled roadmap for replacing or downgrading `private.zip` with Office evidence.
 - Extracted the three local source archives into original `_a_priori` DOCX/XLSX files under the ignored private evidence boundary, then removed the ZIP archives locally.
 - Added a private SHA-256 manifest for the three `_a_priori` Office files.

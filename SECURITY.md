@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The current supported development version is `0.0.2`.
+The current supported development version is `0.0.3`.
 
 ## Private Data Boundary
 

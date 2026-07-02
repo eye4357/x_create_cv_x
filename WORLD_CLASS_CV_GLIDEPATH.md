@@ -290,9 +290,9 @@ For every private evidence checkpoint:
 
 ## Next Engineering Move
 
-The next concrete implementation slice should be `0.0.2` contract-and-audit lock:
+The current concrete implementation slice is `0.0.3` renderer conformance hardening:
 
-1. Add JSON Schema files for the public data and layout contracts.
-2. Add schema validation to fake tests and private golden exercise.
-3. Add a first-class `audit` CLI command that emits readable DOCX/XLSX parity reports.
-4. Version known acceptable differences so release decisions are evidence-backed rather than vibe-backed.
+1. Expand public fake renderer tests for schema-backed XLSX and DOCX layout controls.
+2. Surface renderer conformance details in private-safe audit reports.
+3. Tighten OpenXML output around documented layout fields before adding template/product surface area.
+4. Keep private evidence reports classified as `pass`, `accepted_drift`, or `review_required`.

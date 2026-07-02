@@ -28,7 +28,7 @@ DEFAULT_AUDIT_POLICY = AUDIT_POLICY_DIR / "default_office_audit_policy.json"
 RESUME_APP_MODEL = "resume_document_crud"
 MASTER_APP_MODEL = "master_profile_crud"
 SCHEMA_VERSION = "1.0.0"
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 CONTRACT_SCHEMA_FILES = {
     "master_profile": "master_profile.schema.json",
     "resume": "resume.schema.json",
@@ -727,16 +727,16 @@ def sheet_rows(master: dict[str, Any], sheet: dict[str, Any]) -> list[list[str]]
     return rows
 
 
-def workbook_sheets(master: dict[str, Any]) -> list[tuple[str, list[list[str]]]]:
+def workbook_sheets(master: dict[str, Any]) -> list[tuple[str, list[list[str]], dict[str, Any]]]:
     sheets = workbook_layout(master).get("sheets")
     if not isinstance(sheets, list):
         return []
-    rendered_sheets: list[tuple[str, list[list[str]]]] = []
+    rendered_sheets: list[tuple[str, list[list[str]], dict[str, Any]]] = []
     for sheet in sheets:
         if not isinstance(sheet, dict):
             continue
         sheet_name = scalar_text(sheet.get("name") or sheet.get("collection") or "Sheet")
-        rendered_sheets.append((sheet_name, sheet_rows(master, sheet)))
+        rendered_sheets.append((sheet_name, sheet_rows(master, sheet), sheet))
     return rendered_sheets
 
 
@@ -746,10 +746,24 @@ def worksheet_dimension(rows: list[list[str]]) -> str:
     return f"A1:{column_name(column_count)}{row_count}"
 
 
-def column_widths(rows: list[list[str]]) -> list[float]:
+def configured_column_width(sheet: dict[str, Any], column_index: int) -> float | None:
+    widths = sheet.get("column_widths")
+    if not isinstance(widths, list) or column_index >= len(widths):
+        return None
+    width = widths[column_index]
+    if isinstance(width, int | float) and not isinstance(width, bool):
+        return float(max(1, min(width, 255)))
+    return None
+
+
+def column_widths(rows: list[list[str]], sheet: dict[str, Any]) -> list[float]:
     column_count = max((len(row) for row in rows), default=1)
     widths: list[float] = []
     for column_index in range(column_count):
+        configured_width = configured_column_width(sheet, column_index)
+        if configured_width is not None:
+            widths.append(configured_width)
+            continue
         width = max((len(row[column_index]) for row in rows if column_index < len(row)), default=8)
         widths.append(float(max(10, min(width + 2, 42))))
     return widths
@@ -758,6 +772,11 @@ def column_widths(rows: list[list[str]]) -> list[float]:
 def style_bool(styles: dict[str, Any], key: str, default: bool) -> bool:
     value = styles.get(key)
     return value if isinstance(value, bool) else default
+
+
+def sheet_bool(sheet: dict[str, Any], styles: dict[str, Any], key: str, default: bool) -> bool:
+    value = sheet.get(key)
+    return value if isinstance(value, bool) else style_bool(styles, key, default)
 
 
 def style_text(styles: dict[str, Any], key: str, default: str) -> str:
@@ -777,7 +796,7 @@ def workbook_page_margins(styles: dict[str, Any]) -> dict[str, str]:
     }
 
 
-def worksheet_xml(rows: list[list[str]], layout: dict[str, Any]) -> str:
+def worksheet_xml(rows: list[list[str]], layout: dict[str, Any], sheet: dict[str, Any]) -> str:
     styles = workbook_style_options(layout)
     rendered_rows: list[str] = []
     for row_index, row in enumerate(rows, start=1):
@@ -792,15 +811,15 @@ def worksheet_xml(rows: list[list[str]], layout: dict[str, Any]) -> str:
         rendered_rows.append(f'<row r="{row_index}">{"".join(cells)}</row>')
     widths = "".join(
         f'<col min="{index}" max="{index}" width="{width:.2f}" customWidth="1"/>'
-        for index, width in enumerate(column_widths(rows), start=1)
+        for index, width in enumerate(column_widths(rows, sheet), start=1)
     )
     dimension = worksheet_dimension(rows)
     sheet_view_xml = '<sheetViews><sheetView tabSelected="0" workbookViewId="0">'
-    if style_bool(styles, "freeze_header", True):
+    if sheet_bool(sheet, styles, "freeze_header", True):
         sheet_view_xml += '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
         sheet_view_xml += '<selection pane="bottomLeft"/>'
     sheet_view_xml += "</sheetView></sheetViews>"
-    auto_filter_xml = f'<autoFilter ref="{dimension}"/>' if style_bool(styles, "auto_filter", True) else ""
+    auto_filter_xml = f'<autoFilter ref="{dimension}"/>' if sheet_bool(sheet, styles, "auto_filter", True) else ""
     margins = workbook_page_margins(styles)
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -910,7 +929,7 @@ def workbook_styles_xml(layout: dict[str, Any]) -> str:
 def write_master_workbook(master: dict[str, Any], path: Path) -> None:
     layout = workbook_layout(master)
     sheets = workbook_sheets(master)
-    sheet_names = [sheet_name for sheet_name, _rows in sheets]
+    sheet_names = [sheet_name for sheet_name, _rows, _sheet in sheets]
     entries = [
         ("[Content_Types].xml", workbook_content_types(len(sheets))),
         (
@@ -939,8 +958,8 @@ def write_master_workbook(master: dict[str, Any], path: Path) -> None:
         ("xl/_rels/workbook.xml.rels", workbook_relationships(len(sheets))),
         ("xl/styles.xml", workbook_styles_xml(layout)),
         *[
-            (f"xl/worksheets/sheet{index}.xml", worksheet_xml(rows, layout))
-            for index, (_sheet_name, rows) in enumerate(sheets, start=1)
+            (f"xl/worksheets/sheet{index}.xml", worksheet_xml(rows, layout, sheet))
+            for index, (_sheet_name, rows, sheet) in enumerate(sheets, start=1)
         ],
         (
             "docProps/core.xml",
@@ -2247,6 +2266,8 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
     namespace = {"s": SHEET_NS}
     root = ET.fromstring(archive.read(worksheet_path))
     dimension = root.find("s:dimension", namespace)
+    auto_filter = root.find("s:autoFilter", namespace)
+    pane = root.find(".//s:pane", namespace)
     rows = root.findall(".//s:row", namespace)
     max_column = 0
     styled_cell_count = 0
@@ -2268,6 +2289,9 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
         "column_count": max_column,
         "headers": headers,
         "styled_cell_count": styled_cell_count,
+        "auto_filter_ref": auto_filter.attrib.get("ref", "") if auto_filter is not None else "",
+        "freeze_pane": dict(pane.attrib) if pane is not None else {},
+        "column_widths": [col.attrib.get("width", "") for col in root.findall("s:cols/s:col", namespace)],
     }
 
 
@@ -2512,8 +2536,9 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         if isinstance(generated_sheets, list) and isinstance(source_sheets, list):
             lines.extend(
                 [
-                    "| Sheet | Source Dimension | Generated Dimension | Source Headers | Generated Headers |",
-                    "| --- | --- | --- | --- | --- |",
+                    "| Sheet | Source Dimension | Generated Dimension | Generated Freeze Pane | "
+                    "Generated Filter | Source Headers | Generated Headers |",
+                    "| --- | --- | --- | --- | --- | --- | --- |",
                 ]
             )
             for index, generated_sheet in enumerate(generated_sheets):
@@ -2526,6 +2551,8 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                     f"| {markdown_cell(generated_sheet.get('name', ''))} | "
                     f"{markdown_cell(source_sheet.get('dimension', ''))} | "
                     f"{markdown_cell(generated_sheet.get('dimension', ''))} | "
+                    f"{markdown_cell(generated_sheet.get('freeze_pane', {}))} | "
+                    f"{markdown_cell(generated_sheet.get('auto_filter_ref', ''))} | "
                     f"{markdown_cell(source_sheet.get('headers', []))} | "
                     f"{markdown_cell(generated_sheet.get('headers', []))} |"
                 )

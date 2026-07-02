@@ -174,6 +174,11 @@ def worksheet_row_values(path: Path, row_index: int) -> list[str]:
     ]
 
 
+def first_worksheet_summary(path: Path) -> dict[str, Any]:
+    with zipfile.ZipFile(path) as workbook:
+        return app.xlsx_sheet_summary(workbook, "xl/worksheets/sheet1.xml", [])
+
+
 def docx_document_xml(path: Path) -> str:
     with zipfile.ZipFile(path) as document:
         return document.read("word/document.xml").decode("utf-8")
@@ -344,14 +349,18 @@ def test_cli_check_evidence_reports_missing_manifest(tmp_path: Path, capsys: pyt
 
 
 def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
-    master = {
+    master: dict[str, Any] = {
         "office_layout": {
             "workbook": {
+                "styles": {"freeze_header": False, "auto_filter": False},
                 "sheets": [
                     {
                         "name": "Highlights",
                         "collection": "highlights",
                         "skip_placeholder_rows": True,
+                        "freeze_header": True,
+                        "auto_filter": True,
+                        "column_widths": [8.5, 13, 28.25],
                         "columns": [
                             {"field": "id", "header": "ID"},
                             {"field": "label", "header": "Label"},
@@ -368,12 +377,22 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
             ]
         },
     }
+    app.validate_contract(master["office_layout"]["workbook"], "workbook_layout")
     workbook_path = tmp_path / "layout_contract.xlsx"
     app.write_master_workbook(master, workbook_path)
 
     assert workbook_sheet_names(workbook_path) == ["Highlights"]
     assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights"]
     assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value"]
+    sheet_summary = first_worksheet_summary(workbook_path)
+    assert sheet_summary["freeze_pane"] == {
+        "ySplit": "1",
+        "topLeftCell": "A2",
+        "activePane": "bottomLeft",
+        "state": "frozen",
+    }
+    assert sheet_summary["auto_filter_ref"] == "A1:C2"
+    assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25"]
 
     resume = {
         "office_layout": {
