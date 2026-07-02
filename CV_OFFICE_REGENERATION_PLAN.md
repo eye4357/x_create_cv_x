@@ -2,21 +2,22 @@
 
 Date: 2026-07-01
 
-Version note: `0.0.2` records this roadmap, the private sibling-repo `_a_priori` Office evidence location, the full chain-of-evidence store, the evidence integrity gate, and baseline XLSX/DOCX regeneration from golden JSON. Deeper normalized equivalence and human approval remain the next engineering milestone.
+Version note: `0.0.2` records this roadmap, the private sibling-repo `_a_priori` Office evidence location, the full chain-of-evidence store, the evidence integrity gate, the fourth current-resume golden source, and baseline XLSX/DOCX regeneration from golden JSON. Deeper normalized equivalence and human approval remain the next engineering milestone.
 
 ## Goal
 
-Replace the current private `private.zip` golden reference with a stronger evidence workflow based on three original Office files extracted from the source archives and stored under `../x_create_cv_test_data_x/evidence/source_office/a_priori/`:
+Replace the current private `private.zip` golden reference with a stronger evidence workflow based on four original Office files extracted from the source archives and stored under `../x_create_cv_test_data_x/evidence/source_office/a_priori/`:
 
 - `R_cv_2017_1129_0848_a_priori.docx`
 - `R_cv_2023_0315_2158_a_priori.docx`
 - `R_cv_2023_0501_1427_a_priori.xlsx`
+- `R_cv_2024_1206_0000_a_priori.docx`
 
 The `_a_priori` suffix marks original source evidence known before regeneration. Whole-cloth generated XLSX and DOCX outputs use an `_a_posteriori` suffix.
 
 Copies are not valid `_a_posteriori` evidence. The generated Office outputs must be produced by private scripts from the app-native JSON chain, then compared against the `_a_priori` Office files.
 
-The target end state is that `x_create_cv_x` can rebuild the app-native CV database, regenerate the spreadsheet database, regenerate the 2017 resume DOCX, regenerate the 2023 resume DOCX, and compare those outputs against the original source evidence.
+The target end state is that `x_create_cv_x` can rebuild the app-native CV database, regenerate the spreadsheet database, regenerate the 2017 resume DOCX, regenerate the 2023 resume DOCX, regenerate the current 2024 resume DOCX, and compare those outputs against the original source evidence.
 
 ## Position
 
@@ -26,9 +27,9 @@ The XLSX comparison should allow known historical drift because the original spr
 
 ## Evidence Model
 
-Keep four evidence classes together locally, but do not commit private content to public Git:
+Keep five evidence classes together locally, but do not commit private content to public Git:
 
-1. Source evidence: the three original `_a_priori` Office files under `../x_create_cv_test_data_x/evidence/source_office/a_priori/`.
+1. Source evidence: the four original `_a_priori` Office files under `../x_create_cv_test_data_x/evidence/source_office/a_priori/`.
 2. Rebuild scripts: present-tense Python scripts under `evidence/scripts/` that create master data, the spreadsheet database, and each resume document from code.
 3. Generated JSON evidence: `_a_posteriori` master/profile/resume JSON produced by the scripts.
 4. Regenerated Office evidence: new whole-cloth `_a_posteriori` XLSX and DOCX files produced by the scripts from JSON.
@@ -65,9 +66,11 @@ The whole-cloth rebuild produces `_a_posteriori` outputs:
 - `master_profile.json`
 - `resume_2017.json`
 - `resume_2023.json`
+- `resume_2024.json`
 - `master_profile_a_posteriori.xlsx` generated from `master_profile.json`
 - `resume_2017_a_posteriori.docx` generated from `resume_2017.json` plus shared profile data
 - `resume_2023_a_posteriori.docx` generated from `resume_2023.json` plus shared profile data
+- `resume_2024_a_posteriori.docx` generated from `resume_2024.json` plus shared profile data
 
 The `_a_priori` source documents should be used as comparison evidence, not as runtime dependencies for normal generation.
 
@@ -83,6 +86,7 @@ The full Office-regeneration milestone is complete when all of the following are
 - The factory can generate the XLSX database from `master_profile.json` without manual Office editing.
 - The factory can generate the 2017 DOCX from app-native JSON without manual Office editing.
 - The factory can generate the 2023 DOCX from app-native JSON without manual Office editing.
+- The factory can generate the current 2024 DOCX from app-native JSON without manual Office editing.
 - DOCX comparison passes under a normalized Office Open XML comparison.
 - Any remaining DOCX byte-level differences are explained in a generated report.
 - XLSX comparison passes with an explicit allowed-drift report for records missing from the historical spreadsheet.
@@ -93,7 +97,7 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ### Phase 1: Evidence Inventory
 
-- Use the three `_a_priori` Office files under `x_create_cv_test_data_x/evidence/source_office/a_priori/`.
+- Use the four `_a_priori` Office files under `x_create_cv_test_data_x/evidence/source_office/a_priori/`.
 - Maintain private SHA-256 manifests with file names, sizes, hashes, Office document types, generated JSON, scripts, legacy references, and selected package metadata.
 - Run `exercise-golden` before any private Office regeneration exercise.
 
@@ -113,7 +117,7 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ### Phase 4: DOCX Generation
 
-- Define DOCX templates or code-driven layout builders for the 2017 and 2023 resume variants.
+- Define DOCX templates or code-driven layout builders for the 2017, 2023, and current 2024 resume variants.
 - Generate visible text, section order, list/table structure, styles, margins, headers/footers, and document properties from JSON.
 - Compare generated DOCX files against the original DOCX files using normalized Office Open XML comparison.
 - Promote any required hand-authored layout knowledge into explicit code or private templates.

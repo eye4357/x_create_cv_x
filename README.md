@@ -116,6 +116,7 @@ The repository includes:
 
 ## Documentation
 
+- See [WORLD_CLASS_CV_GLIDEPATH.md](WORLD_CLASS_CV_GLIDEPATH.md) for the versioned workplan from the current `0.0.2` checkpoint to a stable world-class CV compiler.
 - See [ONLINE_SERVICE_STRATEGY.md](ONLINE_SERVICE_STRATEGY.md) for the future showcase/service path.
 - See [CV_OFFICE_REGENERATION_PLAN.md](CV_OFFICE_REGENERATION_PLAN.md) for the `_a_priori` evidence, `_a_posteriori` generation, XLSX, and DOCX regeneration roadmap.
 - See [SECURITY.md](SECURITY.md) for private-data handling rules.

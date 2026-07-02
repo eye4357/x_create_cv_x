@@ -14,6 +14,7 @@ Establish the next controlled development version for the side-by-side private g
 
 - `x_create_cv_factory_x.py`
 - `README.md`
+- `WORLD_CLASS_CV_GLIDEPATH.md`
 - `CV_OFFICE_REGENERATION_PLAN.md`
 - `ONLINE_SERVICE_STRATEGY.md`
 - `CHANGELOG.md`
@@ -57,6 +58,8 @@ Establish the next controlled development version for the side-by-side private g
 - Expanded DOCX structure reporting to include relationship types, body child counts, hyperlinks, tabs, package scaffolding, and font names.
 - Optimized generated workbook sheets to skip redundant collection placeholder rows while preserving named app-native columns.
 - Added non-sensitive structural Office metrics to the private comparison report.
+- Added `WORLD_CLASS_CV_GLIDEPATH.md` as the public versioned workplan from the current `0.0.2` checkpoint through a stable `1.0.0` CV compiler baseline.
+- Updated `CV_OFFICE_REGENERATION_PLAN.md` to include the current 2024 resume as the fourth golden source.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.
 
