@@ -80,7 +80,15 @@ Generate the private `_a_posteriori` Office evidence and comparison report from 
 python .\x_create_cv_factory_x.py generate-golden-office
 ```
 
+Write the private-safe Office audit reports without regenerating Office outputs:
+
+```powershell
+python .\x_create_cv_factory_x.py audit
+```
+
 The generated workbook keeps the nine original spreadsheet sheet names, skips redundant collection placeholder rows, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`. The generated DOCX files read document margins/styles, page size, document flow, tables, paragraph alignment/spacing/indentation/tab stops, optional package parts, and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
+
+The `audit` command writes both the machine-readable comparison JSON and a Markdown report with private-safe structure metrics: DOCX package parts, paragraph/run/style counts, hyperlinks, tabs, tables, numbering, XLSX sheet names, dimensions, headers, and style counts. The report does not treat accepted drift as implicit; review-required differences must be explicitly classified before a release.
 
 The older `validate --expected-zip` command remains available for legacy archive checks, but the active 0.0.2 golden path is `exercise-golden` against `x_create_cv_test_data_x`.
 

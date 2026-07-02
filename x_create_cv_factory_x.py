@@ -62,6 +62,7 @@ GOLDEN_SOURCE_OFFICE = {
     "resume_2024_a_posteriori.docx": "source_office/a_priori/R_cv_2024_1206_0000_a_priori.docx",
 }
 GOLDEN_OFFICE_REPORT = "reports/a_posteriori_office_comparison.json"
+GOLDEN_OFFICE_AUDIT_REPORT = "reports/a_posteriori_office_audit.md"
 ZIP_TIMESTAMP = (2026, 7, 1, 0, 0, 0)
 WORD_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 SHEET_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -2122,6 +2123,7 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         font_table = ET.fromstring(archive.read("word/fontTable.xml")) if "word/fontTable.xml" in part_names else None
     tables = document.findall(".//w:tbl", namespace)
     paragraphs = document.findall(".//w:p", namespace)
+    runs = document.findall(".//w:r", namespace)
     body = document.find("w:body", namespace)
     body_child_counts: dict[str, int] = {}
     if body is not None:
@@ -2139,6 +2141,27 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
             for font in font_table.findall("w:font", namespace)
             if f"{{{WORD_NS}}}name" in font.attrib
         ]
+    run_property_counts = {
+        "bold_run_count": 0,
+        "italic_run_count": 0,
+        "underline_run_count": 0,
+        "colored_run_count": 0,
+        "fonted_run_count": 0,
+    }
+    for run in runs:
+        properties = run.find("w:rPr", namespace)
+        if properties is None:
+            continue
+        if properties.find("w:b", namespace) is not None:
+            run_property_counts["bold_run_count"] += 1
+        if properties.find("w:i", namespace) is not None:
+            run_property_counts["italic_run_count"] += 1
+        if properties.find("w:u", namespace) is not None:
+            run_property_counts["underline_run_count"] += 1
+        if properties.find("w:color", namespace) is not None:
+            run_property_counts["colored_run_count"] += 1
+        if properties.find("w:rFonts", namespace) is not None:
+            run_property_counts["fonted_run_count"] += 1
     styles = sorted(
         {
             style.attrib[f"{{{WORD_NS}}}val"]
@@ -2147,6 +2170,7 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         }
     )
     return {
+        "part_names": sorted(part_names),
         "part_count": len(part_names),
         "has_theme": "word/theme/theme1.xml" in part_names,
         "has_font_table": "word/fontTable.xml" in part_names,
@@ -2159,6 +2183,8 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "body_child_counts": body_child_counts,
         "relationship_type_counts": relationship_type_counts,
         "paragraph_count": len(paragraphs),
+        "run_count": len(runs),
+        **run_property_counts,
         "hyperlink_count": len(document.findall(".//w:hyperlink", namespace)),
         "tab_count": len(document.findall(".//w:tab", namespace)),
         "table_count": len(tables),
@@ -2171,12 +2197,94 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
     }
 
 
+def xlsx_column_index(cell_reference: str) -> int:
+    column_index_value = 0
+    for character in cell_reference:
+        if not character.isalpha():
+            break
+        column_index_value = column_index_value * 26 + ord(character.upper()) - ord("A") + 1
+    return column_index_value
+
+
+def xlsx_relationship_targets(archive: zipfile.ZipFile) -> dict[str, str]:
+    relationship_path = "xl/_rels/workbook.xml.rels"
+    if relationship_path not in archive.namelist():
+        return {}
+    namespace = {"rel": "http://schemas.openxmlformats.org/package/2006/relationships"}
+    root = ET.fromstring(archive.read(relationship_path))
+    targets: dict[str, str] = {}
+    for relationship in root.findall("rel:Relationship", namespace):
+        relationship_id = relationship.attrib.get("Id")
+        target = relationship.attrib.get("Target")
+        if relationship_id is None or target is None:
+            continue
+        normalized_target = target.lstrip("/")
+        if not normalized_target.startswith("xl/"):
+            normalized_target = f"xl/{normalized_target}"
+        targets[relationship_id] = normalized_target
+    return targets
+
+
+def xlsx_style_summary(archive: zipfile.ZipFile) -> dict[str, int]:
+    if "xl/styles.xml" not in archive.namelist():
+        return {}
+    namespace = {"s": SHEET_NS}
+    root = ET.fromstring(archive.read("xl/styles.xml"))
+    cell_xfs = root.find("s:cellXfs", namespace)
+    cell_styles = root.find("s:cellStyles", namespace)
+    return {
+        "cell_xfs_count": len(list(cell_xfs)) if cell_xfs is not None else 0,
+        "cell_style_count": len(list(cell_styles)) if cell_styles is not None else 0,
+    }
+
+
+def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_strings: list[str]) -> dict[str, Any]:
+    namespace = {"s": SHEET_NS}
+    root = ET.fromstring(archive.read(worksheet_path))
+    dimension = root.find("s:dimension", namespace)
+    rows = root.findall(".//s:row", namespace)
+    max_column = 0
+    styled_cell_count = 0
+    for row in rows:
+        for cell in row.findall("s:c", namespace):
+            max_column = max(max_column, xlsx_column_index(cell.attrib.get("r", "")))
+            if "s" in cell.attrib:
+                styled_cell_count += 1
+    header_row = rows[0] if rows else None
+    headers = (
+        []
+        if header_row is None
+        else [xlsx_cell_text(cell, shared_strings) for cell in header_row.findall("s:c", namespace)]
+    )
+    return {
+        "path": worksheet_path,
+        "dimension": dimension.attrib.get("ref", "") if dimension is not None else "",
+        "row_count": len(rows),
+        "column_count": max_column,
+        "headers": headers,
+        "styled_cell_count": styled_cell_count,
+    }
+
+
 def xlsx_structure_summary(path: Path) -> dict[str, Any]:
     namespace = {"s": SHEET_NS}
     with zipfile.ZipFile(path) as archive:
+        relationship_targets = xlsx_relationship_targets(archive)
+        shared_strings = xlsx_shared_strings(archive)
         workbook = ET.fromstring(archive.read("xl/workbook.xml"))
-        sheet_names = [str(sheet.attrib["name"]) for sheet in workbook.findall(".//s:sheet", namespace)]
-    return {"sheet_count": len(sheet_names), "sheet_names": sheet_names}
+        style_summary = xlsx_style_summary(archive)
+        sheet_names: list[str] = []
+        sheets: list[dict[str, Any]] = []
+        for index, sheet in enumerate(workbook.findall(".//s:sheet", namespace), start=1):
+            sheet_name = str(sheet.attrib["name"])
+            relationship_id = sheet.attrib.get(f"{{{REL_NS}}}id")
+            worksheet_path = relationship_targets.get(relationship_id or "", f"xl/worksheets/sheet{index}.xml")
+            sheet_names.append(sheet_name)
+            if worksheet_path in archive.namelist():
+                sheet_summary = xlsx_sheet_summary(archive, worksheet_path, shared_strings)
+                sheet_summary["name"] = sheet_name
+                sheets.append(sheet_summary)
+    return {"sheet_count": len(sheet_names), "sheet_names": sheet_names, "sheets": sheets, "styles": style_summary}
 
 
 def office_structure_summary(path: Path) -> dict[str, Any]:
@@ -2198,7 +2306,7 @@ def office_file_summary(relative_path: str, path: Path) -> dict[str, Any]:
     return summary
 
 
-def write_office_comparison_report(evidence_dir: Path) -> Path:
+def office_comparisons(evidence_dir: Path) -> list[dict[str, Any]]:
     comparisons: list[dict[str, Any]] = []
     for generated_name, generated_relative_path in GOLDEN_OFFICE_EXPECTATIONS.items():
         source_relative_path = GOLDEN_SOURCE_OFFICE[generated_name]
@@ -2216,6 +2324,11 @@ def write_office_comparison_report(evidence_dir: Path) -> Path:
                 "status": "normalized_match" if normalized_match else "review_required",
             }
         )
+    return comparisons
+
+
+def write_office_comparison_report(evidence_dir: Path) -> Path:
+    comparisons = office_comparisons(evidence_dir)
     report_path = evidence_dir / GOLDEN_OFFICE_REPORT
     write_json(
         report_path,
@@ -2226,6 +2339,130 @@ def write_office_comparison_report(evidence_dir: Path) -> Path:
             "comparisons": comparisons,
         },
     )
+    return report_path
+
+
+def markdown_cell(value: Any) -> str:
+    return scalar_text(value).replace("\n", " ").replace("|", "\\|")
+
+
+def structure_metric(summary: dict[str, Any], key: str) -> Any:
+    structure = summary.get("structure")
+    if not isinstance(structure, dict):
+        return ""
+    return structure.get(key, "")
+
+
+def normalized_metric(summary: dict[str, Any], key: str) -> Any:
+    normalized = summary.get("normalized_text")
+    if not isinstance(normalized, dict):
+        return ""
+    return normalized.get(key, "")
+
+
+def append_metric_table(
+    lines: list[str], generated: dict[str, Any], source: dict[str, Any], metrics: list[str]
+) -> None:
+    lines.extend(["| Metric | Source | Generated |", "| --- | ---: | ---: |"])
+    for metric in metrics:
+        lines.append(
+            f"| {markdown_cell(metric)} | {markdown_cell(structure_metric(source, metric))} | "
+            f"{markdown_cell(structure_metric(generated, metric))} |"
+        )
+    lines.append("")
+
+
+def write_office_audit_report(evidence_dir: Path) -> Path:
+    comparisons = office_comparisons(evidence_dir)
+    lines = [
+        "# A Posteriori Office Audit",
+        "",
+        f"Generator: `x_create_cv_x {VERSION}`",
+        "",
+        "## Summary",
+        "",
+        "| File | Type | Byte Identical | Normalized Text Match | Status | Source Lines | Generated Lines |",
+        "| --- | --- | ---: | ---: | --- | ---: | ---: |",
+    ]
+    for comparison in comparisons:
+        generated = comparison["generated"]
+        source = comparison["source"]
+        generated_path = Path(str(generated["path"]))
+        lines.append(
+            f"| {markdown_cell(generated_path.name)} | {markdown_cell(generated_path.suffix.lower())} | "
+            f"{markdown_cell(comparison['byte_identical'])} | {markdown_cell(comparison['normalized_text_match'])} | "
+            f"{markdown_cell(comparison['status'])} | {markdown_cell(normalized_metric(source, 'line_count'))} | "
+            f"{markdown_cell(normalized_metric(generated, 'line_count'))} |"
+        )
+
+    lines.extend(["", "## DOCX Structure", ""])
+    docx_metrics = [
+        "part_count",
+        "paragraph_count",
+        "run_count",
+        "bold_run_count",
+        "italic_run_count",
+        "underline_run_count",
+        "colored_run_count",
+        "fonted_run_count",
+        "hyperlink_count",
+        "tab_count",
+        "table_count",
+        "numbered_paragraph_count",
+    ]
+    for comparison in comparisons:
+        generated = comparison["generated"]
+        generated_path = Path(str(generated["path"]))
+        if generated_path.suffix.lower() != ".docx":
+            continue
+        lines.extend([f"### {generated_path.name}", ""])
+        append_metric_table(lines, generated, comparison["source"], docx_metrics)
+
+    lines.extend(["## XLSX Structure", ""])
+    for comparison in comparisons:
+        generated = comparison["generated"]
+        source = comparison["source"]
+        generated_path = Path(str(generated["path"]))
+        if generated_path.suffix.lower() != ".xlsx":
+            continue
+        lines.extend([f"### {generated_path.name}", ""])
+        append_metric_table(lines, generated, source, ["sheet_count"])
+        generated_sheets = structure_metric(generated, "sheets")
+        source_sheets = structure_metric(source, "sheets")
+        if isinstance(generated_sheets, list) and isinstance(source_sheets, list):
+            lines.extend(
+                [
+                    "| Sheet | Source Dimension | Generated Dimension | Source Headers | Generated Headers |",
+                    "| --- | --- | --- | --- | --- |",
+                ]
+            )
+            for index, generated_sheet in enumerate(generated_sheets):
+                if not isinstance(generated_sheet, dict):
+                    continue
+                source_sheet = source_sheets[index] if index < len(source_sheets) else {}
+                if not isinstance(source_sheet, dict):
+                    source_sheet = {}
+                lines.append(
+                    f"| {markdown_cell(generated_sheet.get('name', ''))} | "
+                    f"{markdown_cell(source_sheet.get('dimension', ''))} | "
+                    f"{markdown_cell(generated_sheet.get('dimension', ''))} | "
+                    f"{markdown_cell(source_sheet.get('headers', []))} | "
+                    f"{markdown_cell(generated_sheet.get('headers', []))} |"
+                )
+            lines.append("")
+
+    lines.extend(
+        [
+            "## Known Acceptable Differences",
+            "",
+            "No accepted-drift policy file is applied yet. Entries with `review_required` status need explicit "
+            "human review before release.",
+            "",
+        ]
+    )
+    report_path = evidence_dir / GOLDEN_OFFICE_AUDIT_REPORT
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text("\n".join(lines), encoding="utf-8")
     return report_path
 
 
@@ -2979,6 +3216,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     generate_office_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
     generate_office_parser.add_argument("--no-report", action="store_true", help="Skip the comparison report")
+
+    audit_parser = subparsers.add_parser("audit", help="Write private-safe Office parity audit reports")
+    audit_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
+    audit_parser.add_argument("--no-json", action="store_true", help="Skip the machine-readable JSON report")
     return parser
 
 
@@ -3041,6 +3282,14 @@ def run(args: argparse.Namespace) -> int:
             args.evidence_dir, write_report=not args.no_report
         )
         print(f"Generated golden Office evidence: {generated_office_count} files; {report_count} reports")
+        return 0
+    if command == "audit":
+        json_report = None if args.no_json else write_office_comparison_report(args.evidence_dir)
+        markdown_report = write_office_audit_report(args.evidence_dir)
+        reports = [str(markdown_report)]
+        if json_report is not None:
+            reports.append(str(json_report))
+        print("Office audit written: " + "; ".join(reports))
         return 0
     raise ValueError(f"Unknown command: {command}")
 

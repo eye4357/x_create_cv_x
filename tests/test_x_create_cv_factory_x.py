@@ -753,6 +753,57 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
     )
 
 
+def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    evidence_dir = tmp_path / "evidence"
+    expected_json_dir = evidence_dir / "generated" / "json" / "a_posteriori"
+    expected_json_dir.mkdir(parents=True)
+    app.write_json(
+        expected_json_dir / "master_profile_a_posteriori.json",
+        app.empty_master(
+            {
+                "id": "profile_fake",
+                "person_id": "person_fake",
+                "label": "Fake Golden Profile",
+                "created_at": "2026-07-01T00:00:00Z",
+                "updated_at": "2026-07-01T00:00:00Z",
+            }
+        ),
+    )
+    for resume_id in ["resume_2017", "resume_2023", "resume_2024"]:
+        app.write_json(
+            expected_json_dir / f"{resume_id}_a_posteriori.json",
+            app.empty_resume(
+                {
+                    "id": resume_id,
+                    "label": f"Fake {resume_id}",
+                    "status": "active",
+                    "created_at": "2026-07-01T00:00:00Z",
+                    "updated_at": "2026-07-01T00:00:00Z",
+                }
+            ),
+        )
+    app.write_golden_office_outputs(evidence_dir, write_report=False)
+    for generated_name, source_relative_path in app.GOLDEN_SOURCE_OFFICE.items():
+        generated_path = evidence_dir / app.GOLDEN_OFFICE_EXPECTATIONS[generated_name]
+        source_path = evidence_dir / source_relative_path
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.write_bytes(generated_path.read_bytes())
+
+    assert app.main(["audit", "--evidence-dir", str(evidence_dir)]) == 0
+
+    output = capsys.readouterr().out
+    audit_path = evidence_dir / app.GOLDEN_OFFICE_AUDIT_REPORT
+    json_path = evidence_dir / app.GOLDEN_OFFICE_REPORT
+    assert "Office audit written" in output
+    assert audit_path.exists()
+    assert json_path.exists()
+    audit_text = audit_path.read_text(encoding="utf-8")
+    assert "# A Posteriori Office Audit" in audit_text
+    assert "## DOCX Structure" in audit_text
+    assert "## XLSX Structure" in audit_text
+    assert "master_profile_a_posteriori.xlsx" in audit_text
+
+
 def test_cli_typed_flags_build_expected_payload(tmp_path: Path) -> None:
     assert (
         app.main(

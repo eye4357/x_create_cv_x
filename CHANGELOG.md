@@ -27,6 +27,7 @@
 - Added a world-class CV creation glidepath that versions the path from the `0.0.2` contract-and-audit lock through a stable `1.0.0` CV compiler baseline.
 - Added public JSON Schema contracts for master profile, resume, workbook layout, and document layout JSON.
 - Added `validate-schema` to validate generated JSON against the public contract schemas.
+- Added `audit` to write private-safe JSON and Markdown Office parity reports from existing `_a_priori` and `_a_posteriori` evidence.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 
@@ -40,6 +41,7 @@
 - Optimized generated workbook sheets to skip redundant collection placeholder rows while preserving named app-native columns.
 - Updated the Office regeneration plan to include the current 2024 resume as the fourth golden source.
 - Extended generated JSON writes and the private golden exercise to validate schema-backed API contracts.
+- Expanded Office comparison metrics for DOCX package parts, run formatting counts, and XLSX sheet dimensions, headers, and styles.
 
 ### Security
 
