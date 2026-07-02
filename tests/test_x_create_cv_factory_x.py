@@ -472,6 +472,9 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert style_summary["font_count"] == 3
     assert style_summary["fill_count"] == 4
     assert style_summary["border_count"] == 2
+    assert style_summary["cell_xfs_count"] == 3
+    assert style_summary["cell_style_count"] == 1
+    assert style_summary["font_names"] == ["Calibri", "Calibri", "Calibri"]
     assert style_summary["font_colors"] == ["theme:1", "FF102030", "FF666666"]
     assert style_summary["fill_fg_colors"] == ["FFABCDEF", "FFD9EAF7"]
     assert style_summary["border_colors"] == ["FF405060"]
