@@ -486,6 +486,23 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert structure_summary["numbering_level_count"] == 4
     assert structure_summary["numbering_num_ids"] == ["1", "7"]
     assert structure_summary["numbering_level_fonts"] == ["Symbol"]
+    assert structure_summary["style_definition_count"] == 6
+    assert structure_summary["style_definition_ids"] == [
+        "Normal",
+        "Title",
+        "Heading1",
+        "Heading2",
+        "ListParagraph",
+        "ListBullet",
+    ]
+    assert structure_summary["default_style_ids"] == ["Normal"]
+    assert structure_summary["style_based_on"]["ListBullet"] == "ListParagraph"
+    assert structure_summary["style_run_fonts"] == {"Normal": "Calibri"}
+    assert structure_summary["style_run_sizes"]["Heading1"] == "24"
+    assert structure_summary["style_bold_ids"] == ["Title", "Heading1", "Heading2"]
+    assert structure_summary["style_paragraph_spacing"]["Heading1"] == {"before": "160", "after": "80"}
+    assert structure_summary["style_paragraph_indents"]["ListParagraph"] == {"left": "720"}
+    assert structure_summary["style_numbering"] == {"ListBullet": {"level": "0", "num_id": "1"}}
 
 
 def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> None:

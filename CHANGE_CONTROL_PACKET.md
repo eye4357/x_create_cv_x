@@ -55,6 +55,8 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose section page size, margins, and header/footer references.
 - Extended public fake Office tests to assert DOCX page setup audit metrics without private data.
+- Expanded DOCX structure summaries and Markdown audit reports to expose style definitions, defaults, based-on links, run properties, paragraph properties, and style numbering.
+- Extended public fake Office tests to assert DOCX style definition audit metrics without private data.
 - Added `CV_OFFICE_REGENERATION_PLAN.md` as the controlled roadmap for replacing or downgrading `private.zip` with Office evidence.
 - Extracted the three local source archives into original `_a_priori` DOCX/XLSX files under the ignored private evidence boundary, then removed the ZIP archives locally.
 - Added a private SHA-256 manifest for the three `_a_priori` Office files.

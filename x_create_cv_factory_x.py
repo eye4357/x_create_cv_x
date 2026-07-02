@@ -2190,6 +2190,7 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         part_names = archive.namelist()
         document = ET.fromstring(archive.read("word/document.xml"))
         relationships = ET.fromstring(archive.read("word/_rels/document.xml.rels"))
+        style_definitions = ET.fromstring(archive.read("word/styles.xml")) if "word/styles.xml" in part_names else None
         font_table = ET.fromstring(archive.read("word/fontTable.xml")) if "word/fontTable.xml" in part_names else None
         numbering = ET.fromstring(archive.read("word/numbering.xml")) if "word/numbering.xml" in part_names else None
     tables = document.findall(".//w:tbl", namespace)
@@ -2332,6 +2333,57 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
             num_id = num.attrib.get(f"{{{WORD_NS}}}numId")
             if num_id:
                 numbering_num_ids.append(num_id)
+    style_definition_ids: list[str] = []
+    default_style_ids: list[str] = []
+    style_based_on: dict[str, str] = {}
+    style_run_fonts: dict[str, str] = {}
+    style_run_sizes: dict[str, str] = {}
+    style_bold_ids: list[str] = []
+    style_paragraph_spacing: dict[str, dict[str, str]] = {}
+    style_paragraph_indents: dict[str, dict[str, str]] = {}
+    style_numbering: dict[str, dict[str, str]] = {}
+    if style_definitions is not None:
+        for style in style_definitions.findall("w:style", namespace):
+            style_id = style.attrib.get(f"{{{WORD_NS}}}styleId")
+            if not style_id:
+                continue
+            style_definition_ids.append(style_id)
+            if style.attrib.get(f"{{{WORD_NS}}}default") == "1":
+                default_style_ids.append(style_id)
+            based_on = style.find("w:basedOn", namespace)
+            if based_on is not None:
+                based_on_value = based_on.attrib.get(f"{{{WORD_NS}}}val")
+                if based_on_value:
+                    style_based_on[style_id] = based_on_value
+            font = style.find("w:rPr/w:rFonts", namespace)
+            if font is not None:
+                font_value = font.attrib.get(f"{{{WORD_NS}}}ascii") or font.attrib.get(f"{{{WORD_NS}}}hAnsi")
+                if font_value:
+                    style_run_fonts[style_id] = font_value
+            size = style.find("w:rPr/w:sz", namespace)
+            if size is not None:
+                size_value = size.attrib.get(f"{{{WORD_NS}}}val")
+                if size_value:
+                    style_run_sizes[style_id] = size_value
+            if style.find("w:rPr/w:b", namespace) is not None:
+                style_bold_ids.append(style_id)
+            spacing = style.find("w:pPr/w:spacing", namespace)
+            if spacing is not None:
+                style_paragraph_spacing[style_id] = {
+                    key.rsplit("}", 1)[-1]: value for key, value in spacing.attrib.items()
+                }
+            indent = style.find("w:pPr/w:ind", namespace)
+            if indent is not None:
+                style_paragraph_indents[style_id] = {
+                    key.rsplit("}", 1)[-1]: value for key, value in indent.attrib.items()
+                }
+            style_num_id = style.find("w:pPr/w:numPr/w:numId", namespace)
+            if style_num_id is not None:
+                style_level = style.find("w:pPr/w:numPr/w:ilvl", namespace)
+                style_numbering[style_id] = {
+                    "level": style_level.attrib.get(f"{{{WORD_NS}}}val", "0") if style_level is not None else "0",
+                    "num_id": style_num_id.attrib.get(f"{{{WORD_NS}}}val", ""),
+                }
     styles = sorted(
         {
             style.attrib[f"{{{WORD_NS}}}val"]
@@ -2380,6 +2432,16 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "numbering_num_ids": numbering_num_ids,
         "numbering_level_texts": sorted(numbering_level_texts),
         "numbering_level_fonts": sorted(numbering_level_fonts),
+        "style_definition_count": len(style_definition_ids),
+        "style_definition_ids": style_definition_ids,
+        "default_style_ids": default_style_ids,
+        "style_based_on": style_based_on,
+        "style_run_fonts": style_run_fonts,
+        "style_run_sizes": style_run_sizes,
+        "style_bold_ids": style_bold_ids,
+        "style_paragraph_spacing": style_paragraph_spacing,
+        "style_paragraph_indents": style_paragraph_indents,
+        "style_numbering": style_numbering,
         "font_names": font_names,
         "styles": styles,
     }
@@ -2705,6 +2767,16 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         "numbering_num_ids",
         "numbering_level_texts",
         "numbering_level_fonts",
+        "style_definition_count",
+        "style_definition_ids",
+        "default_style_ids",
+        "style_based_on",
+        "style_run_fonts",
+        "style_run_sizes",
+        "style_bold_ids",
+        "style_paragraph_spacing",
+        "style_paragraph_indents",
+        "style_numbering",
     ]
     for comparison in comparisons:
         generated = comparison["generated"]

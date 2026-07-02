@@ -21,12 +21,14 @@ Status: Development checkpoint, not a public production release
 - Expanded DOCX audit metrics with table row, cell, paragraph, grid-width, and cell-width geometry.
 - Expanded DOCX audit metrics with numbering definitions, IDs, levels, bullet text patterns, and numbering fonts.
 - Expanded DOCX audit metrics with section page size, margins, and header/footer references.
+- Expanded DOCX audit metrics with style definitions, defaults, based-on links, run properties, paragraph properties, and style numbering.
 - Added public fake-fixture coverage for the new workbook conformance controls, including typed number and boolean cells.
 - Added public fake-fixture coverage for external hyperlink relationship conformance.
 - Added public fake-fixture coverage for DOCX paragraph property audit metrics.
 - Added public fake-fixture coverage for DOCX table width audit metrics.
 - Added public fake-fixture coverage for DOCX numbering definition audit metrics.
 - Added public fake-fixture coverage for DOCX page setup audit metrics.
+- Added public fake-fixture coverage for DOCX style definition audit metrics.
 
 ## Validation
 

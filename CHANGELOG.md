@@ -11,6 +11,7 @@
 - Added DOCX table geometry audit metrics for grid widths and cell widths.
 - Added DOCX numbering definition audit metrics for abstract IDs, num IDs, levels, bullet text patterns, and fonts.
 - Added DOCX page setup audit metrics for page size, margins, and section header/footer references.
+- Added DOCX style definition audit metrics for defaults, based-on links, run properties, paragraph properties, and style numbering.
 
 ### Changed
 
@@ -22,6 +23,7 @@
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 - Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.
 - Extended public fake Office tests to assert DOCX page setup audit metrics without private data.
+- Extended public fake Office tests to assert DOCX style definition audit metrics without private data.
 
 ## 0.0.2 - 2026-07-01
 
