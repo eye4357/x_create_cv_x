@@ -2475,6 +2475,32 @@ def xlsx_relationship_targets(archive: zipfile.ZipFile) -> dict[str, str]:
     return targets
 
 
+def xlsx_relationship_type_counts(archive: zipfile.ZipFile, relationship_path: str) -> dict[str, int]:
+    if relationship_path not in archive.namelist():
+        return {}
+    namespace = {"rel": "http://schemas.openxmlformats.org/package/2006/relationships"}
+    root = ET.fromstring(archive.read(relationship_path))
+    counts: dict[str, int] = {}
+    for relationship in root.findall("rel:Relationship", namespace):
+        relationship_type = relationship.attrib.get("Type", "").rsplit("/", 1)[-1]
+        if relationship_type:
+            counts[relationship_type] = counts.get(relationship_type, 0) + 1
+    return counts
+
+
+def xlsx_content_type_overrides(archive: zipfile.ZipFile) -> list[str]:
+    if "[Content_Types].xml" not in archive.namelist():
+        return []
+    namespace = {"ct": "http://schemas.openxmlformats.org/package/2006/content-types"}
+    root = ET.fromstring(archive.read("[Content_Types].xml"))
+    return sorted(
+        part_name
+        for override in root.findall("ct:Override", namespace)
+        for part_name in [override.attrib.get("PartName", "")]
+        if part_name
+    )
+
+
 def xlsx_color_value(element: ET.Element | None) -> str:
     if element is None:
         return ""
@@ -2581,7 +2607,11 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
 def xlsx_structure_summary(path: Path) -> dict[str, Any]:
     namespace = {"s": SHEET_NS}
     with zipfile.ZipFile(path) as archive:
+        part_names = archive.namelist()
         relationship_targets = xlsx_relationship_targets(archive)
+        root_relationship_type_counts = xlsx_relationship_type_counts(archive, "_rels/.rels")
+        workbook_relationship_type_counts = xlsx_relationship_type_counts(archive, "xl/_rels/workbook.xml.rels")
+        content_type_overrides = xlsx_content_type_overrides(archive)
         shared_strings = xlsx_shared_strings(archive)
         workbook = ET.fromstring(archive.read("xl/workbook.xml"))
         style_summary = xlsx_style_summary(archive)
@@ -2596,7 +2626,25 @@ def xlsx_structure_summary(path: Path) -> dict[str, Any]:
                 sheet_summary = xlsx_sheet_summary(archive, worksheet_path, shared_strings)
                 sheet_summary["name"] = sheet_name
                 sheets.append(sheet_summary)
-    return {"sheet_count": len(sheet_names), "sheet_names": sheet_names, "sheets": sheets, "styles": style_summary}
+    worksheet_part_names = sorted(
+        name for name in part_names if name.startswith("xl/worksheets/") and name.endswith(".xml")
+    )
+    return {
+        "part_names": sorted(part_names),
+        "part_count": len(part_names),
+        "content_type_overrides": content_type_overrides,
+        "has_core_properties": "docProps/core.xml" in part_names,
+        "has_extended_properties": "docProps/app.xml" in part_names,
+        "has_styles": "xl/styles.xml" in part_names,
+        "worksheet_part_count": len(worksheet_part_names),
+        "root_relationship_type_counts": root_relationship_type_counts,
+        "workbook_relationship_type_counts": workbook_relationship_type_counts,
+        "workbook_relationship_targets": relationship_targets,
+        "sheet_count": len(sheet_names),
+        "sheet_names": sheet_names,
+        "sheets": sheets,
+        "styles": style_summary,
+    }
 
 
 def office_structure_summary(path: Path) -> dict[str, Any]:
@@ -2847,7 +2895,24 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         if office_report_suffix(generated_relative_path) != ".xlsx":
             continue
         lines.extend([f"### {office_report_name(generated_relative_path)}", ""])
-        append_metric_table(lines, generated, source, ["sheet_count", "styles"])
+        append_metric_table(
+            lines,
+            generated,
+            source,
+            [
+                "part_count",
+                "worksheet_part_count",
+                "has_core_properties",
+                "has_extended_properties",
+                "has_styles",
+                "content_type_overrides",
+                "root_relationship_type_counts",
+                "workbook_relationship_type_counts",
+                "workbook_relationship_targets",
+                "sheet_count",
+                "styles",
+            ],
+        )
         generated_sheets = structure_metric(generated, "sheets")
         source_sheets = structure_metric(source, "sheets")
         if isinstance(generated_sheets, list) and isinstance(source_sheets, list):

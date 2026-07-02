@@ -7,6 +7,7 @@
 - Started renderer conformance hardening with schema-backed per-sheet XLSX freeze-header, autofilter, and column-width controls.
 - Added schema-backed XLSX column `value_type` controls for string, number, and boolean cell rendering.
 - Added XLSX style definition audit metrics for fonts, fills, borders, and cell formats.
+- Added XLSX package audit metrics for parts, content types, root relationships, and workbook relationships.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Added DOCX paragraph property audit metrics for style, alignment, spacing, indentation, and tab stops.
 - Added DOCX table geometry audit metrics for grid widths and cell widths.
@@ -20,6 +21,7 @@
 - Expanded XLSX structure summaries and Markdown audit reports to expose generated freeze-pane and autofilter state.
 - Expanded XLSX structure summaries and Markdown audit reports to expose cell-type counts.
 - Expanded XLSX structure summaries and Markdown audit reports to expose style color and cell-format details.
+- Expanded XLSX structure summaries and Markdown audit reports to expose package and relationship details.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.

@@ -414,7 +414,30 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert sheet_summary["auto_filter_ref"] == "A1:E2"
     assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25", "10.00", "10.00"]
     assert sheet_summary["cell_type_counts"] == {"inlineStr": 8, "number": 1, "b": 1}
-    style_summary = app.xlsx_structure_summary(workbook_path)["styles"]
+    workbook_summary = app.xlsx_structure_summary(workbook_path)
+    assert workbook_summary["part_count"] == 8
+    assert workbook_summary["worksheet_part_count"] == 1
+    assert workbook_summary["has_core_properties"] is True
+    assert workbook_summary["has_extended_properties"] is True
+    assert workbook_summary["has_styles"] is True
+    assert workbook_summary["content_type_overrides"] == [
+        "/docProps/app.xml",
+        "/docProps/core.xml",
+        "/xl/styles.xml",
+        "/xl/workbook.xml",
+        "/xl/worksheets/sheet1.xml",
+    ]
+    assert workbook_summary["root_relationship_type_counts"] == {
+        "officeDocument": 1,
+        "core-properties": 1,
+        "extended-properties": 1,
+    }
+    assert workbook_summary["workbook_relationship_type_counts"] == {"worksheet": 1, "styles": 1}
+    assert workbook_summary["workbook_relationship_targets"] == {
+        "rId1": "xl/worksheets/sheet1.xml",
+        "rId2": "xl/styles.xml",
+    }
+    style_summary = workbook_summary["styles"]
     assert style_summary["font_count"] == 3
     assert style_summary["fill_count"] == 4
     assert style_summary["border_count"] == 2
