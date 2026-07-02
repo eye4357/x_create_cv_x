@@ -51,12 +51,18 @@ python -m pytest
 
 The private Python seed scripts live under `data/private/` and are intentionally ignored by Git because they contain private CV data. They rebuild the master profile and both resume documents as readable action logs using granular functions such as `add_job(...)`, `add_patent(...)`, `add_resume_section(...)`, and `add_resume_item(...)`.
 
-The original Office files extracted from the source archives live under `data/private/evidence/source_office/a_priori/` with an `_a_priori` filename suffix. These are private local evidence, not public fixtures, and are intentionally ignored by Git. Future whole-cloth regenerated Office files should use an `_a_posteriori` suffix so original evidence and generated evidence are visually distinct.
+The real golden Office evidence lives in the side-by-side private repository `x_create_cv_test_data_x`, under `evidence/source_office/a_priori/`, with an `_a_priori` filename suffix. These are private evidence files, not public fixtures. Future whole-cloth regenerated Office files should use an `_a_posteriori` suffix so original evidence and generated evidence are visually distinct.
 
-Before running private Office-regeneration exercises, fast-fail on evidence corruption with the private SHA-256 manifest:
+When `x_create_cv_test_data_x` is checked out next to this repository, run the private golden smoke test before Office-regeneration work:
 
 ```powershell
-python .\x_create_cv_factory_x.py check-evidence --manifest .\data\private\evidence\a_priori_manifest.json
+python .\x_create_cv_factory_x.py exercise-golden
+```
+
+That command fast-fails on evidence corruption by reading the private SHA-256 manifest from `..\x_create_cv_test_data_x\evidence\a_priori_manifest.json`. The lower-level check is also available:
+
+```powershell
+python .\x_create_cv_factory_x.py check-evidence
 ```
 
 When private data is available locally, validate the generated JSON against the private golden archive:
@@ -118,4 +124,5 @@ The repository includes:
 - Real CV data stays under `data/private/`.
 - Private seed scripts stay under `data/private/`.
 - Private golden archives stay under `data/private/`.
+- Real Office golden evidence stays in the private sibling repo `x_create_cv_test_data_x`.
 - CI must never require private data.

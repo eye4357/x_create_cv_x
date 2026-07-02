@@ -2,11 +2,11 @@
 
 Date: 2026-07-01
 
-Version note: `0.0.2` records this roadmap, the private `_a_priori` Office evidence location, and the evidence integrity gate. The full XLSX/DOCX regeneration implementation remains the next engineering milestone.
+Version note: `0.0.2` records this roadmap, the private sibling-repo `_a_priori` Office evidence location, and the evidence integrity gate. The full XLSX/DOCX regeneration implementation remains the next engineering milestone.
 
 ## Goal
 
-Replace the current private `private.zip` golden reference with a stronger evidence workflow based on three original Office files extracted from the source archives and stored under `data/private/evidence/source_office/a_priori/`:
+Replace the current private `private.zip` golden reference with a stronger evidence workflow based on three original Office files extracted from the source archives and stored under `../x_create_cv_test_data_x/evidence/source_office/a_priori/`:
 
 - `R_cv_2017_1129_0848_a_priori.docx`
 - `R_cv_2023_0315_2158_a_priori.docx`
@@ -26,7 +26,7 @@ The XLSX comparison should allow known historical drift because the original spr
 
 Keep four evidence classes together locally, but do not commit private content to public Git:
 
-1. Source evidence: the three original `_a_priori` Office files under `data/private/evidence/source_office/a_priori/`.
+1. Source evidence: the three original `_a_priori` Office files under `../x_create_cv_test_data_x/evidence/source_office/a_priori/`.
 2. Rebuild scripts: Python scripts that create master data, the spreadsheet database, and each resume document from code.
 3. Regenerated evidence: the new whole-cloth `_a_posteriori` XLSX and DOCX files produced by the scripts.
 4. Comparison evidence: SHA-256 manifests, normalized manifests, hashes, diffs, and validation reports proving what matches exactly and what intentionally differs.
@@ -34,12 +34,20 @@ Keep four evidence classes together locally, but do not commit private content t
 Recommended ignored local layout inside `x_create_cv_x`:
 
 ```text
-data/private/evidence/a_priori_manifest.json
-data/private/evidence/source_office/a_priori/
 data/private/evidence/generated/
 data/private/evidence/normalized/
 data/private/evidence/reports/
 data/private/evidence/scripts/
+```
+
+Recommended private test-data repo layout inside `x_create_cv_test_data_x`:
+
+```text
+evidence/a_priori_manifest.json
+evidence/source_office/a_priori/
+evidence/generated/
+evidence/normalized/
+evidence/reports/
 ```
 
 The public repo should keep only fake fixtures, public code, public tests, and documentation that describes the workflow without exposing real CV data.
@@ -62,7 +70,7 @@ The `_a_priori` source documents should be used as comparison evidence, not as r
 The full Office-regeneration milestone is complete when all of the following are true:
 
 - The current `private.zip` validation path is replaced or downgraded to a legacy compatibility check.
-- `check-evidence` passes against the private SHA-256 manifest before any Office regeneration exercise proceeds.
+- `exercise-golden` passes against the private SHA-256 manifest in the side-by-side `x_create_cv_test_data_x` checkout before any Office regeneration exercise proceeds.
 - The original Office files use the `_a_priori` suffix and remain under ignored local evidence folders.
 - The factory can generate the XLSX database from `master_profile.json` without manual Office editing.
 - The factory can generate the 2017 DOCX from app-native JSON without manual Office editing.
@@ -77,9 +85,9 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ### Phase 1: Evidence Inventory
 
-- Use the three `_a_priori` Office files under the ignored evidence source area.
+- Use the three `_a_priori` Office files under `x_create_cv_test_data_x/evidence/source_office/a_priori/`.
 - Maintain a private SHA-256 manifest with file names, sizes, hashes, Office document types, and selected package metadata.
-- Run `check-evidence` before any private Office regeneration exercise.
+- Run `exercise-golden` before any private Office regeneration exercise.
 
 ### Phase 2: Normalizers And Comparators
 
@@ -115,7 +123,7 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ### Phase 6: Evidence Bundle
 
-- Create a private local evidence bundle that contains `_a_priori` Office files, rebuild scripts, regenerated `_a_posteriori` XLSX/DOCX files, normalized manifests, SHA-256 manifests, and comparison reports.
+- Keep the private local evidence bundle in `x_create_cv_test_data_x`; it contains `_a_priori` Office files, rebuild scripts, regenerated `_a_posteriori` XLSX/DOCX files, normalized manifests, SHA-256 manifests, and comparison reports.
 - Store enough metadata to prove which code commit generated the evidence.
 - Keep the evidence bundle ignored locally unless a separate private repository is intentionally created for it.
 
@@ -135,4 +143,4 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ## First Concrete Task
 
-Use `check-evidence` as the first step of every private Office regeneration exercise. The next implementation task is to add normalized Office Open XML comparison for `_a_priori` and future `_a_posteriori` files.
+Use `exercise-golden` as the first step of every private Office regeneration exercise. The next implementation task is to add normalized Office Open XML comparison for `_a_priori` and future `_a_posteriori` files.

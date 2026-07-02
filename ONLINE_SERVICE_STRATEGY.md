@@ -144,7 +144,7 @@ For a showcase project, start with local-first plus a fake-data hosted demo.
 
 ## Validation Strategy
 
-The current private zip workflow is valuable as a temporary golden-master test. Keep it private. The Office-regeneration workflow should first run `check-evidence` against the private `_a_priori` SHA-256 manifest, then compare generated `_a_posteriori` outputs against the original evidence.
+The current private zip workflow is valuable as a temporary golden-master test. Keep it private. The Office-regeneration workflow should first run `exercise-golden` against the private `_a_priori` SHA-256 manifest in `x_create_cv_test_data_x`, then compare generated `_a_posteriori` outputs against the original evidence.
 
 Public validation should use fake data:
 

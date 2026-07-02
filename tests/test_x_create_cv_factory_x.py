@@ -253,6 +253,29 @@ def test_cli_check_evidence_reports_missing_manifest(tmp_path: Path, capsys: pyt
     assert "Missing JSON file" in capsys.readouterr().err
 
 
+def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    evidence_file = tmp_path / "evidence" / "source_office" / "a_priori" / "fake_a_priori.docx"
+    evidence_file.parent.mkdir(parents=True)
+    evidence_file.write_bytes(b"fake office package")
+    app.write_json(
+        tmp_path / "evidence" / "a_priori_manifest.json",
+        {
+            "schema_version": "1.0.0",
+            "algorithm": "sha256",
+            "files": [
+                {
+                    "path": "source_office/a_priori/fake_a_priori.docx",
+                    "bytes": evidence_file.stat().st_size,
+                    "sha256": app.sha256_file(evidence_file),
+                }
+            ],
+        },
+    )
+
+    assert app.main(["exercise-golden", "--evidence-dir", str(tmp_path / "evidence")]) == 0
+    assert "Golden exercise passed: 1 a priori evidence files" in capsys.readouterr().out
+
+
 def test_cli_typed_flags_build_expected_payload(tmp_path: Path) -> None:
     assert (
         app.main(

@@ -19,7 +19,8 @@ RESUME_APP_MODEL = "resume_document_crud"
 MASTER_APP_MODEL = "master_profile_crud"
 SCHEMA_VERSION = "1.0.0"
 VERSION = "0.0.2"
-DEFAULT_EVIDENCE_MANIFEST = Path("data/private/evidence/a_priori_manifest.json")
+DEFAULT_GOLDEN_EVIDENCE_DIR = Path("../x_create_cv_test_data_x/evidence")
+DEFAULT_EVIDENCE_MANIFEST = DEFAULT_GOLDEN_EVIDENCE_DIR / "a_priori_manifest.json"
 HASH_CHUNK_SIZE = 1024 * 1024
 
 MASTER_COLLECTIONS = [
@@ -267,6 +268,10 @@ def check_evidence_manifest(manifest_path: Path) -> int:
             raise ValueError(f"Evidence hash mismatch {relative_path}: expected {expected_sha256}, got {actual_sha256}")
 
     return len(entries)
+
+
+def check_golden_evidence(evidence_dir: Path) -> int:
+    return check_evidence_manifest(evidence_dir / "a_priori_manifest.json")
 
 
 def master_path(db_dir: Path) -> Path:
@@ -894,6 +899,11 @@ def build_parser() -> argparse.ArgumentParser:
         "check-evidence", help="Fast-fail if private a priori Office evidence has changed"
     )
     check_evidence_parser.add_argument("--manifest", type=Path, default=DEFAULT_EVIDENCE_MANIFEST)
+
+    exercise_golden_parser = subparsers.add_parser(
+        "exercise-golden", help="Run the side-by-side private golden evidence smoke test"
+    )
+    exercise_golden_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
     return parser
 
 
@@ -932,6 +942,10 @@ def run(args: argparse.Namespace) -> int:
     if command == "check-evidence":
         checked_count = check_evidence_manifest(args.manifest)
         print(f"Evidence integrity passed: {checked_count} files")
+        return 0
+    if command == "exercise-golden":
+        checked_count = check_golden_evidence(args.evidence_dir)
+        print(f"Golden exercise passed: {checked_count} a priori evidence files")
         return 0
     raise ValueError(f"Unknown command: {command}")
 
