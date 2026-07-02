@@ -21,6 +21,7 @@ Status: Development checkpoint, not a public production release
 - Expanded XLSX audit reports with generated package part names and workbook sheet names.
 - Expanded XLSX audit reports with generated worksheet paths.
 - Expanded XLSX audit reports with source worksheet paths alongside generated worksheet paths.
+- Expanded XLSX audit reports with source row and column counts alongside generated counts.
 - Expanded the Markdown Office audit report to show generated XLSX freeze-pane and autofilter state.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Expanded DOCX audit reports with package flags, body child counts, font table names, and used styles.
@@ -38,6 +39,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for XLSX package part-name and sheet-name report metrics.
 - Added public fake-fixture coverage for XLSX worksheet-path report metrics.
 - Added public fake-fixture coverage for XLSX source worksheet-path report metrics.
+- Added public fake-fixture coverage for XLSX source row-count and column-count report metrics.
 - Added public fake-fixture coverage for DOCX package flags, body child counts, font table names, and used styles.
 - Added public fake-fixture coverage for external hyperlink relationship conformance.
 - Added public fake-fixture coverage for DOCX paragraph property audit metrics.

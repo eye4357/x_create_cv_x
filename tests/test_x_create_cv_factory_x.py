@@ -976,6 +976,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "## XLSX Structure" in audit_text
     assert "master_profile_a_posteriori.xlsx" in audit_text
     assert "| Sheet | Source Path | Generated Path |" in audit_text
+    assert "Source Rows | Generated Rows | Source Columns | Generated Columns" in audit_text
 
 
 def test_audit_policy_can_accept_explicit_drift() -> None:
