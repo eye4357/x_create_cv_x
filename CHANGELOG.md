@@ -19,6 +19,8 @@
 - Added DOCX document-flow layout support for JSON-backed paragraph, item, and table blocks.
 - Added DOCX header/footer, theme, font table, and web settings package parts driven by the document layout contract.
 - Hardened generated DOCX theme packages for stricter importers such as Google Drive.
+- Added DOCX contract support for hyperlinks, tabs, run font/size/color/style, footnotes/endnotes/custom XML package parts, and explicit font tables.
+- Expanded DOCX structure reporting to include relationship types, body child counts, hyperlinks, tabs, package scaffolding, and font names.
 - Added non-sensitive Office structure metrics to the private comparison report.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.

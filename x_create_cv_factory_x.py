@@ -15,9 +15,11 @@ import sys
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+Relationship = tuple[str, str, str] | tuple[str, str, str, str]
 MASTER_FILE = "master_profile.json"
 DEFAULT_DB_DIR = Path("data/private/cv_factory_output")
 RESUME_APP_MODEL = "resume_document_crud"
@@ -423,12 +425,15 @@ def write_zip_entries(path: Path, entries: list[tuple[str, str]]) -> None:
             archive.writestr(info, content.encode("utf-8"))
 
 
-def relationships_xml(relationships: list[tuple[str, str, str]]) -> str:
-    entries = "".join(
-        f'<Relationship Id="{xml_attr(relationship_id)}" Type="{xml_attr(relationship_type)}" '
-        f'Target="{xml_attr(target)}"/>'
-        for relationship_id, relationship_type, target in relationships
-    )
+def relationships_xml(relationships: Sequence[Relationship]) -> str:
+    entries = ""
+    for relationship in relationships:
+        relationship_id, relationship_type, target = relationship[:3]
+        target_mode = f' TargetMode="{xml_attr(relationship[3])}"' if len(relationship) == 4 else ""
+        entries += (
+            f'<Relationship Id="{xml_attr(relationship_id)}" Type="{xml_attr(relationship_type)}" '
+            f'Target="{xml_attr(target)}"{target_mode}/>'
+        )
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
@@ -482,7 +487,15 @@ def default_document_layout(file_name: str) -> dict[str, Any]:
     layout = DEFAULT_DOCUMENT_MARGINS.get(file_name, DEFAULT_DOCUMENT_MARGINS["resume_2017_a_posteriori.docx"])
     return {
         "margins": dict(layout["margins"]),
-        "package": {"theme": True, "font_table": True, "web_settings": True},
+        "package": {
+            "theme": True,
+            "font_table": True,
+            "web_settings": True,
+            "footnotes": True,
+            "endnotes": True,
+            "custom_xml": True,
+            "fonts": ["Calibri", "Symbol"],
+        },
         "styles": [dict(style) for style in DEFAULT_DOCX_STYLES],
         "numbering": {"bullet_text": "•", "font": "Symbol", "left": "720", "hanging": "360"},
     }
@@ -873,16 +886,22 @@ def formatting_runs(formatting: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(run, dict):
             continue
         text = scalar_text(run.get("text"))
-        if not text:
+        has_tab = run.get("tab") is True or run.get("tabs") is not None
+        if not text and not has_tab:
             continue
-        rendered_runs.append(
-            {
-                "text": text,
-                "bold": run.get("bold") is True,
-                "italic": run.get("italic") is True,
-                "underline": run.get("underline") is True,
-            }
-        )
+        rendered_run: dict[str, Any] = {
+            "text": text,
+            "bold": run.get("bold") is True,
+            "italic": run.get("italic") is True,
+            "underline": run.get("underline") is True,
+        }
+        for key in ["style", "font", "size", "color", "link"]:
+            value = scalar_text(run.get(key))
+            if value:
+                rendered_run[key] = value
+        if has_tab:
+            rendered_run["tabs"] = scalar_text(run.get("tabs")) or "1"
+        rendered_runs.append(rendered_run)
     return rendered_runs
 
 
@@ -911,6 +930,8 @@ def layout_paragraphs(value: dict[str, Any]) -> list[dict[str, Any]]:
     runs = formatting_runs(value)
     if runs:
         return [{"style": style, "numbering": numbering, "runs": runs}]
+    if value.get("empty") is True:
+        return [{"style": style, "numbering": numbering, "runs": [{"text": ""}]}]
     text = scalar_text(value.get("text"))
     return [{"style": style, "numbering": numbering, "runs": [{"text": text}]}] if text else []
 
@@ -948,6 +969,11 @@ def flow_cell_paragraphs(
     if not isinstance(cell, dict):
         return []
     paragraphs = flow_item_paragraphs(cell.get("item_ids"), item_lookup, records_by_id)
+    extra_paragraphs = cell.get("paragraphs")
+    if isinstance(extra_paragraphs, list):
+        for paragraph in extra_paragraphs:
+            if isinstance(paragraph, dict):
+                paragraphs.extend(layout_paragraphs(paragraph))
     if paragraphs:
         return paragraphs
     return layout_paragraphs(cell)
@@ -1038,19 +1064,59 @@ def resume_blocks(master: dict[str, Any], resume: dict[str, Any], layout: dict[s
     return [{"type": "paragraph", "paragraph": paragraph} for paragraph in resume_paragraphs(master, resume)]
 
 
-def docx_run(run: dict[str, Any]) -> str:
+def docx_run_properties(run: dict[str, Any]) -> str:
     properties: list[str] = []
+    style = scalar_text(run.get("style"))
+    if style:
+        properties.append(f'<w:rStyle w:val="{xml_attr(style)}"/>')
+    font = scalar_text(run.get("font"))
+    if font:
+        properties.append(f'<w:rFonts w:ascii="{xml_attr(font)}" w:hAnsi="{xml_attr(font)}" w:cs="{xml_attr(font)}"/>')
     if run.get("bold") is True:
         properties.append("<w:b/>")
     if run.get("italic") is True:
         properties.append("<w:i/>")
     if run.get("underline") is True:
         properties.append('<w:u w:val="single"/>')
-    properties_xml = f'<w:rPr>{"".join(properties)}</w:rPr>' if properties else ""
-    return f'<w:r>{properties_xml}<w:t xml:space="preserve">{xml_text(scalar_text(run.get("text")))}</w:t></w:r>'
+    color = scalar_text(run.get("color"))
+    if color:
+        properties.append(f'<w:color w:val="{xml_attr(color)}"/>')
+    size = scalar_text(run.get("size"))
+    if size:
+        properties.append(f'<w:sz w:val="{xml_attr(size)}"/>')
+    return f'<w:rPr>{"".join(properties)}</w:rPr>' if properties else ""
 
 
-def docx_paragraph(paragraph: dict[str, Any]) -> str:
+def run_tabs(run: dict[str, Any]) -> int:
+    tabs = scalar_text(run.get("tabs"))
+    if tabs.isdecimal():
+        return max(0, int(tabs))
+    return 1 if run.get("tab") is True else 0
+
+
+def run_link_target(run: dict[str, Any]) -> str | None:
+    target = scalar_text(run.get("link")) or scalar_text(run.get("url"))
+    return target or None
+
+
+def docx_run(run: dict[str, Any]) -> str:
+    properties_xml = docx_run_properties(run)
+    tabs_xml = "<w:tab/>" * run_tabs(run)
+    text = scalar_text(run.get("text"))
+    text_xml = f'<w:t xml:space="preserve">{xml_text(text)}</w:t>' if text else ""
+    return f"<w:r>{properties_xml}{tabs_xml}{text_xml}</w:r>"
+
+
+def docx_paragraph_run(run: dict[str, Any], hyperlink_ids: dict[str, str]) -> str:
+    run_xml = docx_run(run)
+    link_target = run_link_target(run)
+    relationship_id = hyperlink_ids.get(link_target or "")
+    if relationship_id:
+        return f'<w:hyperlink r:id="{xml_attr(relationship_id)}" w:history="1">{run_xml}</w:hyperlink>'
+    return run_xml
+
+
+def docx_paragraph(paragraph: dict[str, Any], hyperlink_ids: dict[str, str] | None = None) -> str:
     paragraph_properties: list[str] = []
     style = paragraph.get("style")
     if isinstance(style, str) and style:
@@ -1066,6 +1132,8 @@ def docx_paragraph(paragraph: dict[str, Any]) -> str:
     properties_xml = f'<w:pPr>{"".join(paragraph_properties)}</w:pPr>' if paragraph_properties else ""
     runs = paragraph.get("runs")
     rendered_runs = [docx_run(run) for run in runs if isinstance(run, dict)] if isinstance(runs, list) else []
+    if hyperlink_ids is not None and isinstance(runs, list):
+        rendered_runs = [docx_paragraph_run(run, hyperlink_ids) for run in runs if isinstance(run, dict)]
     if not rendered_runs:
         rendered_runs = [docx_run({"text": ""})]
     return f'<w:p>{properties_xml}{"".join(rendered_runs)}</w:p>'
@@ -1083,14 +1151,14 @@ def table_column_widths(table: dict[str, Any], column_count: int) -> list[str]:
     return [default_width] * column_count
 
 
-def docx_table_cell(paragraphs: list[dict[str, Any]], width: str) -> str:
-    rendered_paragraphs = "".join(docx_paragraph(paragraph) for paragraph in paragraphs) or docx_paragraph(
-        {"runs": [{"text": ""}]}
-    )
+def docx_table_cell(paragraphs: list[dict[str, Any]], width: str, hyperlink_ids: dict[str, str]) -> str:
+    rendered_paragraphs = "".join(
+        docx_paragraph(paragraph, hyperlink_ids) for paragraph in paragraphs
+    ) or docx_paragraph({"runs": [{"text": ""}]})
     return f'<w:tc><w:tcPr><w:tcW w:w="{xml_attr(width)}" w:type="dxa"/></w:tcPr>{rendered_paragraphs}</w:tc>'
 
 
-def docx_table(table: dict[str, Any]) -> str:
+def docx_table(table: dict[str, Any], hyperlink_ids: dict[str, str]) -> str:
     rows = table.get("rows")
     if not isinstance(rows, list):
         return ""
@@ -1102,7 +1170,9 @@ def docx_table(table: dict[str, Any]) -> str:
         if not isinstance(row, list):
             continue
         cells = "".join(
-            docx_table_cell(cell if isinstance(cell, list) else [], widths[index] if index < len(widths) else "2160")
+            docx_table_cell(
+                cell if isinstance(cell, list) else [], widths[index] if index < len(widths) else "2160", hyperlink_ids
+            )
             for index, cell in enumerate(row)
         )
         rendered_rows.append(f"<w:tr>{cells}</w:tr>")
@@ -1119,12 +1189,12 @@ def docx_table(table: dict[str, Any]) -> str:
     )
 
 
-def docx_body_block(block: dict[str, Any]) -> str:
+def docx_body_block(block: dict[str, Any], hyperlink_ids: dict[str, str]) -> str:
     block_type = block.get("type")
     if block_type == "table":
-        return docx_table(block)
+        return docx_table(block, hyperlink_ids)
     paragraph = block.get("paragraph")
-    return docx_paragraph(paragraph) if isinstance(paragraph, dict) else ""
+    return docx_paragraph(paragraph, hyperlink_ids) if isinstance(paragraph, dict) else ""
 
 
 def block_paragraphs(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -1168,8 +1238,8 @@ def docx_section_references(layout: dict[str, Any]) -> str:
     return references
 
 
-def docx_document_xml(blocks: list[dict[str, Any]], layout: dict[str, Any]) -> str:
-    body_xml = "".join(docx_body_block(block) for block in blocks)
+def docx_document_xml(blocks: list[dict[str, Any]], layout: dict[str, Any], hyperlink_ids: dict[str, str]) -> str:
+    body_xml = "".join(docx_body_block(block, hyperlink_ids) for block in blocks)
     margins = docx_margins(layout)
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1208,6 +1278,21 @@ def document_content_types(layout: dict[str, Any]) -> str:
         optional_overrides += (
             '<Override PartName="/word/webSettings.xml" '
             'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/>'
+        )
+    if package_enabled(layout, "footnotes"):
+        optional_overrides += (
+            '<Override PartName="/word/footnotes.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>'
+        )
+    if package_enabled(layout, "endnotes"):
+        optional_overrides += (
+            '<Override PartName="/word/endnotes.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>'
+        )
+    if package_enabled(layout, "custom_xml"):
+        optional_overrides += (
+            '<Override PartName="/customXml/itemProps1.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.customXmlProperties+xml"/>'
         )
     if isinstance(layout.get("header"), dict):
         optional_overrides += (
@@ -1368,8 +1453,8 @@ def docx_numbering_xml(paragraphs: list[dict[str, Any]], layout: dict[str, Any])
     )
 
 
-def docx_document_relationships_xml(layout: dict[str, Any]) -> str:
-    relationships = [
+def docx_document_relationships(layout: dict[str, Any]) -> list[Relationship]:
+    relationships: list[Relationship] = [
         ("rId1", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles", "styles.xml"),
         ("rId2", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering", "numbering.xml"),
         ("rId3", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings", "settings.xml"),
@@ -1398,6 +1483,55 @@ def docx_document_relationships_xml(layout: dict[str, Any]) -> str:
         relationships.append(
             ("rId8", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer", "footer1.xml")
         )
+    if package_enabled(layout, "footnotes"):
+        relationships.append(
+            ("rId9", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes", "footnotes.xml")
+        )
+    if package_enabled(layout, "endnotes"):
+        relationships.append(
+            ("rId10", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes", "endnotes.xml")
+        )
+    if package_enabled(layout, "custom_xml"):
+        relationships.append(
+            (
+                "rId11",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml",
+                "../customXml/item1.xml",
+            )
+        )
+    return relationships
+
+
+def docx_document_relationships_xml(layout: dict[str, Any]) -> str:
+    return relationships_xml(docx_document_relationships(layout))
+
+
+def docx_hyperlink_relationship_ids(blocks: list[dict[str, Any]]) -> dict[str, str]:
+    targets: list[str] = []
+    for paragraph in block_paragraphs(blocks):
+        runs = paragraph.get("runs")
+        if not isinstance(runs, list):
+            continue
+        for run in runs:
+            if not isinstance(run, dict):
+                continue
+            target = run_link_target(run)
+            if target and target not in targets:
+                targets.append(target)
+    return {target: f"rId{101 + index}" for index, target in enumerate(targets)}
+
+
+def docx_document_relationships_with_links_xml(layout: dict[str, Any], blocks: list[dict[str, Any]]) -> str:
+    relationships = docx_document_relationships(layout)
+    relationships.extend(
+        (
+            relationship_id,
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+            target,
+            "External",
+        )
+        for target, relationship_id in docx_hyperlink_relationship_ids(blocks).items()
+    )
     return relationships_xml(relationships)
 
 
@@ -1408,15 +1542,64 @@ def docx_settings_xml() -> str:
     )
 
 
-def docx_font_table_xml() -> str:
-    return (
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        f'<w:fonts xmlns:w="{WORD_NS}"><w:font w:name="Calibri"/><w:font w:name="Symbol"/></w:fonts>'
-    )
+def document_font_names(layout: dict[str, Any]) -> list[str]:
+    fonts = document_package_options(layout).get("fonts")
+    if not isinstance(fonts, list):
+        return ["Calibri", "Symbol"]
+    names = [scalar_text(font) for font in fonts]
+    return [name for index, name in enumerate(names) if name and name not in names[:index]] or ["Calibri", "Symbol"]
+
+
+def docx_font_table_xml(layout: dict[str, Any]) -> str:
+    fonts = "".join(f'<w:font w:name="{xml_attr(font)}"/>' for font in document_font_names(layout))
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' f'<w:fonts xmlns:w="{WORD_NS}">{fonts}</w:fonts>'
 
 
 def docx_web_settings_xml() -> str:
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' f'<w:webSettings xmlns:w="{WORD_NS}"/>'
+
+
+def docx_footnotes_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:footnotes xmlns:w="{WORD_NS}"><w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/>'
+        '</w:r></w:p></w:footnote><w:footnote w:type="continuationSeparator" w:id="0"><w:p><w:r>'
+        "<w:continuationSeparator/></w:r></w:p></w:footnote></w:footnotes>"
+    )
+
+
+def docx_endnotes_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:endnotes xmlns:w="{WORD_NS}"><w:endnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/>'
+        '</w:r></w:p></w:endnote><w:endnote w:type="continuationSeparator" w:id="0"><w:p><w:r>'
+        "<w:continuationSeparator/></w:r></w:p></w:endnote></w:endnotes>"
+    )
+
+
+def custom_xml_item_xml() -> str:
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cv:metadata xmlns:cv="urn:x-create-cv-x"/>'
+
+
+def custom_xml_props_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<ds:datastoreItem ds:itemID="{00000000-0000-0000-0000-000000000001}" '
+        'xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml">'
+        "<ds:schemaRefs/></ds:datastoreItem>"
+    )
+
+
+def custom_xml_relationships_xml() -> str:
+    return relationships_xml(
+        [
+            (
+                "rId1",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps",
+                "itemProps1.xml",
+            )
+        ]
+    )
 
 
 def docx_theme_xml() -> str:
@@ -1490,8 +1673,8 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
                 ]
             ),
         ),
-        ("word/_rels/document.xml.rels", docx_document_relationships_xml(layout)),
-        ("word/document.xml", docx_document_xml(blocks, layout)),
+        ("word/_rels/document.xml.rels", docx_document_relationships_with_links_xml(layout, blocks)),
+        ("word/document.xml", docx_document_xml(blocks, layout, docx_hyperlink_relationship_ids(blocks))),
         ("word/styles.xml", docx_styles_xml(layout)),
         ("word/numbering.xml", docx_numbering_xml(paragraphs, layout)),
         ("word/settings.xml", docx_settings_xml()),
@@ -1520,9 +1703,21 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
     if package_enabled(layout, "theme"):
         entries.append(("word/theme/theme1.xml", docx_theme_xml()))
     if package_enabled(layout, "font_table"):
-        entries.append(("word/fontTable.xml", docx_font_table_xml()))
+        entries.append(("word/fontTable.xml", docx_font_table_xml(layout)))
     if package_enabled(layout, "web_settings"):
         entries.append(("word/webSettings.xml", docx_web_settings_xml()))
+    if package_enabled(layout, "footnotes"):
+        entries.append(("word/footnotes.xml", docx_footnotes_xml()))
+    if package_enabled(layout, "endnotes"):
+        entries.append(("word/endnotes.xml", docx_endnotes_xml()))
+    if package_enabled(layout, "custom_xml"):
+        entries.extend(
+            [
+                ("customXml/item1.xml", custom_xml_item_xml()),
+                ("customXml/itemProps1.xml", custom_xml_props_xml()),
+                ("customXml/_rels/item1.xml.rels", custom_xml_relationships_xml()),
+            ]
+        )
     header = layout.get("header")
     if isinstance(header, dict):
         entries.append(("word/header1.xml", docx_header_footer_xml("hdr", header)))
@@ -1606,12 +1801,31 @@ def normalized_text_summary(path: Path) -> dict[str, Any]:
 
 
 def docx_structure_summary(path: Path) -> dict[str, Any]:
-    namespace = {"w": WORD_NS}
+    namespace = {"w": WORD_NS, "rel": "http://schemas.openxmlformats.org/package/2006/relationships"}
     with zipfile.ZipFile(path) as archive:
         part_names = archive.namelist()
         document = ET.fromstring(archive.read("word/document.xml"))
+        relationships = ET.fromstring(archive.read("word/_rels/document.xml.rels"))
+        font_table = ET.fromstring(archive.read("word/fontTable.xml")) if "word/fontTable.xml" in part_names else None
     tables = document.findall(".//w:tbl", namespace)
     paragraphs = document.findall(".//w:p", namespace)
+    body = document.find("w:body", namespace)
+    body_child_counts: dict[str, int] = {}
+    if body is not None:
+        for child in body:
+            child_name = child.tag.rsplit("}", 1)[-1]
+            body_child_counts[child_name] = body_child_counts.get(child_name, 0) + 1
+    relationship_type_counts: dict[str, int] = {}
+    for relationship in relationships.findall("rel:Relationship", namespace):
+        relationship_type = relationship.attrib.get("Type", "").rsplit("/", 1)[-1]
+        relationship_type_counts[relationship_type] = relationship_type_counts.get(relationship_type, 0) + 1
+    font_names: list[str] = []
+    if font_table is not None:
+        font_names = [
+            font.attrib[f"{{{WORD_NS}}}name"]
+            for font in font_table.findall("w:font", namespace)
+            if f"{{{WORD_NS}}}name" in font.attrib
+        ]
     styles = sorted(
         {
             style.attrib[f"{{{WORD_NS}}}val"]
@@ -1624,14 +1838,22 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "has_theme": "word/theme/theme1.xml" in part_names,
         "has_font_table": "word/fontTable.xml" in part_names,
         "has_web_settings": "word/webSettings.xml" in part_names,
+        "has_footnotes": "word/footnotes.xml" in part_names,
+        "has_endnotes": "word/endnotes.xml" in part_names,
+        "has_custom_xml": "customXml/item1.xml" in part_names,
         "header_count": len([name for name in part_names if name.startswith("word/header")]),
         "footer_count": len([name for name in part_names if name.startswith("word/footer")]),
+        "body_child_counts": body_child_counts,
+        "relationship_type_counts": relationship_type_counts,
         "paragraph_count": len(paragraphs),
+        "hyperlink_count": len(document.findall(".//w:hyperlink", namespace)),
+        "tab_count": len(document.findall(".//w:tab", namespace)),
         "table_count": len(tables),
         "table_row_count": len(document.findall(".//w:tr", namespace)),
         "table_cell_count": len(document.findall(".//w:tc", namespace)),
         "table_paragraph_count": sum(len(table.findall(".//w:p", namespace)) for table in tables),
         "numbered_paragraph_count": len(document.findall(".//w:numPr", namespace)),
+        "font_names": font_names,
         "styles": styles,
     }
 

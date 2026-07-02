@@ -179,6 +179,11 @@ def docx_document_xml(path: Path) -> str:
         return document.read("word/document.xml").decode("utf-8")
 
 
+def docx_relationships_xml(path: Path) -> str:
+    with zipfile.ZipFile(path) as document:
+        return document.read("word/_rels/document.xml.rels").decode("utf-8")
+
+
 def docx_part_names(path: Path) -> list[str]:
     with zipfile.ZipFile(path) as document:
         return sorted(document.namelist())
@@ -394,7 +399,15 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     resume = {
         "office_layout": {
             "document": {
-                "package": {"theme": True, "font_table": True, "web_settings": True},
+                "package": {
+                    "theme": True,
+                    "font_table": True,
+                    "web_settings": True,
+                    "footnotes": True,
+                    "endnotes": True,
+                    "custom_xml": True,
+                    "fonts": ["Calibri", "Symbol", "Courier New"],
+                },
                 "header": {"runs": [{"text": "Header", "bold": True}]},
                 "footer": {"runs": [{"text": "1"}]},
                 "flow": [
@@ -404,7 +417,23 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
                         "column_widths": ["2400", "2400"],
                         "rows": [
                             [{"item_ids": ["item_left"]}, {"item_ids": ["item_right"]}],
-                            [{"item_ids": ["item_bottom"]}, {"runs": [{"text": "Inline cell", "italic": True}]}],
+                            [
+                                {"item_ids": ["item_bottom"], "paragraphs": [{"empty": True}]},
+                                {
+                                    "runs": [
+                                        {
+                                            "text": "Inline cell",
+                                            "italic": True,
+                                            "font": "Courier New",
+                                            "size": "22",
+                                            "color": "0563C1",
+                                            "link": "https://example.test/cv",
+                                        },
+                                        {"tab": True},
+                                        {"text": "after tab"},
+                                    ]
+                                },
+                            ],
                         ],
                     },
                 ],
@@ -470,10 +499,16 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     app.write_resume_document(master, resume, document_path)
     part_names = docx_part_names(document_path)
     document_xml = docx_document_xml(document_path)
+    relationships_xml = docx_relationships_xml(document_path)
 
     assert "word/theme/theme1.xml" in part_names
     assert "word/fontTable.xml" in part_names
     assert "word/webSettings.xml" in part_names
+    assert "word/footnotes.xml" in part_names
+    assert "word/endnotes.xml" in part_names
+    assert "customXml/item1.xml" in part_names
+    assert "customXml/itemProps1.xml" in part_names
+    assert "customXml/_rels/item1.xml.rels" in part_names
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
     assert docx_theme_style_counts(document_path) == {
@@ -482,7 +517,15 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         "effectStyleLst": 3,
         "bgFillStyleLst": 3,
     }
+    assert '<w:hyperlink r:id="rId101" w:history="1">' in document_xml
+    assert "<w:tab/>" in document_xml
+    assert '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>' in document_xml
+    assert '<w:color w:val="0563C1"/>' in document_xml
+    assert '<w:sz w:val="22"/>' in document_xml
+    assert 'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"' in relationships_xml
+    assert 'Target="https://example.test/cv" TargetMode="External"' in relationships_xml
     assert "<w:tbl>" in document_xml
+    assert document_xml.count("<w:p>") == 6
     assert document_xml.count("<w:tr>") == 2
     assert document_xml.count("<w:tc>") == 4
     assert '<w:headerReference w:type="default" r:id="rId7"/>' in document_xml

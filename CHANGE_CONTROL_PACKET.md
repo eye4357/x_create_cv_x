@@ -51,6 +51,8 @@ Establish the next controlled development version for the side-by-side private g
 - Removed raw `a`/`b`/`c` columns from generated XLSX files in favor of named app-native columns.
 - Added DOCX flow layout support for table blocks plus optional header/footer, theme, font table, and web settings package parts.
 - Hardened generated DOCX theme packages for stricter importers such as Google Drive.
+- Added DOCX contract support for hyperlinks, tabs, run font/size/color/style, footnotes/endnotes/custom XML package parts, and explicit font tables.
+- Expanded DOCX structure reporting to include relationship types, body child counts, hyperlinks, tabs, package scaffolding, and font names.
 - Added non-sensitive structural Office metrics to the private comparison report.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.
