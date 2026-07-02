@@ -2936,14 +2936,15 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         if isinstance(generated_sheets, list) and isinstance(source_sheets, list):
             lines.extend(
                 [
-                    "| Sheet | Source Path | Generated Path | Source Dimension | Generated Dimension | Source Rows | "
-                    "Generated Rows | Source Columns | Generated Columns | Source Styled Cells | "
+                    "| Source Sheet | Generated Sheet | Source Path | Generated Path | Source Dimension | "
+                    "Generated Dimension | Source Rows | Generated Rows | Source Columns | Generated Columns | "
+                    "Source Styled Cells | "
                     "Generated Styled Cells | Source Freeze Pane | Generated Freeze Pane | Source Filter | "
                     "Generated Filter | Source Page Margins | Generated Page Margins | Source Column Widths | "
                     "Generated Column Widths | Source Cell Types | Generated Cell Types | Source Headers | "
                     "Generated Headers |",
                     "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | "
-                    "--- | --- | --- | --- | --- | --- | --- | --- |",
+                    "--- | --- | --- | --- | --- | --- | --- | --- | --- |",
                 ]
             )
             for index, generated_sheet in enumerate(generated_sheets):
@@ -2953,7 +2954,8 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                 if not isinstance(source_sheet, dict):
                     source_sheet = {}
                 lines.append(
-                    f"| {markdown_cell(generated_sheet.get('name', ''))} | "
+                    f"| {markdown_cell(source_sheet.get('name', ''))} | "
+                    f"{markdown_cell(generated_sheet.get('name', ''))} | "
                     f"{markdown_cell(source_sheet.get('path', ''))} | "
                     f"{markdown_cell(generated_sheet.get('path', ''))} | "
                     f"{markdown_cell(source_sheet.get('dimension', ''))} | "

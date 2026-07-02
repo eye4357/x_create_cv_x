@@ -975,7 +975,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "## DOCX Structure" in audit_text
     assert "## XLSX Structure" in audit_text
     assert "master_profile_a_posteriori.xlsx" in audit_text
-    assert "| Sheet | Source Path | Generated Path |" in audit_text
+    assert "| Source Sheet | Generated Sheet | Source Path | Generated Path |" in audit_text
     assert "Source Rows | Generated Rows | Source Columns | Generated Columns" in audit_text
     assert "Source Styled Cells | Generated Styled Cells" in audit_text
     assert "Source Cell Types | Generated Cell Types" in audit_text
