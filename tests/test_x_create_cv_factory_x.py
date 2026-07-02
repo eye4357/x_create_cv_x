@@ -730,6 +730,20 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "customXml/_rels/item1.xml.rels" in part_names
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
+    expected_relationships = [
+        'Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" '
+        'Target="theme/theme1.xml"',
+        'Id="rId7" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" '
+        'Target="header1.xml"',
+        'Id="rId8" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" '
+        'Target="footer1.xml"',
+        'Id="rId11" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" '
+        'Target="../customXml/item1.xml"',
+        'Id="rId101" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '
+        'Target="https://example.test/cv" TargetMode="External"',
+    ]
+    for expected_relationship in expected_relationships:
+        assert expected_relationship in relationships_xml
     assert structure_summary["has_theme"] is True
     assert structure_summary["has_font_table"] is True
     assert structure_summary["has_web_settings"] is True
