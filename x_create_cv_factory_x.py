@@ -2346,6 +2346,17 @@ def markdown_cell(value: Any) -> str:
     return scalar_text(value).replace("\n", " ").replace("|", "\\|")
 
 
+def office_report_name(relative_path: str) -> str:
+    return relative_path.replace("\\", "/").rsplit("/", 1)[-1]
+
+
+def office_report_suffix(relative_path: str) -> str:
+    name = office_report_name(relative_path)
+    if "." not in name:
+        return ""
+    return "." + name.rsplit(".", 1)[-1].lower()
+
+
 def structure_metric(summary: dict[str, Any], key: str) -> Any:
     structure = summary.get("structure")
     if not isinstance(structure, dict):
@@ -2387,9 +2398,10 @@ def write_office_audit_report(evidence_dir: Path) -> Path:
     for comparison in comparisons:
         generated = comparison["generated"]
         source = comparison["source"]
-        generated_path = Path(str(generated["path"]))
+        generated_relative_path = str(generated["path"])
         lines.append(
-            f"| {markdown_cell(generated_path.name)} | {markdown_cell(generated_path.suffix.lower())} | "
+            f"| {markdown_cell(office_report_name(generated_relative_path))} | "
+            f"{markdown_cell(office_report_suffix(generated_relative_path))} | "
             f"{markdown_cell(comparison['byte_identical'])} | {markdown_cell(comparison['normalized_text_match'])} | "
             f"{markdown_cell(comparison['status'])} | {markdown_cell(normalized_metric(source, 'line_count'))} | "
             f"{markdown_cell(normalized_metric(generated, 'line_count'))} |"
@@ -2412,20 +2424,20 @@ def write_office_audit_report(evidence_dir: Path) -> Path:
     ]
     for comparison in comparisons:
         generated = comparison["generated"]
-        generated_path = Path(str(generated["path"]))
-        if generated_path.suffix.lower() != ".docx":
+        generated_relative_path = str(generated["path"])
+        if office_report_suffix(generated_relative_path) != ".docx":
             continue
-        lines.extend([f"### {generated_path.name}", ""])
+        lines.extend([f"### {office_report_name(generated_relative_path)}", ""])
         append_metric_table(lines, generated, comparison["source"], docx_metrics)
 
     lines.extend(["## XLSX Structure", ""])
     for comparison in comparisons:
         generated = comparison["generated"]
         source = comparison["source"]
-        generated_path = Path(str(generated["path"]))
-        if generated_path.suffix.lower() != ".xlsx":
+        generated_relative_path = str(generated["path"])
+        if office_report_suffix(generated_relative_path) != ".xlsx":
             continue
-        lines.extend([f"### {generated_path.name}", ""])
+        lines.extend([f"### {office_report_name(generated_relative_path)}", ""])
         append_metric_table(lines, generated, source, ["sheet_count"])
         generated_sheets = structure_metric(generated, "sheets")
         source_sheets = structure_metric(source, "sheets")

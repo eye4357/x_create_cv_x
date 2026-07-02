@@ -789,6 +789,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         source_path.parent.mkdir(parents=True, exist_ok=True)
         source_path.write_bytes(generated_path.read_bytes())
 
+    comparisons = app.office_comparisons(evidence_dir)
+    assert [comparison["status"] for comparison in comparisons] == ["normalized_match"] * 4
+    assert app.office_report_name("generated\\office\\a_posteriori\\resume.docx") == "resume.docx"
+
     assert app.main(["audit", "--evidence-dir", str(evidence_dir)]) == 0
 
     output = capsys.readouterr().out
