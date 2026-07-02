@@ -53,6 +53,7 @@
 - Extended public fake Office tests to assert XLSX worksheet XML controls for widths, freeze panes, filters, and margins without private data.
 - Extended public fake Office tests to assert DOCX table grid and cell width XML without private data.
 - Extended public fake Office tests to assert DOCX section page margin XML without private data.
+- Extended public fake Office tests to assert DOCX run property and text binding without private data.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 - Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.

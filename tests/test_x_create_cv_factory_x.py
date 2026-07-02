@@ -573,6 +573,10 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert "<w:b/>" in document_xml
     assert "<w:i/>" in document_xml
     assert '<w:u w:val="single"/>' in document_xml
+    assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Styled</w:t></w:r>' in document_xml
+    assert (
+        '<w:r><w:rPr><w:i/><w:u w:val="single"/></w:rPr>' '<w:t xml:space="preserve"> run</w:t></w:r>' in document_xml
+    )
     assert structure_summary["numbered_paragraph_count"] == 1
     assert structure_summary["numbering_abstract_count"] == 2
     assert structure_summary["numbering_num_count"] == 2
