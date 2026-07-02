@@ -816,6 +816,8 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     document_xml = docx_document_xml(document_path)
     relationships_xml = docx_relationships_xml(document_path)
     with zipfile.ZipFile(document_path) as document:
+        content_types_xml = document.read("[Content_Types].xml").decode("utf-8")
+        root_relationships_xml = document.read("_rels/.rels").decode("utf-8")
         font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
         web_settings_xml = document.read("word/webSettings.xml").decode("utf-8")
         footnotes_xml = document.read("word/footnotes.xml").decode("utf-8")
@@ -837,6 +839,39 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "customXml/_rels/item1.xml.rels" in part_names
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
+    assert (
+        '<Override PartName="/word/document.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/styles.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>' in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/numbering.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/theme/theme1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>' in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/fontTable.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/word/header1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' in content_types_xml
+    )
+    assert (
+        'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+        'Target="word/document.xml"' in root_relationships_xml
+    )
+    assert "core-properties" not in root_relationships_xml
+    assert "extended-properties" not in root_relationships_xml
     assert '<w:font w:name="Calibri"/><w:font w:name="Symbol"/><w:font w:name="Courier New"/>' in font_table_xml
     assert f'<w:webSettings xmlns:w="{app.WORD_NS}"/>' in web_settings_xml
     assert '<w:footnote w:type="separator" w:id="-1">' in footnotes_xml
