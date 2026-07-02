@@ -413,6 +413,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights", "Score", "Current"]
     assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value", "", ""]
     sheet_summary = first_worksheet_summary(workbook_path)
+    assert sheet_summary["path"] == "xl/worksheets/sheet1.xml"
     assert sheet_summary["freeze_pane"] == {
         "ySplit": "1",
         "topLeftCell": "A2",
