@@ -784,6 +784,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert '<w:spacing w:after="0" w:line="240" w:lineRule="auto"/>' in document_xml
     assert '<w:ind w:left="720" w:hanging="360"/>' in document_xml
     assert '<w:jc w:val="center"/>' in document_xml
+    assert (
+        '<w:pPr><w:pStyle w:val="Title"/><w:tabs><w:tab w:val="right" w:leader="none" w:pos="10800"/>'
+        '</w:tabs><w:spacing w:after="0" w:line="240" w:lineRule="auto"/>'
+        '<w:ind w:left="720" w:hanging="360"/><w:jc w:val="center"/></w:pPr>' in document_xml
+    )
     assert docx_theme_style_counts(document_path) == {
         "fillStyleLst": 3,
         "lnStyleLst": 3,
