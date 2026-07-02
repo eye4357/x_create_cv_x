@@ -20,7 +20,7 @@ Public files must not contain:
 
 - Real CV or resume data.
 - Real names, addresses, phone numbers, emails, employment history, publication identifiers tied to the private profile, or other PII.
-- Private seed scripts.
+- Private rebuild scripts.
 - `data/private/private.zip`.
 - Original `_a_priori` Office evidence from the private sibling repo `x_create_cv_test_data_x`.
 - Private Office evidence integrity manifests from `x_create_cv_test_data_x`.
@@ -32,7 +32,7 @@ Public files must not contain:
 
 ## Local Private Workflow
 
-Real CV data belongs under ignored local paths such as `data/private/` or in the private sibling repository `x_create_cv_test_data_x`. The private golden zip, original `_a_priori` Office evidence, private SHA-256 manifests, generated `_a_posteriori` Office evidence, generated JSON, comparison reports, human approval notes, and private seed scripts are local validation tools only. They are not part of public CI and must not be committed to the public repository.
+Real CV data belongs outside the public repository. Ad hoc local output may use ignored paths such as `data/private/`, while golden evidence belongs in the private sibling repository `x_create_cv_test_data_x`. The private golden zip, original `_a_priori` Office evidence, private SHA-256 manifests, generated `_a_posteriori` Office evidence, generated JSON, comparison reports, human approval notes, and private rebuild scripts are local validation tools only. They are not part of public CI and must not be committed to the public repository.
 
 ## CI And Tests
 

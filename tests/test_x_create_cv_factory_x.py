@@ -283,6 +283,9 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
         )
     for _generated_name, (content, expected_name) in expected_json.items():
         (expected_json_dir / expected_name).write_text(content, encoding="utf-8")
+    generated_office_count, report_count = app.write_golden_office_outputs(evidence_dir, write_report=False)
+    assert generated_office_count == 3
+    assert report_count == 0
     a_priori_manifest = tmp_path / "evidence" / "a_priori_manifest.json"
     app.write_json(
         a_priori_manifest,
@@ -330,14 +333,22 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
                     }
                     for _generated_name, (_content, expected_name) in expected_json.items()
                 ],
+                *[
+                    {
+                        "path": expected_path,
+                        "bytes": (evidence_dir / expected_path).stat().st_size,
+                        "sha256": app.sha256_file(evidence_dir / expected_path),
+                    }
+                    for expected_path in app.GOLDEN_OFFICE_EXPECTATIONS.values()
+                ],
             ],
         },
     )
 
     assert app.main(["exercise-golden", "--evidence-dir", str(evidence_dir)]) == 0
     assert (
-        "Golden exercise passed: 1 a priori evidence files; 8 chain files; 3 generated JSON files"
-        in capsys.readouterr().out
+        "Golden exercise passed: 1 a priori evidence files; 11 chain files; 3 generated JSON files; "
+        "3 generated Office files" in capsys.readouterr().out
     )
 
 

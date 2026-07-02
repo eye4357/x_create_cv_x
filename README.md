@@ -47,9 +47,9 @@ Run the public test suite:
 python -m pytest
 ```
 
-## Private Seeds
+## Private Golden Evidence
 
-The private Python seed scripts live under `data/private/` and are intentionally ignored by Git because they contain private CV data. They rebuild the master profile and both resume documents as readable action logs using granular functions such as `add_job(...)`, `add_patent(...)`, `add_resume_section(...)`, and `add_resume_item(...)`.
+The private Python rebuild scripts live in the side-by-side private repository `x_create_cv_test_data_x` under `evidence/scripts/`. They rebuild the master profile and both resume documents as readable action logs using granular functions such as `add_job(...)`, `add_patent(...)`, `add_resume_section(...)`, and `add_resume_item(...)`.
 
 The real golden Office evidence lives in the side-by-side private repository `x_create_cv_test_data_x`, under `evidence/source_office/a_priori/`, with an `_a_priori` filename suffix. These are private evidence files, not public fixtures. Future whole-cloth regenerated Office files should use an `_a_posteriori` suffix so original evidence and generated evidence are visually distinct.
 
@@ -65,19 +65,17 @@ That command fast-fails on evidence corruption by reading both private SHA-256 m
 python .\x_create_cv_factory_x.py check-evidence
 ```
 
-Copies do not count as generated evidence. The private `_a_posteriori` DOCX/XLSX outputs must eventually be produced by scripts from JSON, then compared against the `_a_priori` Office files.
+Copies do not count as generated evidence. The private `_a_posteriori` DOCX/XLSX outputs are produced from JSON, then reported against the `_a_priori` Office files.
 
-When private data is available locally, validate the generated JSON against the private golden archive:
+Generate the private `_a_posteriori` Office evidence and comparison report from the side-by-side golden JSON:
 
 ```powershell
-$env:CV_FACTORY_DB_DIR = Join-Path $PWD 'data\private\cv_factory_output'
-python .\data\private\cv_factory_seed_scripts\01_build_master_data.py
-python .\data\private\cv_factory_seed_scripts\02_build_old_resume.py
-python .\data\private\cv_factory_seed_scripts\03_build_new_resume.py
-python .\x_create_cv_factory_x.py validate --db-dir $env:CV_FACTORY_DB_DIR --expected-zip .\data\private\private.zip --zip-prefix private/cv_app_crud
+python .\x_create_cv_factory_x.py generate-golden-office
 ```
 
-Do not commit anything under `data/private/`.
+The older `validate --expected-zip` command remains available for legacy archive checks, but the active 0.0.2 golden path is `exercise-golden` against `x_create_cv_test_data_x`.
+
+Do not commit real private data to `x_create_cv_x`.
 
 ## Development And Release Checks
 
@@ -111,6 +109,7 @@ The repository includes:
 - `.vscode/settings.json` with Pylance strict type checking and pytest discovery.
 - `.github/workflows/ci.yml` to run tests, Ruff, Black, and mypy on every push and pull request.
 - Unit tests that rebuild fake CV JSON and validate zip comparison behavior without private data.
+- Unit tests that generate fake XLSX/DOCX Office evidence without private data.
 
 ## Documentation
 
@@ -123,8 +122,6 @@ The repository includes:
 ## Privacy Rules
 
 - Public repo files must contain only source, docs, tests, and fake fixtures.
-- Real CV data stays under `data/private/`.
-- Private seed scripts stay under `data/private/`.
-- Private golden archives stay under `data/private/`.
-- Real golden evidence, including scripts, generated JSON, manifests, original Office files, legacy references, and future generated Office outputs, stays in the private sibling repo `x_create_cv_test_data_x`.
+- Ad hoc local private output under `data/private/` remains ignored.
+- Real golden evidence, including scripts, generated JSON, manifests, original Office files, legacy references, and generated Office outputs, stays in the private sibling repo `x_create_cv_test_data_x`.
 - CI must never require private data.

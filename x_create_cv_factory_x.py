@@ -6,12 +6,14 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import html
 import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 from typing import Any
@@ -36,6 +38,20 @@ GOLDEN_JSON_EXPECTATIONS = {
     "resume_2017.json": "generated/json/a_posteriori/resume_2017_a_posteriori.json",
     "resume_2023.json": "generated/json/a_posteriori/resume_2023_a_posteriori.json",
 }
+GOLDEN_OFFICE_EXPECTATIONS = {
+    "master_profile_a_posteriori.xlsx": "generated/office/a_posteriori/master_profile_a_posteriori.xlsx",
+    "resume_2017_a_posteriori.docx": "generated/office/a_posteriori/resume_2017_a_posteriori.docx",
+    "resume_2023_a_posteriori.docx": "generated/office/a_posteriori/resume_2023_a_posteriori.docx",
+}
+GOLDEN_SOURCE_OFFICE = {
+    "master_profile_a_posteriori.xlsx": "source_office/a_priori/R_cv_2023_0501_1427_a_priori.xlsx",
+    "resume_2017_a_posteriori.docx": "source_office/a_priori/R_cv_2017_1129_0848_a_priori.docx",
+    "resume_2023_a_posteriori.docx": "source_office/a_priori/R_cv_2023_0315_2158_a_priori.docx",
+}
+GOLDEN_OFFICE_REPORT = "reports/a_posteriori_office_comparison.json"
+ZIP_TIMESTAMP = (2026, 7, 1, 0, 0, 0)
+WORD_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+SHEET_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 
 MASTER_COLLECTIONS = [
     "people",
@@ -284,6 +300,541 @@ def check_evidence_manifest(manifest_path: Path) -> int:
     return len(entries)
 
 
+def scalar_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, dict | list):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True)
+    return str(value)
+
+
+def clean_xml_text(value: Any) -> str:
+    text = scalar_text(value)
+    return "".join(character if character in "\t\n\r" or ord(character) >= 32 else " " for character in text)
+
+
+def xml_text(value: Any) -> str:
+    return html.escape(clean_xml_text(value), quote=False)
+
+
+def xml_attr(value: Any) -> str:
+    return html.escape(clean_xml_text(value), quote=True)
+
+
+def write_zip_entries(path: Path, entries: list[tuple[str, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(path, "w") as archive:
+        for name, content in entries:
+            info = zipfile.ZipInfo(name, ZIP_TIMESTAMP)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, content.encode("utf-8"))
+
+
+def relationships_xml(relationships: list[tuple[str, str, str]]) -> str:
+    entries = "".join(
+        f'<Relationship Id="{xml_attr(relationship_id)}" Type="{xml_attr(relationship_type)}" '
+        f'Target="{xml_attr(target)}"/>'
+        for relationship_id, relationship_type, target in relationships
+    )
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        f"{entries}</Relationships>"
+    )
+
+
+def column_name(index: int) -> str:
+    name = ""
+    while index:
+        index, remainder = divmod(index - 1, 26)
+        name = chr(65 + remainder) + name
+    return name
+
+
+def master_profile_rows(master: dict[str, Any]) -> list[list[str]]:
+    rows = [["scope", "collection", "record_id", "field", "value"]]
+    profile = master.get("profile")
+    if isinstance(profile, dict):
+        for field, value in profile.items():
+            rows.append(["profile", "profile", "", str(field), scalar_text(value)])
+
+    collections = master.get("collections")
+    if isinstance(collections, dict):
+        collection_names = [name for name in MASTER_COLLECTIONS if name in collections]
+        collection_names.extend(sorted(name for name in collections if name not in MASTER_COLLECTIONS))
+        for collection_name in collection_names:
+            records = collections.get(collection_name)
+            if not isinstance(records, list):
+                continue
+            for record in records:
+                if not isinstance(record, dict):
+                    continue
+                record_id = scalar_text(record.get("id"))
+                for field, value in record.items():
+                    rows.append(["collection", str(collection_name), record_id, str(field), scalar_text(value)])
+    return rows
+
+
+def worksheet_xml(rows: list[list[str]]) -> str:
+    rendered_rows: list[str] = []
+    for row_index, row in enumerate(rows, start=1):
+        cells: list[str] = []
+        for column_index, value in enumerate(row, start=1):
+            cell_ref = f"{column_name(column_index)}{row_index}"
+            cells.append(f'<c r="{cell_ref}" t="inlineStr"><is><t xml:space="preserve">{xml_text(value)}</t></is></c>')
+        rendered_rows.append(f'<row r="{row_index}">{"".join(cells)}</row>')
+    last_row = max(len(rows), 1)
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+        'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+        f'<dimension ref="A1:E{last_row}"/><sheetData>{"".join(rendered_rows)}</sheetData></worksheet>'
+    )
+
+
+def workbook_content_types() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>'
+        '<Override PartName="/xl/workbook.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+        '<Override PartName="/xl/worksheets/sheet1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+        '<Override PartName="/xl/styles.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+        '<Override PartName="/docProps/core.xml" '
+        'ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+        '<Override PartName="/docProps/app.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
+        "</Types>"
+    )
+
+
+def write_master_workbook(master: dict[str, Any], path: Path) -> None:
+    entries = [
+        ("[Content_Types].xml", workbook_content_types()),
+        (
+            "_rels/.rels",
+            relationships_xml(
+                [
+                    (
+                        "rId1",
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+                        "xl/workbook.xml",
+                    ),
+                    (
+                        "rId2",
+                        "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties",
+                        "docProps/core.xml",
+                    ),
+                    (
+                        "rId3",
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties",
+                        "docProps/app.xml",
+                    ),
+                ]
+            ),
+        ),
+        (
+            "xl/workbook.xml",
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+            '<sheets><sheet name="Master Profile" sheetId="1" r:id="rId1"/></sheets></workbook>',
+        ),
+        (
+            "xl/_rels/workbook.xml.rels",
+            relationships_xml(
+                [
+                    (
+                        "rId1",
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+                        "worksheets/sheet1.xml",
+                    ),
+                    (
+                        "rId2",
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+                        "styles.xml",
+                    ),
+                ]
+            ),
+        ),
+        (
+            "xl/styles.xml",
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+            '<fonts count="1"><font><sz val="11"/><name val="Aptos"/></font></fonts>'
+            '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
+            '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+            '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+            '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
+            '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
+            "</styleSheet>",
+        ),
+        ("xl/worksheets/sheet1.xml", worksheet_xml(master_profile_rows(master))),
+        (
+            "docProps/core.xml",
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
+            'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+            'xmlns:dcterms="http://purl.org/dc/terms/" '
+            'xmlns:dcmitype="http://purl.org/dc/dcmitype/" '
+            'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+            "<dc:title>Master Profile A Posteriori</dc:title><dc:creator>x_create_cv_x</dc:creator>"
+            "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>"
+            '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>'
+            '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>'
+            "</cp:coreProperties>",
+        ),
+        (
+            "docProps/app.xml",
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
+            'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+            "<Application>x_create_cv_x</Application></Properties>",
+        ),
+    ]
+    write_zip_entries(path, entries)
+
+
+def master_records_by_id(master: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    records_by_id: dict[str, dict[str, Any]] = {}
+    collections = master.get("collections")
+    if not isinstance(collections, dict):
+        return records_by_id
+    for records in collections.values():
+        if not isinstance(records, list):
+            continue
+        for record in records:
+            if isinstance(record, dict) and isinstance(record.get("id"), str):
+                records_by_id[str(record["id"])] = record
+    return records_by_id
+
+
+def sort_order(record: dict[str, Any]) -> int:
+    value = record.get("sort_order")
+    return value if isinstance(value, int) else 0
+
+
+def record_summary(record: dict[str, Any]) -> str:
+    preferred_fields = [
+        "text",
+        "name",
+        "label",
+        "job_title",
+        "employer",
+        "degree",
+        "school",
+        "patent_name",
+        "publication_name",
+        "certificate_name",
+    ]
+    parts = [scalar_text(record[field]) for field in preferred_fields if scalar_text(record.get(field))]
+    if parts:
+        return " - ".join(parts[:3])
+    for field, value in record.items():
+        if field != "id" and scalar_text(value):
+            return scalar_text(value)
+    return scalar_text(record.get("id"))
+
+
+def resume_item_text(item: dict[str, Any], records_by_id: dict[str, dict[str, Any]]) -> str:
+    text_override = item.get("text_override")
+    if isinstance(text_override, str) and text_override.strip():
+        return text_override
+    refs = item.get("master_record_refs")
+    if isinstance(refs, list):
+        summaries = [
+            record_summary(records_by_id[ref]) for ref in refs if isinstance(ref, str) and ref in records_by_id
+        ]
+        return "\n".join(summary for summary in summaries if summary)
+    return ""
+
+
+def resume_lines(master: dict[str, Any], resume: dict[str, Any]) -> list[tuple[str, str | None]]:
+    records_by_id = master_records_by_id(master)
+    resume_value = resume.get("resume")
+    resume_meta = resume_value if isinstance(resume_value, dict) else {}
+    label = scalar_text(resume_meta.get("label") or resume_meta.get("id") or "Resume")
+    lines: list[tuple[str, str | None]] = [(label, "Heading1")]
+    status = scalar_text(resume_meta.get("status"))
+    if status:
+        lines.append((f"Status: {status}", None))
+
+    collections_value = resume.get("collections")
+    collections = collections_value if isinstance(collections_value, dict) else {}
+    sections = collections.get("sections")
+    items = collections.get("items")
+    section_records = (
+        [section for section in sections if isinstance(section, dict)] if isinstance(sections, list) else []
+    )
+    item_records = [item for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+
+    for section in sorted(section_records, key=sort_order):
+        if section.get("is_visible") is False:
+            continue
+        title = scalar_text(section.get("title") or section.get("id") or "Section")
+        lines.append((title, "Heading2"))
+        section_id = section.get("id")
+        section_items = [item for item in item_records if item.get("section_id") == section_id]
+        for item in sorted(section_items, key=sort_order):
+            if item.get("is_visible") is False:
+                continue
+            item_text = resume_item_text(item, records_by_id)
+            for paragraph in item_text.splitlines() or [item_text]:
+                if paragraph.strip():
+                    lines.append((paragraph, None))
+    return lines
+
+
+def docx_paragraph(text: str, style: str | None = None) -> str:
+    style_xml = f'<w:pPr><w:pStyle w:val="{xml_attr(style)}"/></w:pPr>' if style else ""
+    return f'<w:p>{style_xml}<w:r><w:t xml:space="preserve">{xml_text(text)}</w:t></w:r></w:p>'
+
+
+def docx_document_xml(lines: list[tuple[str, str | None]]) -> str:
+    paragraphs = "".join(docx_paragraph(text, style) for text, style in lines)
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:document xmlns:w="{WORD_NS}"><w:body>{paragraphs}'
+        '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="720" w:right="720" '
+        'w:bottom="720" w:left="720" w:header="360" w:footer="360" w:gutter="0"/></w:sectPr>'
+        "</w:body></w:document>"
+    )
+
+
+def document_content_types() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>'
+        '<Override PartName="/word/document.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+        '<Override PartName="/word/styles.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+        '<Override PartName="/docProps/core.xml" '
+        'ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+        '<Override PartName="/docProps/app.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
+        "</Types>"
+    )
+
+
+def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: Path) -> None:
+    resume_value = resume.get("resume")
+    resume_meta = resume_value if isinstance(resume_value, dict) else {}
+    title = scalar_text(resume_meta.get("label") or "Resume")
+    entries = [
+        ("[Content_Types].xml", document_content_types()),
+        (
+            "_rels/.rels",
+            relationships_xml(
+                [
+                    (
+                        "rId1",
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+                        "word/document.xml",
+                    ),
+                    (
+                        "rId2",
+                        "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties",
+                        "docProps/core.xml",
+                    ),
+                    (
+                        "rId3",
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties",
+                        "docProps/app.xml",
+                    ),
+                ]
+            ),
+        ),
+        ("word/document.xml", docx_document_xml(resume_lines(master, resume))),
+        (
+            "word/styles.xml",
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            f'<w:styles xmlns:w="{WORD_NS}">'
+            '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'
+            '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/>'
+            '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="160"/></w:pPr>'
+            '<w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>'
+            '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/>'
+            '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="160" w:after="80"/></w:pPr>'
+            '<w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>'
+            "</w:styles>",
+        ),
+        (
+            "docProps/core.xml",
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
+            'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+            'xmlns:dcterms="http://purl.org/dc/terms/" '
+            'xmlns:dcmitype="http://purl.org/dc/dcmitype/" '
+            'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+            f"<dc:title>{xml_text(title)}</dc:title><dc:creator>x_create_cv_x</dc:creator>"
+            "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>"
+            '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>'
+            '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>'
+            "</cp:coreProperties>",
+        ),
+        (
+            "docProps/app.xml",
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
+            'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+            "<Application>x_create_cv_x</Application></Properties>",
+        ),
+    ]
+    write_zip_entries(path, entries)
+
+
+def load_golden_json(evidence_dir: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    json_dir = evidence_dir / "generated" / "json" / "a_posteriori"
+    return (
+        read_json(json_dir / "master_profile_a_posteriori.json"),
+        read_json(json_dir / "resume_2017_a_posteriori.json"),
+        read_json(json_dir / "resume_2023_a_posteriori.json"),
+    )
+
+
+def docx_text_lines(path: Path) -> list[str]:
+    namespace = {"w": WORD_NS}
+    with zipfile.ZipFile(path) as archive:
+        document = ET.fromstring(archive.read("word/document.xml"))
+    lines: list[str] = []
+    for paragraph in document.findall(".//w:p", namespace):
+        text = "".join(node.text or "" for node in paragraph.findall(".//w:t", namespace))
+        normalized = " ".join(text.split())
+        if normalized:
+            lines.append(normalized)
+    return lines
+
+
+def xlsx_shared_strings(archive: zipfile.ZipFile) -> list[str]:
+    if "xl/sharedStrings.xml" not in archive.namelist():
+        return []
+    namespace = {"s": SHEET_NS}
+    root = ET.fromstring(archive.read("xl/sharedStrings.xml"))
+    return ["".join(node.text or "" for node in item.findall(".//s:t", namespace)) for item in root]
+
+
+def xlsx_cell_text(cell: ET.Element, shared_strings: list[str]) -> str:
+    namespace = {"s": SHEET_NS}
+    cell_type = cell.attrib.get("t")
+    if cell_type == "inlineStr":
+        return "".join(node.text or "" for node in cell.findall(".//s:t", namespace))
+    value = cell.find("s:v", namespace)
+    if value is None or value.text is None:
+        return ""
+    if cell_type == "s":
+        try:
+            return shared_strings[int(value.text)]
+        except (IndexError, ValueError):
+            return ""
+    return value.text
+
+
+def xlsx_text_lines(path: Path) -> list[str]:
+    namespace = {"s": SHEET_NS}
+    lines: list[str] = []
+    with zipfile.ZipFile(path) as archive:
+        shared_strings = xlsx_shared_strings(archive)
+        worksheet_names = sorted(name for name in archive.namelist() if name.startswith("xl/worksheets/sheet"))
+        for worksheet_name in worksheet_names:
+            root = ET.fromstring(archive.read(worksheet_name))
+            for row in root.findall(".//s:row", namespace):
+                values = [xlsx_cell_text(cell, shared_strings) for cell in row.findall("s:c", namespace)]
+                line = "\t".join(value for value in values if value).strip()
+                if line:
+                    lines.append(" ".join(line.split()))
+    return lines
+
+
+def normalized_text_summary(path: Path) -> dict[str, Any]:
+    if path.suffix.lower() == ".docx":
+        lines = docx_text_lines(path)
+    elif path.suffix.lower() == ".xlsx":
+        lines = xlsx_text_lines(path)
+    else:
+        lines = []
+    payload = "\n".join(lines).encode("utf-8")
+    return {"line_count": len(lines), "sha256": hashlib.sha256(payload).hexdigest()}
+
+
+def office_file_summary(relative_path: str, path: Path) -> dict[str, Any]:
+    summary: dict[str, Any] = {"path": relative_path, "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+    try:
+        summary["normalized_text"] = normalized_text_summary(path)
+    except (KeyError, ET.ParseError, zipfile.BadZipFile) as exc:
+        summary["normalized_text"] = {"error": exc.__class__.__name__}
+    return summary
+
+
+def write_office_comparison_report(evidence_dir: Path) -> Path:
+    comparisons: list[dict[str, Any]] = []
+    for generated_name, generated_relative_path in GOLDEN_OFFICE_EXPECTATIONS.items():
+        source_relative_path = GOLDEN_SOURCE_OFFICE[generated_name]
+        generated_summary = office_file_summary(generated_relative_path, evidence_dir / generated_relative_path)
+        source_summary = office_file_summary(source_relative_path, evidence_dir / source_relative_path)
+        generated_normalized = generated_summary.get("normalized_text")
+        source_normalized = source_summary.get("normalized_text")
+        normalized_match = isinstance(generated_normalized, dict) and generated_normalized == source_normalized
+        comparisons.append(
+            {
+                "generated": generated_summary,
+                "source": source_summary,
+                "byte_identical": generated_summary["sha256"] == source_summary["sha256"],
+                "normalized_text_match": normalized_match,
+                "status": "normalized_match" if normalized_match else "review_required",
+            }
+        )
+    report_path = evidence_dir / GOLDEN_OFFICE_REPORT
+    write_json(
+        report_path,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "generator": f"x_create_cv_x {VERSION}",
+            "purpose": "Private comparison report for generated _a_posteriori Office evidence",
+            "comparisons": comparisons,
+        },
+    )
+    return report_path
+
+
+def write_golden_office_outputs(
+    evidence_dir: Path, output_root: Path | None = None, *, write_report: bool = True
+) -> tuple[int, int]:
+    master, resume_2017, resume_2023 = load_golden_json(evidence_dir)
+    target_root = output_root or evidence_dir
+    output_dir = target_root / "generated" / "office" / "a_posteriori"
+    write_master_workbook(master, output_dir / "master_profile_a_posteriori.xlsx")
+    write_resume_document(master, resume_2017, output_dir / "resume_2017_a_posteriori.docx")
+    write_resume_document(master, resume_2023, output_dir / "resume_2023_a_posteriori.docx")
+    report_count = 0
+    if write_report:
+        write_office_comparison_report(evidence_dir)
+        report_count = 1
+    return len(GOLDEN_OFFICE_EXPECTATIONS), report_count
+
+
+def run_golden_office_generation(evidence_dir: Path) -> int:
+    with tempfile.TemporaryDirectory(prefix="x_create_cv_office_") as temp_dir:
+        temp_root = Path(temp_dir)
+        generated_count, _report_count = write_golden_office_outputs(evidence_dir, temp_root, write_report=False)
+        for generated_relative_path in GOLDEN_OFFICE_EXPECTATIONS.values():
+            generated_path = temp_root / generated_relative_path
+            expected_path = evidence_dir / generated_relative_path
+            if not expected_path.exists():
+                raise ValueError(f"Missing expected a posteriori Office evidence: {generated_relative_path}")
+            if generated_path.read_bytes() != expected_path.read_bytes():
+                raise ValueError(f"Golden generated Office mismatch: {generated_relative_path}")
+        return generated_count
+
+
 def run_golden_json_scripts(evidence_dir: Path) -> int:
     script_dir = evidence_dir / "scripts"
     public_repo_root = Path(__file__).resolve().parent
@@ -321,11 +872,12 @@ def run_golden_json_scripts(evidence_dir: Path) -> int:
     return len(GOLDEN_JSON_EXPECTATIONS)
 
 
-def check_golden_evidence(evidence_dir: Path) -> tuple[int, int, int]:
+def check_golden_evidence(evidence_dir: Path) -> tuple[int, int, int, int]:
     a_priori_count = check_evidence_manifest(evidence_dir / "a_priori_manifest.json")
     chain_count = check_evidence_manifest(evidence_dir / "chain_of_evidence_manifest.json")
     generated_json_count = run_golden_json_scripts(evidence_dir)
-    return a_priori_count, chain_count, generated_json_count
+    generated_office_count = run_golden_office_generation(evidence_dir)
+    return a_priori_count, chain_count, generated_json_count, generated_office_count
 
 
 def master_path(db_dir: Path) -> Path:
@@ -958,6 +1510,12 @@ def build_parser() -> argparse.ArgumentParser:
         "exercise-golden", help="Run the side-by-side private golden evidence smoke test"
     )
     exercise_golden_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
+
+    generate_office_parser = subparsers.add_parser(
+        "generate-golden-office", help="Generate private _a_posteriori Office evidence from golden JSON"
+    )
+    generate_office_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
+    generate_office_parser.add_argument("--no-report", action="store_true", help="Skip the comparison report")
     return parser
 
 
@@ -998,11 +1556,20 @@ def run(args: argparse.Namespace) -> int:
         print(f"Evidence integrity passed: {checked_count} files")
         return 0
     if command == "exercise-golden":
-        a_priori_count, chain_count, generated_json_count = check_golden_evidence(args.evidence_dir)
+        a_priori_count, chain_count, generated_json_count, generated_office_count = check_golden_evidence(
+            args.evidence_dir
+        )
         print(
             f"Golden exercise passed: {a_priori_count} a priori evidence files; "
-            f"{chain_count} chain files; {generated_json_count} generated JSON files"
+            f"{chain_count} chain files; {generated_json_count} generated JSON files; "
+            f"{generated_office_count} generated Office files"
         )
+        return 0
+    if command == "generate-golden-office":
+        generated_office_count, report_count = write_golden_office_outputs(
+            args.evidence_dir, write_report=not args.no_report
+        )
+        print(f"Generated golden Office evidence: {generated_office_count} files; {report_count} reports")
         return 0
     raise ValueError(f"Unknown command: {command}")
 

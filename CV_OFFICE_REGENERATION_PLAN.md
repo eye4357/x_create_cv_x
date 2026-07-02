@@ -2,7 +2,7 @@
 
 Date: 2026-07-01
 
-Version note: `0.0.2` records this roadmap, the private sibling-repo `_a_priori` Office evidence location, the full chain-of-evidence store, and the evidence integrity gate. The full XLSX/DOCX regeneration implementation remains the next engineering milestone.
+Version note: `0.0.2` records this roadmap, the private sibling-repo `_a_priori` Office evidence location, the full chain-of-evidence store, the evidence integrity gate, and baseline XLSX/DOCX regeneration from golden JSON. Deeper normalized equivalence and human approval remain the next engineering milestone.
 
 ## Goal
 
@@ -12,7 +12,7 @@ Replace the current private `private.zip` golden reference with a stronger evide
 - `R_cv_2023_0315_2158_a_priori.docx`
 - `R_cv_2023_0501_1427_a_priori.xlsx`
 
-The `_a_priori` suffix marks original source evidence known before regeneration. Future whole-cloth generated XLSX and DOCX outputs should use an `_a_posteriori` suffix.
+The `_a_priori` suffix marks original source evidence known before regeneration. Whole-cloth generated XLSX and DOCX outputs use an `_a_posteriori` suffix.
 
 Copies are not valid `_a_posteriori` evidence. The generated Office outputs must be produced by private scripts from the app-native JSON chain, then compared against the `_a_priori` Office files.
 
@@ -34,7 +34,7 @@ Keep four evidence classes together locally, but do not commit private content t
 4. Regenerated Office evidence: new whole-cloth `_a_posteriori` XLSX and DOCX files produced by the scripts from JSON.
 5. Comparison evidence: SHA-256 manifests, normalized manifests, hashes, diffs, validation reports, and human approval notes proving what matches exactly and what intentionally differs.
 
-Recommended ignored local layout inside `x_create_cv_x`:
+Legacy ignored local layout inside `x_create_cv_x`:
 
 ```text
 data/private/evidence/generated/
@@ -60,14 +60,14 @@ The public repo should keep only fake fixtures, public code, public tests, and d
 
 ## Target Outputs
 
-The whole-cloth rebuild should produce `_a_posteriori` outputs:
+The whole-cloth rebuild produces `_a_posteriori` outputs:
 
 - `master_profile.json`
 - `resume_2017.json`
 - `resume_2023.json`
-- an `_a_posteriori.xlsx` database generated from `master_profile.json`
-- a 2017 `_a_posteriori.docx` generated from `resume_2017.json` plus shared profile data
-- a 2023 `_a_posteriori.docx` generated from `resume_2023.json` plus shared profile data
+- `master_profile_a_posteriori.xlsx` generated from `master_profile.json`
+- `resume_2017_a_posteriori.docx` generated from `resume_2017.json` plus shared profile data
+- `resume_2023_a_posteriori.docx` generated from `resume_2023.json` plus shared profile data
 
 The `_a_priori` source documents should be used as comparison evidence, not as runtime dependencies for normal generation.
 
