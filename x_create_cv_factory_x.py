@@ -2936,11 +2936,12 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         if isinstance(generated_sheets, list) and isinstance(source_sheets, list):
             lines.extend(
                 [
-                    "| Sheet | Generated Path | Source Dimension | Generated Dimension | Generated Rows | "
-                    "Generated Columns | Generated Styled Cells | Generated Freeze Pane | Generated Filter | "
+                    "| Sheet | Source Path | Generated Path | Source Dimension | Generated Dimension | "
+                    "Generated Rows | Generated Columns | Generated Styled Cells | Generated Freeze Pane | "
+                    "Generated Filter | "
                     "Generated Page Margins | Generated Column Widths | Generated Cell Types | Source Headers | "
                     "Generated Headers |",
-                    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
                 ]
             )
             for index, generated_sheet in enumerate(generated_sheets):
@@ -2951,6 +2952,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
                     source_sheet = {}
                 lines.append(
                     f"| {markdown_cell(generated_sheet.get('name', ''))} | "
+                    f"{markdown_cell(source_sheet.get('path', ''))} | "
                     f"{markdown_cell(generated_sheet.get('path', ''))} | "
                     f"{markdown_cell(source_sheet.get('dimension', ''))} | "
                     f"{markdown_cell(generated_sheet.get('dimension', ''))} | "
