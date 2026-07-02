@@ -50,6 +50,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX styles XML definitions and list-style binding.
 - Added public fake-fixture coverage for DOCX numbering XML abstract and concrete numbering bindings.
 - Added public fake-fixture coverage for DOCX content-type and root relationship package binding.
+- Added public fake-fixture coverage for DOCX core and app document property metadata.
 - Added public fake-fixture coverage for DOCX table grid and cell width XML.
 - Added public fake-fixture coverage for DOCX section page margin XML.
 - Added public fake-fixture coverage for DOCX run property and text binding.

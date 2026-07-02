@@ -618,6 +618,8 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     app.write_resume_document(master, resume, document_path)
     document_xml = docx_document_xml(document_path)
     with zipfile.ZipFile(document_path) as document:
+        core_properties_xml = document.read("docProps/core.xml").decode("utf-8")
+        app_properties_xml = document.read("docProps/app.xml").decode("utf-8")
         docx_styles_xml = document.read("word/styles.xml").decode("utf-8")
         docx_numbering_xml = document.read("word/numbering.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
@@ -643,6 +645,12 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert "<w:b/>" in document_xml
     assert "<w:i/>" in document_xml
     assert '<w:u w:val="single"/>' in document_xml
+    assert "<dc:title>API Resume</dc:title>" in core_properties_xml
+    assert "<dc:creator>x_create_cv_x</dc:creator>" in core_properties_xml
+    assert "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>" in core_properties_xml
+    assert '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>' in core_properties_xml
+    assert '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>' in core_properties_xml
+    assert "<Application>x_create_cv_x</Application>" in app_properties_xml
     assert f'<w:styles xmlns:w="{app.WORD_NS}">' in docx_styles_xml
     assert (
         '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/>'
