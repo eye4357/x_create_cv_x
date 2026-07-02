@@ -555,6 +555,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
 
     assert '<w:pStyle w:val="Heading1"/>' in document_xml
     assert '<w:numId w:val="7"/>' in document_xml
+    assert '<w:numPr><w:ilvl w:val="0"/><w:numId w:val="7"/></w:numPr>' in document_xml
     assert '<w:pgSz w:w="12240" w:h="15840" w:orient="portrait"/>' in document_xml
     assert (
         '<w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" '
