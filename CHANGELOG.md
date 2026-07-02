@@ -18,6 +18,7 @@
 - Updated DOCX generation to consume item `formatting.block_style`, `formatting.numbering`, and rich `formatting.runs` from the JSON contract.
 - Added DOCX document-flow layout support for JSON-backed paragraph, item, and table blocks.
 - Added DOCX header/footer, theme, font table, and web settings package parts driven by the document layout contract.
+- Hardened generated DOCX theme packages for stricter importers such as Google Drive.
 - Added non-sensitive Office structure metrics to the private comparison report.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.

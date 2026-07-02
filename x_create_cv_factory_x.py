@@ -1420,6 +1420,15 @@ def docx_web_settings_xml() -> str:
 
 
 def docx_theme_xml() -> str:
+    fill_styles = '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>' * 3
+    line_styles = "".join(
+        f'<a:ln w="{width}" cap="flat" cmpd="sng" algn="ctr">'
+        '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>'
+        '<a:prstDash val="solid"/></a:ln>'
+        for width in ("6350", "12700", "19050")
+    )
+    effect_styles = "<a:effectStyle><a:effectLst/></a:effectStyle>" * 3
+    background_fill_styles = '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>' * 3
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Generated Office Theme">'
@@ -1431,12 +1440,13 @@ def docx_theme_xml() -> str:
         '<a:accent3><a:srgbClr val="9BBB59"/></a:accent3><a:accent4><a:srgbClr val="8064A2"/></a:accent4>'
         '<a:accent5><a:srgbClr val="4BACC6"/></a:accent5><a:accent6><a:srgbClr val="F79646"/></a:accent6>'
         '<a:hlink><a:srgbClr val="0000FF"/></a:hlink><a:folHlink><a:srgbClr val="800080"/></a:folHlink>'
-        '</a:clrScheme><a:fontScheme name="Generated"><a:majorFont><a:latin typeface="Calibri"/></a:majorFont>'
-        '<a:minorFont><a:latin typeface="Calibri"/></a:minorFont></a:fontScheme><a:fmtScheme name="Generated">'
-        '<a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:fillStyleLst>'
-        '<a:lnStyleLst><a:ln w="6350"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln></a:lnStyleLst>'
-        "<a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst>"
-        '<a:bgFillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:bgFillStyleLst>'
+        '</a:clrScheme><a:fontScheme name="Generated"><a:majorFont><a:latin typeface="Calibri"/>'
+        '<a:ea typeface=""/><a:cs typeface=""/></a:majorFont><a:minorFont><a:latin typeface="Calibri"/>'
+        '<a:ea typeface=""/><a:cs typeface=""/></a:minorFont></a:fontScheme><a:fmtScheme name="Generated">'
+        f"<a:fillStyleLst>{fill_styles}</a:fillStyleLst>"
+        f"<a:lnStyleLst>{line_styles}</a:lnStyleLst>"
+        f"<a:effectStyleLst>{effect_styles}</a:effectStyleLst>"
+        f"<a:bgFillStyleLst>{background_fill_styles}</a:bgFillStyleLst>"
         "</a:fmtScheme></a:themeElements></a:theme>"
     )
 

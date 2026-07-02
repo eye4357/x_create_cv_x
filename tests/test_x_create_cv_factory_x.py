@@ -184,6 +184,17 @@ def docx_part_names(path: Path) -> list[str]:
         return sorted(document.namelist())
 
 
+def docx_theme_style_counts(path: Path) -> dict[str, int]:
+    namespace = {"a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
+    with zipfile.ZipFile(path) as document:
+        theme = ET.fromstring(document.read("word/theme/theme1.xml"))
+    counts: dict[str, int] = {}
+    for list_name in ["fillStyleLst", "lnStyleLst", "effectStyleLst", "bgFillStyleLst"]:
+        node = theme.find(f".//a:{list_name}", namespace)
+        counts[list_name] = len(list(node)) if node is not None else 0
+    return counts
+
+
 def docx_section_margins(path: Path) -> dict[str, str]:
     namespace = {"w": app.WORD_NS}
     with zipfile.ZipFile(path) as document:
@@ -465,6 +476,12 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "word/webSettings.xml" in part_names
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
+    assert docx_theme_style_counts(document_path) == {
+        "fillStyleLst": 3,
+        "lnStyleLst": 3,
+        "effectStyleLst": 3,
+        "bgFillStyleLst": 3,
+    }
     assert "<w:tbl>" in document_xml
     assert document_xml.count("<w:tr>") == 2
     assert document_xml.count("<w:tc>") == 4
