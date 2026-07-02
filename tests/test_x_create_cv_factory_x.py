@@ -409,10 +409,33 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     workbook_path = tmp_path / "layout_contract.xlsx"
     app.write_master_workbook(master, workbook_path)
     with zipfile.ZipFile(workbook_path) as workbook:
+        content_types_xml = workbook.read("[Content_Types].xml").decode("utf-8")
+        root_relationships_xml = workbook.read("_rels/.rels").decode("utf-8")
         workbook_xml = workbook.read("xl/workbook.xml").decode("utf-8")
         workbook_relationships_xml = workbook.read("xl/_rels/workbook.xml.rels").decode("utf-8")
 
     assert workbook_sheet_names(workbook_path) == ["Highlights"]
+    assert (
+        '<Override PartName="/xl/workbook.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+        in content_types_xml
+    )
+    assert (
+        '<Override PartName="/xl/worksheets/sheet1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' in content_types_xml
+    )
+    assert (
+        'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+        'Target="xl/workbook.xml"' in root_relationships_xml
+    )
+    assert (
+        'Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" '
+        'Target="docProps/core.xml"' in root_relationships_xml
+    )
+    assert (
+        'Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" '
+        'Target="docProps/app.xml"' in root_relationships_xml
+    )
     assert '<sheet name="Highlights" sheetId="1" r:id="rId1"/>' in workbook_xml
     assert (
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" '
