@@ -56,6 +56,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX header and footer part XML.
 - Added public fake-fixture coverage for DOCX custom XML item, properties, and relationship part XML.
 - Added public fake-fixture coverage for DOCX footnotes and endnotes part XML.
+- Added public fake-fixture coverage for DOCX font table and web settings part XML.
 - Added public fake-fixture coverage for DOCX core and app document property metadata.
 - Added public fake-fixture coverage for DOCX table grid and cell width XML.
 - Added public fake-fixture coverage for DOCX section page margin XML.
