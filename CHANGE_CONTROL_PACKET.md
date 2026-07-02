@@ -89,6 +89,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert XLSX default, header, and body cell format attributes without private data.
 - Extended public fake Office tests to assert XLSX header and inline-string body style application without private data.
 - Extended public fake Office tests to assert XLSX worksheet XML controls for widths, freeze panes, filters, and margins without private data.
+- Extended public fake Office tests to assert DOCX table grid and cell width XML without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Extended public fake Office tests to assert external hyperlink relationship conformance without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose paragraph style, alignment, spacing, indentation, and tab-stop counts.

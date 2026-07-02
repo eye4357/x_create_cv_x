@@ -758,6 +758,8 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert structure_summary["indented_paragraph_count"] == 1
     assert structure_summary["tab_stopped_paragraph_count"] == 1
     assert "<w:tbl>" in document_xml
+    assert '<w:tblGrid><w:gridCol w:w="2400"/><w:gridCol w:w="2400"/></w:tblGrid>' in document_xml
+    assert document_xml.count('<w:tcW w:w="2400" w:type="dxa"/>') == 4
     assert document_xml.count("<w:p>") == 6
     assert document_xml.count("<w:tr>") == 2
     assert document_xml.count("<w:tc>") == 4
