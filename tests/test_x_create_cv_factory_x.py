@@ -455,7 +455,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
 
 def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> None:
     master: dict[str, Any] = {"collections": {}}
-    resume = {
+    resume: dict[str, Any] = {
         "office_layout": {
             "document": {
                 "package": {
@@ -562,11 +562,13 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
             ],
         },
     }
+    app.validate_contract(object_at(object_at(resume, "office_layout"), "document"), "document_layout")
     document_path = tmp_path / "flow_contract.docx"
     app.write_resume_document(master, resume, document_path)
     part_names = docx_part_names(document_path)
     document_xml = docx_document_xml(document_path)
     relationships_xml = docx_relationships_xml(document_path)
+    structure_summary = app.docx_structure_summary(document_path)
 
     assert "word/theme/theme1.xml" in part_names
     assert "word/fontTable.xml" in part_names
@@ -595,6 +597,9 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert '<w:sz w:val="22"/>' in document_xml
     assert 'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"' in relationships_xml
     assert 'Target="https://example.test/cv" TargetMode="External"' in relationships_xml
+    assert structure_summary["relationship_type_counts"]["hyperlink"] == 1
+    assert structure_summary["relationship_target_mode_counts"] == {"External": 1}
+    assert structure_summary["external_hyperlink_relationship_count"] == 1
     assert "<w:tbl>" in document_xml
     assert document_xml.count("<w:p>") == 6
     assert document_xml.count("<w:tr>") == 2

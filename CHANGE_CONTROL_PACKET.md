@@ -42,6 +42,9 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Added schema-backed per-sheet XLSX freeze-header, autofilter, and column-width controls.
 - Expanded XLSX structure summaries and Markdown audit reports to expose generated freeze-pane and autofilter state.
 - Extended public fake Office tests to assert workbook conformance controls without private data.
+- Added explicit DOCX run hyperlink/style fields to the public document layout schema.
+- Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
+- Extended public fake Office tests to assert external hyperlink relationship conformance without private data.
 - Added `CV_OFFICE_REGENERATION_PLAN.md` as the controlled roadmap for replacing or downgrading `private.zip` with Office evidence.
 - Extracted the three local source archives into original `_a_priori` DOCX/XLSX files under the ignored private evidence boundary, then removed the ZIP archives locally.
 - Added a private SHA-256 manifest for the three `_a_priori` Office files.

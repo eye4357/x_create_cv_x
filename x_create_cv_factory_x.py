@@ -2155,9 +2155,21 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
             child_name = child.tag.rsplit("}", 1)[-1]
             body_child_counts[child_name] = body_child_counts.get(child_name, 0) + 1
     relationship_type_counts: dict[str, int] = {}
+    relationship_target_mode_counts: dict[str, int] = {}
+    relationship_count = 0
+    external_relationship_count = 0
+    external_hyperlink_relationship_count = 0
     for relationship in relationships.findall("rel:Relationship", namespace):
+        relationship_count += 1
         relationship_type = relationship.attrib.get("Type", "").rsplit("/", 1)[-1]
         relationship_type_counts[relationship_type] = relationship_type_counts.get(relationship_type, 0) + 1
+        target_mode = relationship.attrib.get("TargetMode", "")
+        if target_mode:
+            relationship_target_mode_counts[target_mode] = relationship_target_mode_counts.get(target_mode, 0) + 1
+        if target_mode == "External":
+            external_relationship_count += 1
+            if relationship_type == "hyperlink":
+                external_hyperlink_relationship_count += 1
     font_names: list[str] = []
     if font_table is not None:
         font_names = [
@@ -2205,7 +2217,11 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "header_count": len([name for name in part_names if name.startswith("word/header")]),
         "footer_count": len([name for name in part_names if name.startswith("word/footer")]),
         "body_child_counts": body_child_counts,
+        "relationship_count": relationship_count,
         "relationship_type_counts": relationship_type_counts,
+        "relationship_target_mode_counts": relationship_target_mode_counts,
+        "external_relationship_count": external_relationship_count,
+        "external_hyperlink_relationship_count": external_hyperlink_relationship_count,
         "paragraph_count": len(paragraphs),
         "run_count": len(runs),
         **run_property_counts,
@@ -2502,6 +2518,9 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
     lines.extend(["", "## DOCX Structure", ""])
     docx_metrics = [
         "part_count",
+        "relationship_count",
+        "external_relationship_count",
+        "external_hyperlink_relationship_count",
         "paragraph_count",
         "run_count",
         "bold_run_count",

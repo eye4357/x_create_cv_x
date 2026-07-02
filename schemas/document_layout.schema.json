@@ -105,7 +105,42 @@
           "type": "array",
           "items": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "link": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "font": {
+                "type": "string"
+              },
+              "size": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              },
+              "bold": {
+                "type": "boolean"
+              },
+              "italic": {
+                "type": "boolean"
+              },
+              "underline": {
+                "type": "boolean"
+              },
+              "tab": {
+                "type": "boolean"
+              },
+              "tabs": {
+                "type": "string"
+              }
+            }
           }
         }
       }
@@ -118,7 +153,42 @@
           "type": "array",
           "items": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "link": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "font": {
+                "type": "string"
+              },
+              "size": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              },
+              "bold": {
+                "type": "boolean"
+              },
+              "italic": {
+                "type": "boolean"
+              },
+              "underline": {
+                "type": "boolean"
+              },
+              "tab": {
+                "type": "boolean"
+              },
+              "tabs": {
+                "type": "string"
+              }
+            }
           }
         }
       }
@@ -151,7 +221,42 @@
             "type": "array",
             "items": {
               "type": "object",
-              "additionalProperties": true
+              "additionalProperties": true,
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "link": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "font": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                },
+                "bold": {
+                  "type": "boolean"
+                },
+                "italic": {
+                  "type": "boolean"
+                },
+                "underline": {
+                  "type": "boolean"
+                },
+                "tab": {
+                  "type": "boolean"
+                },
+                "tabs": {
+                  "type": "string"
+                }
+              }
             }
           },
           "paragraphs": {

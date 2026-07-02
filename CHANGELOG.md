@@ -5,11 +5,13 @@
 ### Added
 
 - Started renderer conformance hardening with schema-backed per-sheet XLSX freeze-header, autofilter, and column-width controls.
+- Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 
 ### Changed
 
 - Bumped the development version to `0.0.3` after the `0.0.2` contract-and-audit lock.
 - Expanded XLSX structure summaries and Markdown audit reports to expose generated freeze-pane and autofilter state.
+- Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 
 ## 0.0.2 - 2026-07-01
 
