@@ -826,6 +826,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     with zipfile.ZipFile(document_path) as document:
         content_types_xml = document.read("[Content_Types].xml").decode("utf-8")
         root_relationships_xml = document.read("_rels/.rels").decode("utf-8")
+        theme_xml = document.read("word/theme/theme1.xml").decode("utf-8")
         settings_xml = document.read("word/settings.xml").decode("utf-8")
         font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
         web_settings_xml = document.read("word/webSettings.xml").decode("utf-8")
@@ -904,6 +905,27 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         '<Override PartName="/word/footer1.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>' in content_types_xml
     )
+    assert theme_xml.startswith(
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" '
+        'name="Generated Office Theme"><a:themeElements><a:clrScheme name="Generated">'
+    )
+    expected_theme_fragments = [
+        '<a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1>',
+        '<a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>',
+        '<a:dk2><a:srgbClr val="1F4E79"/></a:dk2><a:lt2><a:srgbClr val="EEECE1"/></a:lt2>',
+        '<a:accent1><a:srgbClr val="4F81BD"/></a:accent1><a:accent2><a:srgbClr val="C0504D"/></a:accent2>',
+        '<a:accent3><a:srgbClr val="9BBB59"/></a:accent3><a:accent4><a:srgbClr val="8064A2"/></a:accent4>',
+        '<a:accent5><a:srgbClr val="4BACC6"/></a:accent5><a:accent6><a:srgbClr val="F79646"/></a:accent6>',
+        '<a:hlink><a:srgbClr val="0000FF"/></a:hlink><a:folHlink><a:srgbClr val="800080"/></a:folHlink>',
+        '<a:fontScheme name="Generated"><a:majorFont><a:latin typeface="Calibri"/>',
+        '<a:minorFont><a:latin typeface="Calibri"/>',
+        '<a:ln w="6350" cap="flat" cmpd="sng" algn="ctr">',
+        '<a:ln w="12700" cap="flat" cmpd="sng" algn="ctr">',
+        '<a:ln w="19050" cap="flat" cmpd="sng" algn="ctr">',
+    ]
+    for expected_theme_fragment in expected_theme_fragments:
+        assert expected_theme_fragment in theme_xml
     assert (
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
         'Target="word/document.xml"' in root_relationships_xml

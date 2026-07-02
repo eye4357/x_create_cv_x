@@ -66,6 +66,7 @@
 - Extended public fake Office tests to assert DOCX custom XML item, properties, and relationship part XML without private data.
 - Extended public fake Office tests to assert DOCX footnotes and endnotes part XML without private data.
 - Extended public fake Office tests to assert DOCX font table and web settings part XML without private data.
+- Extended public fake Office tests to assert DOCX theme color, font, and line-style XML without private data.
 - Extended public fake Office tests to assert DOCX core and app document property metadata without private data.
 - Extended public fake Office tests to assert DOCX table grid and cell width XML without private data.
 - Extended public fake Office tests to assert DOCX section page margin XML without private data.
