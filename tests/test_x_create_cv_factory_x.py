@@ -803,6 +803,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         '<w:t xml:space="preserve">Inline cell</w:t></w:r></w:hyperlink>' in document_xml
     )
     assert "<w:tab/>" in document_xml
+    assert '<w:r><w:tab/></w:r><w:r><w:t xml:space="preserve">after tab</w:t></w:r>' in document_xml
     assert '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>' in document_xml
     assert '<w:color w:val="0563C1"/>' in document_xml
     assert '<w:sz w:val="22"/>' in document_xml
