@@ -18,9 +18,11 @@ Status: Development checkpoint, not a public production release
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Expanded DOCX audit metrics with relationship counts and external hyperlink relationship counts.
 - Expanded DOCX audit metrics with paragraph style, alignment, spacing, indentation, and tab-stop counts.
+- Expanded DOCX audit metrics with table row, cell, paragraph, grid-width, and cell-width geometry.
 - Added public fake-fixture coverage for the new workbook conformance controls, including typed number and boolean cells.
 - Added public fake-fixture coverage for external hyperlink relationship conformance.
 - Added public fake-fixture coverage for DOCX paragraph property audit metrics.
+- Added public fake-fixture coverage for DOCX table width audit metrics.
 
 ## Validation
 

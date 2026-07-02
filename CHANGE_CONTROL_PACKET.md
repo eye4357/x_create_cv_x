@@ -49,6 +49,8 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert external hyperlink relationship conformance without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose paragraph style, alignment, spacing, indentation, and tab-stop counts.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
+- Expanded DOCX structure summaries and Markdown audit reports to expose table row, cell, paragraph, grid-width, and cell-width geometry.
+- Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 - Added `CV_OFFICE_REGENERATION_PLAN.md` as the controlled roadmap for replacing or downgrading `private.zip` with Office evidence.
 - Extracted the three local source archives into original `_a_priori` DOCX/XLSX files under the ignored private evidence boundary, then removed the ZIP archives locally.
 - Added a private SHA-256 manifest for the three `_a_priori` Office files.

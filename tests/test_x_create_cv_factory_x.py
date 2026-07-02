@@ -627,6 +627,8 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert document_xml.count("<w:p>") == 6
     assert document_xml.count("<w:tr>") == 2
     assert document_xml.count("<w:tc>") == 4
+    assert structure_summary["table_grid_widths"] == [["2400", "2400"]]
+    assert structure_summary["table_cell_widths"] == [[["2400", "2400"], ["2400", "2400"]]]
     assert '<w:headerReference w:type="default" r:id="rId7"/>' in document_xml
     assert '<w:footerReference w:type="default" r:id="rId8"/>' in document_xml
 

@@ -2265,6 +2265,20 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
             paragraph_property_counts["indented_paragraph_count"] += 1
         if properties.find("w:tabs", namespace) is not None:
             paragraph_property_counts["tab_stopped_paragraph_count"] += 1
+    table_grid_widths: list[list[str]] = []
+    table_cell_widths: list[list[list[str]]] = []
+    for table in tables:
+        table_grid_widths.append(
+            [grid_col.attrib.get(f"{{{WORD_NS}}}w", "") for grid_col in table.findall("w:tblGrid/w:gridCol", namespace)]
+        )
+        table_rows: list[list[str]] = []
+        for row in table.findall("w:tr", namespace):
+            cell_widths: list[str] = []
+            for cell in row.findall("w:tc", namespace):
+                width = cell.find("w:tcPr/w:tcW", namespace)
+                cell_widths.append(width.attrib.get(f"{{{WORD_NS}}}w", "") if width is not None else "")
+            table_rows.append(cell_widths)
+        table_cell_widths.append(table_rows)
     styles = sorted(
         {
             style.attrib[f"{{{WORD_NS}}}val"]
@@ -2299,6 +2313,8 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "table_row_count": len(document.findall(".//w:tr", namespace)),
         "table_cell_count": len(document.findall(".//w:tc", namespace)),
         "table_paragraph_count": sum(len(table.findall(".//w:p", namespace)) for table in tables),
+        "table_grid_widths": table_grid_widths,
+        "table_cell_widths": table_cell_widths,
         "numbered_paragraph_count": len(document.findall(".//w:numPr", namespace)),
         "font_names": font_names,
         "styles": styles,
@@ -2608,6 +2624,11 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         "hyperlink_count",
         "tab_count",
         "table_count",
+        "table_row_count",
+        "table_cell_count",
+        "table_paragraph_count",
+        "table_grid_widths",
+        "table_cell_widths",
         "numbered_paragraph_count",
     ]
     for comparison in comparisons:

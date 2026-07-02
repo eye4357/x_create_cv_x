@@ -8,6 +8,7 @@
 - Added schema-backed XLSX column `value_type` controls for string, number, and boolean cell rendering.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Added DOCX paragraph property audit metrics for style, alignment, spacing, indentation, and tab stops.
+- Added DOCX table geometry audit metrics for grid widths and cell widths.
 
 ### Changed
 
@@ -16,6 +17,7 @@
 - Expanded XLSX structure summaries and Markdown audit reports to expose cell-type counts.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
+- Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 
 ## 0.0.2 - 2026-07-01
 
