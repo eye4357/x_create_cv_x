@@ -919,12 +919,26 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Header</w:t></w:r>' in header_xml
     assert '<w:r><w:t xml:space="preserve">1</w:t></w:r>' in footer_xml
     expected_relationships = [
+        'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
+        'Target="styles.xml"',
+        'Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" '
+        'Target="numbering.xml"',
+        'Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" '
+        'Target="settings.xml"',
         'Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" '
         'Target="theme/theme1.xml"',
+        'Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" '
+        'Target="fontTable.xml"',
+        'Id="rId6" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings" '
+        'Target="webSettings.xml"',
         'Id="rId7" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" '
         'Target="header1.xml"',
         'Id="rId8" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" '
         'Target="footer1.xml"',
+        'Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" '
+        'Target="footnotes.xml"',
+        'Id="rId10" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes" '
+        'Target="endnotes.xml"',
         'Id="rId11" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" '
         'Target="../customXml/item1.xml"',
         'Id="rId101" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '
