@@ -408,8 +408,20 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     app.validate_contract(master["office_layout"]["workbook"], "workbook_layout")
     workbook_path = tmp_path / "layout_contract.xlsx"
     app.write_master_workbook(master, workbook_path)
+    with zipfile.ZipFile(workbook_path) as workbook:
+        workbook_xml = workbook.read("xl/workbook.xml").decode("utf-8")
+        workbook_relationships_xml = workbook.read("xl/_rels/workbook.xml.rels").decode("utf-8")
 
     assert workbook_sheet_names(workbook_path) == ["Highlights"]
+    assert '<sheet name="Highlights" sheetId="1" r:id="rId1"/>' in workbook_xml
+    assert (
+        'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" '
+        'Target="worksheets/sheet1.xml"' in workbook_relationships_xml
+    )
+    assert (
+        'Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
+        'Target="styles.xml"' in workbook_relationships_xml
+    )
     assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights", "Score", "Current"]
     assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value", "", ""]
     sheet_summary = first_worksheet_summary(workbook_path)
