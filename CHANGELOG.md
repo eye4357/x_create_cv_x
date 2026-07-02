@@ -49,6 +49,7 @@
 - Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
 - Extended public fake Office tests to assert XLSX style font names, cell format counts, and cell style counts without private data.
 - Extended public fake Office tests to assert XLSX default, header, and body cell format attributes without private data.
+- Extended public fake Office tests to assert XLSX header and inline-string body style application without private data.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 - Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.
