@@ -550,7 +550,14 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert style_summary["cell_xfs"][2]["applyBorder"] == "1"
     assert style_summary["cell_xfs"][2]["applyAlignment"] == "1"
     worksheet_xml = first_worksheet_xml(workbook_path)
+    assert f'<worksheet xmlns="{app.SHEET_NS}" xmlns:r="{app.REL_NS}">' in worksheet_xml
+    assert '<dimension ref="A1:E2"/>' in worksheet_xml
+    assert '<sheetViews><sheetView tabSelected="0" workbookViewId="0">' in worksheet_xml
     assert '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>' in worksheet_xml
+    assert '<selection pane="bottomLeft"/>' in worksheet_xml
+    assert '<sheetFormatPr defaultRowHeight="15"/>' in worksheet_xml
+    assert '<sheetData><row r="1">' in worksheet_xml
+    assert '</row><row r="2">' in worksheet_xml
     assert '<autoFilter ref="A1:E2"/>' in worksheet_xml
     assert '<pageMargins left="0.2" right="0.4" top="0.6" bottom="0.8" header="0.1" footer="0.3"/>' in worksheet_xml
     assert '<col min="1" max="1" width="8.50" customWidth="1"/>' in worksheet_xml

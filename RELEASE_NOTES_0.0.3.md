@@ -46,6 +46,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for XLSX content-type and root relationship package binding.
 - Added public fake-fixture coverage for XLSX core and app document property metadata.
 - Added public fake-fixture coverage for XLSX style XML color, border, and alignment binding.
+- Added public fake-fixture coverage for XLSX worksheet-level XML structure and row ordering.
 - Added public fake-fixture coverage for DOCX table grid and cell width XML.
 - Added public fake-fixture coverage for DOCX section page margin XML.
 - Added public fake-fixture coverage for DOCX run property and text binding.
