@@ -7,8 +7,11 @@ import argparse
 import base64
 import hashlib
 import json
+import os
 import shutil
+import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 from typing import Any
@@ -21,7 +24,18 @@ SCHEMA_VERSION = "1.0.0"
 VERSION = "0.0.2"
 DEFAULT_GOLDEN_EVIDENCE_DIR = Path("../x_create_cv_test_data_x/evidence")
 DEFAULT_EVIDENCE_MANIFEST = DEFAULT_GOLDEN_EVIDENCE_DIR / "a_priori_manifest.json"
+DEFAULT_CHAIN_MANIFEST = DEFAULT_GOLDEN_EVIDENCE_DIR / "chain_of_evidence_manifest.json"
 HASH_CHUNK_SIZE = 1024 * 1024
+GOLDEN_SCRIPT_FILES = [
+    "01_build_master_data.py",
+    "02_build_old_resume.py",
+    "03_build_new_resume.py",
+]
+GOLDEN_JSON_EXPECTATIONS = {
+    MASTER_FILE: "generated/json/a_posteriori/master_profile_a_posteriori.json",
+    "resume_2017.json": "generated/json/a_posteriori/resume_2017_a_posteriori.json",
+    "resume_2023.json": "generated/json/a_posteriori/resume_2023_a_posteriori.json",
+}
 
 MASTER_COLLECTIONS = [
     "people",
@@ -270,8 +284,48 @@ def check_evidence_manifest(manifest_path: Path) -> int:
     return len(entries)
 
 
-def check_golden_evidence(evidence_dir: Path) -> int:
-    return check_evidence_manifest(evidence_dir / "a_priori_manifest.json")
+def run_golden_json_scripts(evidence_dir: Path) -> int:
+    script_dir = evidence_dir / "scripts" / "a_posteriori"
+    public_repo_root = Path(__file__).resolve().parent
+    with tempfile.TemporaryDirectory(prefix="x_create_cv_golden_") as temp_dir:
+        output_dir = Path(temp_dir)
+        env = os.environ.copy()
+        env["CV_FACTORY_DB_DIR"] = str(output_dir)
+        env["PYTHONPATH"] = str(public_repo_root) + os.pathsep + env.get("PYTHONPATH", "")
+
+        for script_name in GOLDEN_SCRIPT_FILES:
+            script_path = script_dir / script_name
+            if not script_path.exists():
+                raise ValueError(f"Missing golden script: {script_path}")
+            completed = subprocess.run(
+                [sys.executable, str(script_path)],
+                cwd=public_repo_root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if completed.returncode != 0:
+                raise ValueError(f"Golden script failed: {script_path.name}")
+
+        for generated_name, expected_relative_path in GOLDEN_JSON_EXPECTATIONS.items():
+            generated_path = output_dir / generated_name
+            expected_path = evidence_dir / expected_relative_path
+            if not generated_path.exists():
+                raise ValueError(f"Missing generated JSON from golden scripts: {generated_name}")
+            if not expected_path.exists():
+                raise ValueError(f"Missing expected a posteriori JSON evidence: {expected_relative_path}")
+            if generated_path.read_bytes() != expected_path.read_bytes():
+                raise ValueError(f"Golden generated JSON mismatch: {generated_name}")
+
+    return len(GOLDEN_JSON_EXPECTATIONS)
+
+
+def check_golden_evidence(evidence_dir: Path) -> tuple[int, int, int]:
+    a_priori_count = check_evidence_manifest(evidence_dir / "a_priori_manifest.json")
+    chain_count = check_evidence_manifest(evidence_dir / "chain_of_evidence_manifest.json")
+    generated_json_count = run_golden_json_scripts(evidence_dir)
+    return a_priori_count, chain_count, generated_json_count
 
 
 def master_path(db_dir: Path) -> Path:
@@ -944,8 +998,11 @@ def run(args: argparse.Namespace) -> int:
         print(f"Evidence integrity passed: {checked_count} files")
         return 0
     if command == "exercise-golden":
-        checked_count = check_golden_evidence(args.evidence_dir)
-        print(f"Golden exercise passed: {checked_count} a priori evidence files")
+        a_priori_count, chain_count, generated_json_count = check_golden_evidence(args.evidence_dir)
+        print(
+            f"Golden exercise passed: {a_priori_count} a priori evidence files; "
+            f"{chain_count} chain files; {generated_json_count} generated JSON files"
+        )
         return 0
     raise ValueError(f"Unknown command: {command}")
 

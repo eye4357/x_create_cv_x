@@ -254,11 +254,38 @@ def test_cli_check_evidence_reports_missing_manifest(tmp_path: Path, capsys: pyt
 
 
 def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    evidence_file = tmp_path / "evidence" / "source_office" / "a_priori" / "fake_a_priori.docx"
+    evidence_dir = tmp_path / "evidence"
+    evidence_file = evidence_dir / "source_office" / "a_priori" / "fake_a_priori.docx"
+    script_dir = evidence_dir / "scripts" / "a_posteriori"
+    expected_json_dir = evidence_dir / "generated" / "json" / "a_posteriori"
     evidence_file.parent.mkdir(parents=True)
+    script_dir.mkdir(parents=True)
+    expected_json_dir.mkdir(parents=True)
     evidence_file.write_bytes(b"fake office package")
+    expected_json = {
+        "master_profile.json": ('{"file":"master"}\n', "master_profile_a_posteriori.json"),
+        "resume_2017.json": ('{"file":"resume_2017"}\n', "resume_2017_a_posteriori.json"),
+        "resume_2023.json": ('{"file":"resume_2023"}\n', "resume_2023_a_posteriori.json"),
+    }
+    script_outputs = [
+        ("01_build_master_data.py", "master_profile.json", '{"file":"master"}'),
+        ("02_build_old_resume.py", "resume_2017.json", '{"file":"resume_2017"}'),
+        ("03_build_new_resume.py", "resume_2023.json", '{"file":"resume_2023"}'),
+    ]
+    for script_name, output_name, output_json in script_outputs:
+        (script_dir / script_name).write_text(
+            "from pathlib import Path\n"
+            "import os\n"
+            "out = Path(os.environ['CV_FACTORY_DB_DIR'])\n"
+            "out.mkdir(parents=True, exist_ok=True)\n"
+            f"(out / {output_name!r}).write_text({output_json!r} + '\\n', encoding='utf-8')\n",
+            encoding="utf-8",
+        )
+    for _generated_name, (content, expected_name) in expected_json.items():
+        (expected_json_dir / expected_name).write_text(content, encoding="utf-8")
+    a_priori_manifest = tmp_path / "evidence" / "a_priori_manifest.json"
     app.write_json(
-        tmp_path / "evidence" / "a_priori_manifest.json",
+        a_priori_manifest,
         {
             "schema_version": "1.0.0",
             "algorithm": "sha256",
@@ -271,9 +298,47 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
             ],
         },
     )
+    app.write_json(
+        tmp_path / "evidence" / "chain_of_evidence_manifest.json",
+        {
+            "schema_version": "1.0.0",
+            "algorithm": "sha256",
+            "files": [
+                {
+                    "path": "a_priori_manifest.json",
+                    "bytes": a_priori_manifest.stat().st_size,
+                    "sha256": app.sha256_file(a_priori_manifest),
+                },
+                {
+                    "path": "source_office/a_priori/fake_a_priori.docx",
+                    "bytes": evidence_file.stat().st_size,
+                    "sha256": app.sha256_file(evidence_file),
+                },
+                *[
+                    {
+                        "path": f"scripts/a_posteriori/{script_name}",
+                        "bytes": (script_dir / script_name).stat().st_size,
+                        "sha256": app.sha256_file(script_dir / script_name),
+                    }
+                    for script_name, _output_name, _output_json in script_outputs
+                ],
+                *[
+                    {
+                        "path": f"generated/json/a_posteriori/{expected_name}",
+                        "bytes": (expected_json_dir / expected_name).stat().st_size,
+                        "sha256": app.sha256_file(expected_json_dir / expected_name),
+                    }
+                    for _generated_name, (_content, expected_name) in expected_json.items()
+                ],
+            ],
+        },
+    )
 
-    assert app.main(["exercise-golden", "--evidence-dir", str(tmp_path / "evidence")]) == 0
-    assert "Golden exercise passed: 1 a priori evidence files" in capsys.readouterr().out
+    assert app.main(["exercise-golden", "--evidence-dir", str(evidence_dir)]) == 0
+    assert (
+        "Golden exercise passed: 1 a priori evidence files; 8 chain files; 3 generated JSON files"
+        in capsys.readouterr().out
+    )
 
 
 def test_cli_typed_flags_build_expected_payload(tmp_path: Path) -> None:

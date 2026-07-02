@@ -7,6 +7,8 @@
 - Added the Office regeneration roadmap for `_a_priori` evidence, XLSX generation, DOCX generation, and normalized comparison reports.
 - Added `check-evidence` to fast-fail when private `_a_priori` Office evidence does not match its SHA-256 manifest.
 - Added `exercise-golden` as the simple side-by-side smoke test for `x_create_cv_test_data_x` private golden evidence.
+- Extended `exercise-golden` to validate the full private chain-of-evidence manifest, including scripts, generated JSON, legacy references, and original Office evidence.
+- Extended `exercise-golden` to run private `_a_posteriori` scripts in a temporary directory and compare generated JSON against stored `_a_posteriori` JSON evidence.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 
@@ -16,12 +18,14 @@
 - Reframed `private.zip` as a legacy/private validation reference to be replaced or downgraded by `_a_priori` Office evidence.
 - Replaced the local archive evidence layout with extracted `_a_priori` DOCX/XLSX files; future generated Office files should use `_a_posteriori`.
 - Moved the real `_a_priori` Office evidence contract from the public repo's ignored local folder to the private sibling repository `x_create_cv_test_data_x`.
+- Moved private seed scripts, generated JSON, legacy JSON, and the legacy private zip out of the public repo and into `x_create_cv_test_data_x`.
 
 ### Security
 
 - Kept original `_a_priori` Office files and their SHA-256 manifest under the ignored `data/private/evidence/` boundary.
 - Clarified that `_a_priori` and `_a_posteriori` Office files are private local evidence and are not public fixtures or CI inputs.
 - Kept the public repository free of real golden evidence while allowing local validation against the private test-data repository.
+- Documented that `_a_posteriori` Office files must be generated from scripts and JSON, not copied from `_a_priori` files.
 
 ## 0.0.1 - 2026-07-01
 
