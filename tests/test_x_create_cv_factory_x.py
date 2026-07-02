@@ -420,6 +420,9 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "state": "frozen",
     }
     assert sheet_summary["auto_filter_ref"] == "A1:E2"
+    assert sheet_summary["row_count"] == 2
+    assert sheet_summary["column_count"] == 5
+    assert sheet_summary["styled_cell_count"] == 10
     assert sheet_summary["page_margins"] == {
         "left": "0.2",
         "right": "0.4",
