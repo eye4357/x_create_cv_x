@@ -46,6 +46,9 @@ Establish the next controlled development version for the side-by-side private g
 - Extended `exercise-golden` to regenerate Office files into a temporary directory and byte-compare them against stored `_a_posteriori` Office evidence.
 - Improved XLSX generation to preserve the original nine-sheet workbook shape while adding structured app-native data.
 - Tuned DOCX generation toward `_a_priori` page setup and paragraph style parity.
+- Added explicit generated JSON `office_layout` contracts for workbook and document layout.
+- Changed the Office renderer to consume workbook sheet/column/style layout and DOCX `block_style`, `numbering`, and `runs` from generated JSON.
+- Removed raw `a`/`b`/`c` columns from generated XLSX files in favor of named app-native columns.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.
 

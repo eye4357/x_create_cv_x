@@ -162,6 +162,23 @@ def workbook_sheet_names(path: Path) -> list[str]:
     return [str(sheet.attrib["name"]) for sheet in root.findall(".//s:sheet", namespace)]
 
 
+def worksheet_row_values(path: Path, row_index: int) -> list[str]:
+    namespace = {"s": app.SHEET_NS}
+    with zipfile.ZipFile(path) as workbook:
+        root = ET.fromstring(workbook.read("xl/worksheets/sheet1.xml"))
+    row = root.find(f".//s:row[@r='{row_index}']", namespace)
+    if row is None:
+        raise AssertionError(f"generated XLSX must contain row {row_index}")
+    return [
+        "".join(node.text or "" for node in cell.findall(".//s:t", namespace)) for cell in row.findall("s:c", namespace)
+    ]
+
+
+def docx_document_xml(path: Path) -> str:
+    with zipfile.ZipFile(path) as document:
+        return document.read("word/document.xml").decode("utf-8")
+
+
 def docx_section_margins(path: Path) -> dict[str, str]:
     namespace = {"w": app.WORD_NS}
     with zipfile.ZipFile(path) as document:
@@ -271,6 +288,91 @@ def test_cli_check_evidence_reports_missing_manifest(tmp_path: Path, capsys: pyt
     assert "Missing JSON file" in capsys.readouterr().err
 
 
+def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
+    master = {
+        "office_layout": {
+            "workbook": {
+                "sheets": [
+                    {
+                        "name": "Highlights",
+                        "collection": "highlights",
+                        "columns": [
+                            {"field": "id", "header": "ID"},
+                            {"field": "label", "header": "Label"},
+                            {"field": "highlights", "header": "Highlights"},
+                        ],
+                    }
+                ],
+            }
+        },
+        "collections": {
+            "highlights": [{"id": "highlight_001", "label": "One", "a": "raw value", "highlights": "Structured value"}]
+        },
+    }
+    workbook_path = tmp_path / "layout_contract.xlsx"
+    app.write_master_workbook(master, workbook_path)
+
+    assert workbook_sheet_names(workbook_path) == ["Highlights"]
+    assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights"]
+    assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value"]
+
+    resume = {
+        "office_layout": {
+            "document": {
+                "margins": {
+                    "top": "1440",
+                    "right": "1800",
+                    "bottom": "1440",
+                    "left": "1800",
+                    "header": "720",
+                    "footer": "720",
+                }
+            }
+        },
+        "resume": {"id": "resume_api", "label": "API Resume"},
+        "collections": {
+            "sections": [
+                {
+                    "id": "section_001",
+                    "title": "API-backed section",
+                    "kind": "summary",
+                    "sort_order": 1,
+                    "item_ids": ["item_001"],
+                    "is_visible": True,
+                }
+            ],
+            "items": [
+                {
+                    "id": "item_001",
+                    "section_id": "section_001",
+                    "kind": "text",
+                    "sort_order": 1,
+                    "master_record_refs": [],
+                    "text_override": "fallback text",
+                    "formatting": {
+                        "block_style": "Heading1",
+                        "numbering": {"level": "0", "num_id": "7"},
+                        "runs": [
+                            {"text": "Styled", "bold": True, "italic": False, "underline": False},
+                            {"text": " run", "bold": False, "italic": True, "underline": True},
+                        ],
+                    },
+                    "is_visible": True,
+                }
+            ],
+        },
+    }
+    document_path = tmp_path / "layout_contract.docx"
+    app.write_resume_document(master, resume, document_path)
+    document_xml = docx_document_xml(document_path)
+
+    assert '<w:pStyle w:val="Heading1"/>' in document_xml
+    assert '<w:numId w:val="7"/>' in document_xml
+    assert "<w:b/>" in document_xml
+    assert "<w:i/>" in document_xml
+    assert '<w:u w:val="single"/>' in document_xml
+
+
 def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     evidence_dir = tmp_path / "evidence"
     evidence_file = evidence_dir / "source_office" / "a_priori" / "fake_a_priori.docx"
@@ -305,7 +407,7 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
     assert generated_office_count == 3
     assert report_count == 0
     assert workbook_sheet_names(evidence_dir / app.GOLDEN_OFFICE_EXPECTATIONS["master_profile_a_posteriori.xlsx"]) == [
-        sheet_name for sheet_name, _collection_name, _raw_fields, _structured_fields in app.XLSX_SHEET_DEFINITIONS
+        str(sheet["name"]) for sheet in app.default_workbook_layout()["sheets"]
     ]
     assert (
         docx_section_margins(evidence_dir / app.GOLDEN_OFFICE_EXPECTATIONS["resume_2023_a_posteriori.docx"])["right"]

@@ -13,6 +13,9 @@
 - Added `generate-golden-office` to create private Office evidence and a comparison report from golden JSON.
 - Improved generated XLSX evidence to use the same nine workbook sheets as the `_a_priori` spreadsheet, with structured data added after the source-shaped columns.
 - Tuned generated DOCX evidence toward `_a_priori` page setup and paragraph styles, including source-like margins and list/title/heading styles.
+- Promoted workbook/document layout into explicit generated JSON `office_layout` contracts consumed by the Office renderer.
+- Removed confusing raw `a`/`b`/`c` spreadsheet columns from generated XLSX output in favor of named app-native fields.
+- Updated DOCX generation to consume item `formatting.block_style`, `formatting.numbering`, and rich `formatting.runs` from the JSON contract.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 

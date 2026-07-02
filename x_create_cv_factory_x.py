@@ -53,68 +53,96 @@ ZIP_TIMESTAMP = (2026, 7, 1, 0, 0, 0)
 WORD_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 SHEET_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-XLSX_SHEET_DEFINITIONS = [
-    ("Highlights", "highlights", ["a"], ["id", "label", "highlights"]),
+DEFAULT_WORKBOOK_SHEETS = [
+    ("Highlights", "highlights", ["id", "label", "highlights"]),
     (
         "Jobs",
         "jobs",
-        ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"],
-        ["id", "label", "job_title", "employer", "vehicle_program", "start_date", "end_date", "time_spent"],
+        [
+            "id",
+            "label",
+            "job_title",
+            "job_focus",
+            "job_highlights",
+            "vehicle_program",
+            "employer",
+            "address",
+            "reason_for_leaving",
+            "salary_usd",
+            "start_date",
+            "end_date",
+            "time_spent",
+        ],
     ),
     (
         "Standards Development",
         "standards",
-        ["a", "b", "c", "d", "e", "f"],
         ["id", "label", "organization", "title_of_standard", "role", "start_date", "end_date", "time_spent"],
     ),
     (
         "School",
         "education",
-        ["a", "b", "c", "d", "e", "f"],
-        ["id", "label", "school", "degree", "start_date", "end_date", "time_spent"],
+        ["id", "label", "school", "address", "degree", "start_date", "end_date", "time_spent"],
     ),
     (
         "Certifications",
         "certifications",
-        ["a", "b", "c"],
         ["id", "label", "certificate_subject", "certificate_name", "certificate_number"],
     ),
-    ("Patents", "patents", ["a", "b", "c"], ["id", "label", "patent_name", "patent_number", "patent_url"]),
+    ("Patents", "patents", ["id", "label", "patent_name", "patent_number", "patent_url"]),
     (
         "Publications",
         "publications",
-        ["a", "b", "c", "d", "e"],
         ["id", "label", "year", "publication_name", "publisher", "publication_reference", "publication_url"],
     ),
     (
         "Lectures",
         "lectures",
-        ["a", "b", "c"],
         ["id", "label", "year", "publication_or_lecture_name", "publisher_name"],
     ),
     (
         "Residences",
         "residences",
-        ["a", "b", "c", "d"],
         ["id", "label", "residence", "start_date", "end_date", "time_spent"],
     ),
 ]
-DOCX_PAGE_LAYOUTS: dict[str, dict[str, Any]] = {
+DEFAULT_DOCUMENT_MARGINS: dict[str, dict[str, Any]] = {
     "resume_2017_a_posteriori.docx": {
         "margins": {"top": "1440", "right": "1440", "bottom": "1440", "left": "1440", "header": "720", "footer": "720"},
-        "title_style": None,
-        "section_style": None,
-        "item_style": "ListParagraph",
     },
     "resume_2023_a_posteriori.docx": {
         "margins": {"top": "1440", "right": "1800", "bottom": "1440", "left": "1800", "header": "720", "footer": "720"},
-        "title_style": "Title",
-        "section_style": "Heading1",
-        "secondary_section_style": "Heading2",
-        "item_style": "ListBullet",
-        "text_item_style": "ListParagraph",
     },
 }
+DEFAULT_DOCX_STYLES: list[dict[str, Any]] = [
+    {"id": "Normal", "name": "Normal", "default": True, "font": "Calibri", "size": "22"},
+    {"id": "Title", "name": "Title", "based_on": "Normal", "bold": True, "size": "32", "spacing_after": "120"},
+    {
+        "id": "Heading1",
+        "name": "heading 1",
+        "based_on": "Normal",
+        "bold": True,
+        "size": "24",
+        "spacing_before": "160",
+        "spacing_after": "80",
+    },
+    {
+        "id": "Heading2",
+        "name": "heading 2",
+        "based_on": "Normal",
+        "bold": True,
+        "size": "22",
+        "spacing_before": "120",
+        "spacing_after": "60",
+    },
+    {"id": "ListParagraph", "name": "List Paragraph", "based_on": "Normal", "indent_left": "720"},
+    {
+        "id": "ListBullet",
+        "name": "List Bullet",
+        "based_on": "ListParagraph",
+        "numbering": {"level": "0", "num_id": "1"},
+    },
+]
 
 MASTER_COLLECTIONS = [
     "people",
@@ -419,38 +447,101 @@ def column_name(index: int) -> str:
 def header_label(field: str) -> str:
     if len(field) == 1 and field.isalpha():
         return field.upper()
-    return field.replace("_", " ").title()
+    return " ".join(part.upper() if part == "id" else part.capitalize() for part in field.split("_"))
 
 
-def unique_fields(*field_groups: list[str]) -> list[str]:
-    fields: list[str] = []
-    for field_group in field_groups:
-        for field in field_group:
-            if field not in fields:
-                fields.append(field)
-    return fields
+def default_workbook_layout() -> dict[str, Any]:
+    return {
+        "styles": {
+            "freeze_header": True,
+            "auto_filter": True,
+            "header_fill": "FF1F4E79",
+            "header_font_color": "FFFFFFFF",
+            "body_border_color": "FFBFBFBF",
+            "page_margins": {
+                "left": "0.7",
+                "right": "0.7",
+                "top": "0.75",
+                "bottom": "0.75",
+                "header": "0.3",
+                "footer": "0.3",
+            },
+        },
+        "sheets": [
+            {
+                "name": sheet_name,
+                "collection": collection_name,
+                "columns": [{"field": field, "header": header_label(field)} for field in fields],
+            }
+            for sheet_name, collection_name, fields in DEFAULT_WORKBOOK_SHEETS
+        ],
+    }
 
 
-def sheet_rows(
-    master: dict[str, Any], collection_name: str, raw_fields: list[str], structured_fields: list[str]
-) -> list[list[str]]:
-    fields = unique_fields(raw_fields, structured_fields)
-    rows = [[header_label(field) for field in fields]]
+def default_document_layout(file_name: str) -> dict[str, Any]:
+    layout = DEFAULT_DOCUMENT_MARGINS.get(file_name, DEFAULT_DOCUMENT_MARGINS["resume_2017_a_posteriori.docx"])
+    return {
+        "margins": dict(layout["margins"]),
+        "styles": [dict(style) for style in DEFAULT_DOCX_STYLES],
+        "numbering": {"bullet_text": "•", "font": "Symbol", "left": "720", "hanging": "360"},
+    }
+
+
+def workbook_layout(master: dict[str, Any]) -> dict[str, Any]:
+    layout = master.get("office_layout")
+    workbook = layout.get("workbook") if isinstance(layout, dict) else None
+    if isinstance(workbook, dict) and isinstance(workbook.get("sheets"), list):
+        return workbook
+    return default_workbook_layout()
+
+
+def workbook_style_options(layout: dict[str, Any]) -> dict[str, Any]:
+    styles = layout.get("styles")
+    return styles if isinstance(styles, dict) else {}
+
+
+def workbook_sheet_columns(sheet: dict[str, Any]) -> list[tuple[str, str]]:
+    columns = sheet.get("columns")
+    column_defs: list[tuple[str, str]] = []
+    if isinstance(columns, list):
+        for column in columns:
+            if not isinstance(column, dict):
+                continue
+            field = column.get("field")
+            if not isinstance(field, str) or not field:
+                continue
+            header = scalar_text(column.get("header")) or header_label(field)
+            column_defs.append((field, header))
+    return column_defs
+
+
+def sheet_rows(master: dict[str, Any], sheet: dict[str, Any]) -> list[list[str]]:
+    columns = workbook_sheet_columns(sheet)
+    rows = [[header for _field, header in columns]]
     collections = master.get("collections")
+    collection_name = sheet.get("collection")
+    if not isinstance(collection_name, str) or not collection_name:
+        return rows
     records = collections.get(collection_name) if isinstance(collections, dict) else []
     if not isinstance(records, list):
         return rows
     for record in records:
         if isinstance(record, dict):
-            rows.append([scalar_text(record.get(field)) for field in fields])
+            rows.append([scalar_text(record.get(field)) for field, _header in columns])
     return rows
 
 
 def workbook_sheets(master: dict[str, Any]) -> list[tuple[str, list[list[str]]]]:
-    return [
-        (sheet_name, sheet_rows(master, collection_name, raw_fields, structured_fields))
-        for sheet_name, collection_name, raw_fields, structured_fields in XLSX_SHEET_DEFINITIONS
-    ]
+    sheets = workbook_layout(master).get("sheets")
+    if not isinstance(sheets, list):
+        return []
+    rendered_sheets: list[tuple[str, list[list[str]]]] = []
+    for sheet in sheets:
+        if not isinstance(sheet, dict):
+            continue
+        sheet_name = scalar_text(sheet.get("name") or sheet.get("collection") or "Sheet")
+        rendered_sheets.append((sheet_name, sheet_rows(master, sheet)))
+    return rendered_sheets
 
 
 def worksheet_dimension(rows: list[list[str]]) -> str:
@@ -468,7 +559,30 @@ def column_widths(rows: list[list[str]]) -> list[float]:
     return widths
 
 
-def worksheet_xml(rows: list[list[str]]) -> str:
+def style_bool(styles: dict[str, Any], key: str, default: bool) -> bool:
+    value = styles.get(key)
+    return value if isinstance(value, bool) else default
+
+
+def style_text(styles: dict[str, Any], key: str, default: str) -> str:
+    return scalar_text(styles.get(key)) or default
+
+
+def workbook_page_margins(styles: dict[str, Any]) -> dict[str, str]:
+    value = styles.get("page_margins")
+    margins = value if isinstance(value, dict) else {}
+    return {
+        "left": scalar_text(margins.get("left") if isinstance(margins, dict) else None) or "0.7",
+        "right": scalar_text(margins.get("right") if isinstance(margins, dict) else None) or "0.7",
+        "top": scalar_text(margins.get("top") if isinstance(margins, dict) else None) or "0.75",
+        "bottom": scalar_text(margins.get("bottom") if isinstance(margins, dict) else None) or "0.75",
+        "header": scalar_text(margins.get("header") if isinstance(margins, dict) else None) or "0.3",
+        "footer": scalar_text(margins.get("footer") if isinstance(margins, dict) else None) or "0.3",
+    }
+
+
+def worksheet_xml(rows: list[list[str]], layout: dict[str, Any]) -> str:
+    styles = workbook_style_options(layout)
     rendered_rows: list[str] = []
     for row_index, row in enumerate(rows, start=1):
         cells: list[str] = []
@@ -485,18 +599,25 @@ def worksheet_xml(rows: list[list[str]]) -> str:
         for index, width in enumerate(column_widths(rows), start=1)
     )
     dimension = worksheet_dimension(rows)
+    sheet_view_xml = '<sheetViews><sheetView tabSelected="0" workbookViewId="0">'
+    if style_bool(styles, "freeze_header", True):
+        sheet_view_xml += '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
+        sheet_view_xml += '<selection pane="bottomLeft"/>'
+    sheet_view_xml += "</sheetView></sheetViews>"
+    auto_filter_xml = f'<autoFilter ref="{dimension}"/>' if style_bool(styles, "auto_filter", True) else ""
+    margins = workbook_page_margins(styles)
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<worksheet xmlns="{SHEET_NS}" xmlns:r="{REL_NS}">'
         f'<dimension ref="{dimension}"/>'
-        '<sheetViews><sheetView tabSelected="0" workbookViewId="0">'
-        '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
-        '<selection pane="bottomLeft"/></sheetView></sheetViews>'
+        f"{sheet_view_xml}"
         '<sheetFormatPr defaultRowHeight="15"/>'
         f"<cols>{widths}</cols>"
         f'<sheetData>{"".join(rendered_rows)}</sheetData>'
-        f'<autoFilter ref="{dimension}"/>'
-        '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>'
+        f"{auto_filter_xml}"
+        f'<pageMargins left="{xml_attr(margins["left"])}" right="{xml_attr(margins["right"])}" '
+        f'top="{xml_attr(margins["top"])}" bottom="{xml_attr(margins["bottom"])}" '
+        f'header="{xml_attr(margins["header"])}" footer="{xml_attr(margins["footer"])}"/>'
         "</worksheet>"
     )
 
@@ -555,21 +676,29 @@ def workbook_relationships(sheet_count: int) -> str:
     return relationships_xml(relationships)
 
 
-def workbook_styles_xml() -> str:
+def workbook_styles_xml(layout: dict[str, Any]) -> str:
+    styles = workbook_style_options(layout)
+    header_fill = style_text(styles, "header_fill", "FF1F4E79")
+    header_font_color = style_text(styles, "header_font_color", "FFFFFFFF")
+    body_border_color = style_text(styles, "body_border_color", "FFBFBFBF")
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<styleSheet xmlns="{SHEET_NS}">'
         '<fonts count="3">'
         '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/></font>'
-        '<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font>'
+        f'<font><b/><sz val="11"/><color rgb="{xml_attr(header_font_color)}"/>'
+        '<name val="Calibri"/><family val="2"/></font>'
         '<font><i/><sz val="11"/><color rgb="FF666666"/><name val="Calibri"/><family val="2"/></font>'
         '</fonts><fills count="4">'
         '<fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'
-        '<fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill>'
+        f'<fill><patternFill patternType="solid"><fgColor rgb="{xml_attr(header_fill)}"/>'
+        '<bgColor indexed="64"/></patternFill></fill>'
         '<fill><patternFill patternType="solid"><fgColor rgb="FFD9EAF7"/><bgColor indexed="64"/></patternFill></fill>'
         '</fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>'
-        '<border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right>'
-        '<top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom>'
+        f'<border><left style="thin"><color rgb="{xml_attr(body_border_color)}"/></left>'
+        f'<right style="thin"><color rgb="{xml_attr(body_border_color)}"/></right>'
+        f'<top style="thin"><color rgb="{xml_attr(body_border_color)}"/></top>'
+        f'<bottom style="thin"><color rgb="{xml_attr(body_border_color)}"/></bottom>'
         "<diagonal/></border></borders>"
         '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
         '<cellXfs count="3">'
@@ -583,6 +712,7 @@ def workbook_styles_xml() -> str:
 
 
 def write_master_workbook(master: dict[str, Any], path: Path) -> None:
+    layout = workbook_layout(master)
     sheets = workbook_sheets(master)
     sheet_names = [sheet_name for sheet_name, _rows in sheets]
     entries = [
@@ -611,9 +741,9 @@ def write_master_workbook(master: dict[str, Any], path: Path) -> None:
         ),
         ("xl/workbook.xml", workbook_xml(sheet_names)),
         ("xl/_rels/workbook.xml.rels", workbook_relationships(len(sheets))),
-        ("xl/styles.xml", workbook_styles_xml()),
+        ("xl/styles.xml", workbook_styles_xml(layout)),
         *[
-            (f"xl/worksheets/sheet{index}.xml", worksheet_xml(rows))
+            (f"xl/worksheets/sheet{index}.xml", worksheet_xml(rows, layout))
             for index, (_sheet_name, rows) in enumerate(sheets, start=1)
         ],
         (
@@ -695,34 +825,86 @@ def resume_item_text(item: dict[str, Any], records_by_id: dict[str, dict[str, An
     return ""
 
 
-def layout_style(layout: dict[str, Any], key: str) -> str | None:
-    value = layout.get(key)
-    return value if isinstance(value, str) else None
+def document_layout(resume: dict[str, Any], file_name: str) -> dict[str, Any]:
+    default_layout = default_document_layout(file_name)
+    layout = resume.get("office_layout")
+    document = layout.get("document") if isinstance(layout, dict) else None
+    if not isinstance(document, dict):
+        return default_layout
+    merged = dict(default_layout)
+    merged.update(document)
+    default_margins = default_layout.get("margins")
+    document_margins = document.get("margins")
+    if isinstance(default_margins, dict) and isinstance(document_margins, dict):
+        margins = dict(default_margins)
+        margins.update(document_margins)
+        merged["margins"] = margins
+    return merged
 
 
-def layout_section_style(layout: dict[str, Any], section: dict[str, Any]) -> str | None:
-    secondary_style = layout_style(layout, "secondary_section_style")
-    if secondary_style is not None and sort_order(section) > 3:
-        return secondary_style
-    return layout_style(layout, "section_style")
+def item_formatting(item: dict[str, Any]) -> dict[str, Any]:
+    formatting = item.get("formatting")
+    return formatting if isinstance(formatting, dict) else {}
 
 
-def layout_item_style(layout: dict[str, Any], item: dict[str, Any]) -> str | None:
-    if item.get("kind") == "text":
-        text_style = layout_style(layout, "text_item_style")
-        if text_style is not None:
-            return text_style
-    return layout_style(layout, "item_style")
+def formatting_style(formatting: dict[str, Any]) -> str | None:
+    block_style = formatting.get("block_style")
+    return block_style if isinstance(block_style, str) and block_style else None
 
 
-def resume_lines(
-    master: dict[str, Any], resume: dict[str, Any], layout: dict[str, Any]
-) -> list[tuple[str, str | None]]:
+def formatting_numbering(formatting: dict[str, Any]) -> dict[str, str] | None:
+    numbering = formatting.get("numbering")
+    if not isinstance(numbering, dict):
+        return None
+    level = scalar_text(numbering.get("level")) or "0"
+    num_id = scalar_text(numbering.get("num_id"))
+    if not num_id:
+        return None
+    return {"level": level, "num_id": num_id}
+
+
+def formatting_runs(formatting: dict[str, Any]) -> list[dict[str, Any]]:
+    runs = formatting.get("runs")
+    rendered_runs: list[dict[str, Any]] = []
+    if not isinstance(runs, list):
+        return rendered_runs
+    for run in runs:
+        if not isinstance(run, dict):
+            continue
+        text = scalar_text(run.get("text"))
+        if not text:
+            continue
+        rendered_runs.append(
+            {
+                "text": text,
+                "bold": run.get("bold") is True,
+                "italic": run.get("italic") is True,
+                "underline": run.get("underline") is True,
+            }
+        )
+    return rendered_runs
+
+
+def item_paragraphs(item: dict[str, Any], records_by_id: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    formatting = item_formatting(item)
+    style = formatting_style(formatting)
+    numbering = formatting_numbering(formatting)
+    runs = formatting_runs(formatting)
+    if runs:
+        return [{"style": style, "numbering": numbering, "runs": runs}]
+
+    text = resume_item_text(item, records_by_id)
+    paragraphs: list[dict[str, Any]] = []
+    for paragraph in text.splitlines() or [text]:
+        if paragraph.strip():
+            paragraphs.append({"style": style, "numbering": numbering, "runs": [{"text": paragraph}]})
+    return paragraphs
+
+
+def resume_paragraphs(master: dict[str, Any], resume: dict[str, Any]) -> list[dict[str, Any]]:
     records_by_id = master_records_by_id(master)
     resume_value = resume.get("resume")
     resume_meta = resume_value if isinstance(resume_value, dict) else {}
-    label = scalar_text(resume_meta.get("label") or resume_meta.get("id") or "Resume")
-    lines: list[tuple[str, str | None]] = [(label, layout_style(layout, "title_style"))]
 
     collections_value = resume.get("collections")
     collections = collections_value if isinstance(collections_value, dict) else {}
@@ -732,27 +914,62 @@ def resume_lines(
         [section for section in sections if isinstance(section, dict)] if isinstance(sections, list) else []
     )
     item_records = [item for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+    visible_section_ids = {section.get("id") for section in section_records if section.get("is_visible") is not False}
+    section_order = {
+        section.get("id"): sort_order(section)
+        for section in section_records
+        if isinstance(section.get("id"), str) and section.get("is_visible") is not False
+    }
 
-    for section in sorted(section_records, key=sort_order):
-        if section.get("is_visible") is False:
+    paragraphs: list[dict[str, Any]] = []
+    for item in sorted(
+        item_records,
+        key=lambda record: (section_order.get(record.get("section_id"), 1_000_000), sort_order(record)),
+    ):
+        if item.get("is_visible") is False:
             continue
-        title = scalar_text(section.get("title") or section.get("id") or "Section")
-        lines.append((title, layout_section_style(layout, section)))
-        section_id = section.get("id")
-        section_items = [item for item in item_records if item.get("section_id") == section_id]
-        for item in sorted(section_items, key=sort_order):
-            if item.get("is_visible") is False:
-                continue
-            item_text = resume_item_text(item, records_by_id)
-            for paragraph in item_text.splitlines() or [item_text]:
-                if paragraph.strip():
-                    lines.append((paragraph, layout_item_style(layout, item)))
-    return lines
+        if visible_section_ids and item.get("section_id") not in visible_section_ids:
+            continue
+        paragraphs.extend(item_paragraphs(item, records_by_id))
+
+    if paragraphs:
+        return paragraphs
+
+    label = scalar_text(resume_meta.get("label") or resume_meta.get("id") or "Resume")
+    return [{"style": None, "numbering": None, "runs": [{"text": label}]}]
 
 
-def docx_paragraph(text: str, style: str | None = None) -> str:
-    style_xml = f'<w:pPr><w:pStyle w:val="{xml_attr(style)}"/></w:pPr>' if style else ""
-    return f'<w:p>{style_xml}<w:r><w:t xml:space="preserve">{xml_text(text)}</w:t></w:r></w:p>'
+def docx_run(run: dict[str, Any]) -> str:
+    properties: list[str] = []
+    if run.get("bold") is True:
+        properties.append("<w:b/>")
+    if run.get("italic") is True:
+        properties.append("<w:i/>")
+    if run.get("underline") is True:
+        properties.append('<w:u w:val="single"/>')
+    properties_xml = f'<w:rPr>{"".join(properties)}</w:rPr>' if properties else ""
+    return f'<w:r>{properties_xml}<w:t xml:space="preserve">{xml_text(scalar_text(run.get("text")))}</w:t></w:r>'
+
+
+def docx_paragraph(paragraph: dict[str, Any]) -> str:
+    paragraph_properties: list[str] = []
+    style = paragraph.get("style")
+    if isinstance(style, str) and style:
+        paragraph_properties.append(f'<w:pStyle w:val="{xml_attr(style)}"/>')
+    numbering = paragraph.get("numbering")
+    if isinstance(numbering, dict):
+        level = scalar_text(numbering.get("level")) or "0"
+        num_id = scalar_text(numbering.get("num_id"))
+        if num_id:
+            paragraph_properties.append(
+                f'<w:numPr><w:ilvl w:val="{xml_attr(level)}"/><w:numId w:val="{xml_attr(num_id)}"/></w:numPr>'
+            )
+    properties_xml = f'<w:pPr>{"".join(paragraph_properties)}</w:pPr>' if paragraph_properties else ""
+    runs = paragraph.get("runs")
+    rendered_runs = [docx_run(run) for run in runs if isinstance(run, dict)] if isinstance(runs, list) else []
+    if not rendered_runs:
+        rendered_runs = [docx_run({"text": ""})]
+    return f'<w:p>{properties_xml}{"".join(rendered_runs)}</w:p>'
 
 
 def docx_margins(layout: dict[str, Any]) -> dict[str, str]:
@@ -769,12 +986,12 @@ def docx_margins(layout: dict[str, Any]) -> dict[str, str]:
     }
 
 
-def docx_document_xml(lines: list[tuple[str, str | None]], layout: dict[str, Any]) -> str:
-    paragraphs = "".join(docx_paragraph(text, style) for text, style in lines)
+def docx_document_xml(paragraphs: list[dict[str, Any]], layout: dict[str, Any]) -> str:
+    paragraph_xml = "".join(docx_paragraph(paragraph) for paragraph in paragraphs)
     margins = docx_margins(layout)
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        f'<w:document xmlns:w="{WORD_NS}"><w:body>{paragraphs}'
+        f'<w:document xmlns:w="{WORD_NS}"><w:body>{paragraph_xml}'
         '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
         f'<w:pgMar w:top="{margins["top"]}" w:right="{margins["right"]}" '
         f'w:bottom="{margins["bottom"]}" w:left="{margins["left"]}" '
@@ -805,37 +1022,130 @@ def document_content_types() -> str:
     )
 
 
-def docx_styles_xml() -> str:
+def document_styles(layout: dict[str, Any]) -> list[dict[str, Any]]:
+    styles = layout.get("styles")
+    if isinstance(styles, list) and all(isinstance(style, dict) for style in styles):
+        return [style for style in styles if isinstance(style.get("id"), str)]
+    return [dict(style) for style in DEFAULT_DOCX_STYLES]
+
+
+def docx_style_numbering_xml(numbering: dict[str, Any]) -> str:
+    level = scalar_text(numbering.get("level")) or "0"
+    num_id = scalar_text(numbering.get("num_id"))
+    if not num_id:
+        return ""
+    return f'<w:numPr><w:ilvl w:val="{xml_attr(level)}"/><w:numId w:val="{xml_attr(num_id)}"/></w:numPr>'
+
+
+def docx_style_xml(style: dict[str, Any]) -> str:
+    style_id = scalar_text(style.get("id"))
+    style_name = scalar_text(style.get("name")) or style_id
+    default_attr = ' w:default="1"' if style.get("default") is True else ""
+    based_on = scalar_text(style.get("based_on"))
+    based_on_xml = f'<w:basedOn w:val="{xml_attr(based_on)}"/>' if based_on else ""
+
+    paragraph_properties: list[str] = []
+    spacing_attrs: list[str] = []
+    spacing_before = scalar_text(style.get("spacing_before"))
+    spacing_after = scalar_text(style.get("spacing_after"))
+    if spacing_before:
+        spacing_attrs.append(f'w:before="{xml_attr(spacing_before)}"')
+    if spacing_after:
+        spacing_attrs.append(f'w:after="{xml_attr(spacing_after)}"')
+    if spacing_attrs:
+        paragraph_properties.append(f'<w:spacing {" ".join(spacing_attrs)}/>')
+    indent_left = scalar_text(style.get("indent_left"))
+    indent_hanging = scalar_text(style.get("indent_hanging"))
+    indent_attrs: list[str] = []
+    if indent_left:
+        indent_attrs.append(f'w:left="{xml_attr(indent_left)}"')
+    if indent_hanging:
+        indent_attrs.append(f'w:hanging="{xml_attr(indent_hanging)}"')
+    if indent_attrs:
+        paragraph_properties.append(f'<w:ind {" ".join(indent_attrs)}/>')
+    numbering = style.get("numbering")
+    if isinstance(numbering, dict):
+        paragraph_properties.append(docx_style_numbering_xml(numbering))
+    paragraph_properties_xml = f'<w:pPr>{"".join(paragraph_properties)}</w:pPr>' if paragraph_properties else ""
+
+    run_properties: list[str] = []
+    font = scalar_text(style.get("font"))
+    if font:
+        run_properties.append(f'<w:rFonts w:ascii="{xml_attr(font)}" w:hAnsi="{xml_attr(font)}"/>')
+    if style.get("bold") is True:
+        run_properties.append("<w:b/>")
+    if style.get("italic") is True:
+        run_properties.append("<w:i/>")
+    if style.get("underline") is True:
+        run_properties.append('<w:u w:val="single"/>')
+    size = scalar_text(style.get("size"))
+    if size:
+        run_properties.append(f'<w:sz w:val="{xml_attr(size)}"/>')
+    run_properties_xml = f'<w:rPr>{"".join(run_properties)}</w:rPr>' if run_properties else ""
+
+    return (
+        f'<w:style w:type="paragraph"{default_attr} w:styleId="{xml_attr(style_id)}">'
+        f'<w:name w:val="{xml_attr(style_name)}"/>'
+        f"{based_on_xml}{paragraph_properties_xml}{run_properties_xml}</w:style>"
+    )
+
+
+def docx_styles_xml(layout: dict[str, Any]) -> str:
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:styles xmlns:w="{WORD_NS}">'
-        '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/>'
-        '<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:style>'
-        '<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/>'
-        '<w:pPr><w:spacing w:after="120"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>'
-        '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/>'
-        '<w:pPr><w:spacing w:before="160" w:after="80"/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>'
-        '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/>'
-        '<w:pPr><w:spacing w:before="120" w:after="60"/></w:pPr><w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style>'
-        '<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/>'
-        '<w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720"/></w:pPr></w:style>'
-        '<w:style w:type="paragraph" w:styleId="ListBullet"><w:name w:val="List Bullet"/>'
-        '<w:basedOn w:val="ListParagraph"/><w:pPr><w:numPr><w:ilvl w:val="0"/>'
-        '<w:numId w:val="1"/></w:numPr></w:pPr></w:style>'
+        f'{"".join(docx_style_xml(style) for style in document_styles(layout))}'
         "</w:styles>"
     )
 
 
-def docx_numbering_xml() -> str:
+def docx_numbering_ids(paragraphs: list[dict[str, Any]], layout: dict[str, Any]) -> list[str]:
+    num_ids: set[str] = set()
+    for paragraph in paragraphs:
+        numbering = paragraph.get("numbering")
+        if isinstance(numbering, dict):
+            num_id = scalar_text(numbering.get("num_id"))
+            if num_id:
+                num_ids.add(num_id)
+    for style in document_styles(layout):
+        numbering = style.get("numbering")
+        if isinstance(numbering, dict):
+            num_id = scalar_text(numbering.get("num_id"))
+            if num_id:
+                num_ids.add(num_id)
+    return sorted(num_ids, key=lambda value: int(value) if value.isdecimal() else 1_000_000)
+
+
+def docx_numbering_xml(paragraphs: list[dict[str, Any]], layout: dict[str, Any]) -> str:
+    numbering_options = layout.get("numbering")
+    numbering = numbering_options if isinstance(numbering_options, dict) else {}
+    bullet_text = scalar_text(numbering.get("bullet_text")) or "•"
+    font = scalar_text(numbering.get("font")) or "Symbol"
+    left = scalar_text(numbering.get("left")) or "720"
+    hanging = scalar_text(numbering.get("hanging")) or "360"
+    abstract_nums: list[str] = []
+    nums: list[str] = []
+    for fallback_index, num_id in enumerate(docx_numbering_ids(paragraphs, layout), start=1):
+        abstract_num_id = num_id if num_id.isdecimal() else str(fallback_index)
+        abstract_nums.append(
+            f'<w:abstractNum w:abstractNumId="{xml_attr(abstract_num_id)}"><w:multiLevelType w:val="hybridMultilevel"/>'
+            '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+            f'<w:lvlText w:val="{xml_attr(bullet_text)}"/>'
+            f'<w:pPr><w:ind w:left="{xml_attr(left)}" w:hanging="{xml_attr(hanging)}"/></w:pPr>'
+            f'<w:rPr><w:rFonts w:ascii="{xml_attr(font)}" w:hAnsi="{xml_attr(font)}" w:hint="default"/></w:rPr></w:lvl>'
+            '<w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+            f'<w:lvlText w:val="{xml_attr(bullet_text)}"/>'
+            f'<w:pPr><w:ind w:left="{xml_attr(str(int(left) * 2 if left.isdecimal() else 1440))}" '
+            f'w:hanging="{xml_attr(hanging)}"/></w:pPr>'
+            f'<w:rPr><w:rFonts w:ascii="{xml_attr(font)}" w:hAnsi="{xml_attr(font)}" w:hint="default"/></w:rPr></w:lvl>'
+            "</w:abstractNum>"
+        )
+        nums.append(
+            f'<w:num w:numId="{xml_attr(num_id)}"><w:abstractNumId w:val="{xml_attr(abstract_num_id)}"/></w:num>'
+        )
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        f'<w:numbering xmlns:w="{WORD_NS}">'
-        '<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>'
-        '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/>'
-        '<w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
-        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl></w:abstractNum>'
-        '<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>'
-        "</w:numbering>"
+        f'<w:numbering xmlns:w="{WORD_NS}">{"".join(abstract_nums)}{"".join(nums)}</w:numbering>'
     )
 
 
@@ -857,7 +1167,8 @@ def docx_settings_xml() -> str:
 
 
 def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: Path) -> None:
-    layout = DOCX_PAGE_LAYOUTS.get(path.name, DOCX_PAGE_LAYOUTS["resume_2017_a_posteriori.docx"])
+    layout = document_layout(resume, path.name)
+    paragraphs = resume_paragraphs(master, resume)
     resume_value = resume.get("resume")
     resume_meta = resume_value if isinstance(resume_value, dict) else {}
     title = scalar_text(resume_meta.get("label") or "Resume")
@@ -886,9 +1197,9 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
             ),
         ),
         ("word/_rels/document.xml.rels", docx_document_relationships_xml()),
-        ("word/document.xml", docx_document_xml(resume_lines(master, resume, layout), layout)),
-        ("word/styles.xml", docx_styles_xml()),
-        ("word/numbering.xml", docx_numbering_xml()),
+        ("word/document.xml", docx_document_xml(paragraphs, layout)),
+        ("word/styles.xml", docx_styles_xml(layout)),
+        ("word/numbering.xml", docx_numbering_xml(paragraphs, layout)),
         ("word/settings.xml", docx_settings_xml()),
         (
             "docProps/core.xml",
@@ -1111,17 +1422,20 @@ def resume_path(db_dir: Path, resume_id: str) -> Path:
     return db_dir / f"{resume_id}.json"
 
 
-def empty_master(profile: dict[str, Any]) -> dict[str, Any]:
-    return {
+def empty_master(profile: dict[str, Any], workbook_layout_value: dict[str, Any] | None = None) -> dict[str, Any]:
+    master = {
         "schema_version": SCHEMA_VERSION,
         "app_model": MASTER_APP_MODEL,
         "profile": profile,
         "collections": {collection: [] for collection in MASTER_COLLECTIONS},
     }
+    if workbook_layout_value is not None:
+        master["office_layout"] = {"workbook": workbook_layout_value}
+    return master
 
 
-def empty_resume(resume: dict[str, Any]) -> dict[str, Any]:
-    return {
+def empty_resume(resume: dict[str, Any], document_layout_value: dict[str, Any] | None = None) -> dict[str, Any]:
+    resume_data = {
         "schema_version": SCHEMA_VERSION,
         "app_model": RESUME_APP_MODEL,
         "resume": resume,
@@ -1130,6 +1444,9 @@ def empty_resume(resume: dict[str, Any]) -> dict[str, Any]:
             "items": [],
         },
     }
+    if document_layout_value is not None:
+        resume_data["office_layout"] = {"document": document_layout_value}
+    return resume_data
 
 
 def require_record_id(record: dict[str, Any]) -> str:
@@ -1150,12 +1467,14 @@ def append_unique(records: list[Any], record: dict[str, Any], replace: bool) -> 
     records.append(record)
 
 
-def init_database(db_dir: Path, profile: dict[str, Any], force: bool) -> None:
+def init_database(
+    db_dir: Path, profile: dict[str, Any], force: bool, workbook_layout_value: dict[str, Any] | None = None
+) -> None:
     if db_dir.exists() and force:
         shutil.rmtree(db_dir)
     if master_path(db_dir).exists():
         raise ValueError(f"Database already exists at {db_dir}; pass --force to replace it")
-    write_json(master_path(db_dir), empty_master(profile))
+    write_json(master_path(db_dir), empty_master(profile, workbook_layout_value))
 
 
 def set_profile(db_dir: Path, profile: dict[str, Any]) -> None:
@@ -1176,14 +1495,16 @@ def add_master_record(db_dir: Path, collection: str, record: dict[str, Any], rep
     write_json(master_path(db_dir), master)
 
 
-def add_resume(db_dir: Path, resume: dict[str, Any], replace: bool) -> None:
+def add_resume(
+    db_dir: Path, resume: dict[str, Any], replace: bool, document_layout_value: dict[str, Any] | None = None
+) -> None:
     resume_id = resume.get("id")
     if not isinstance(resume_id, str) or not resume_id:
         raise ValueError("Resume JSON must contain a non-empty string id")
     path = resume_path(db_dir, resume_id)
     if path.exists() and not replace:
         raise ValueError(f"Resume already exists: {resume_id}")
-    write_json(path, empty_resume(resume))
+    write_json(path, empty_resume(resume, document_layout_value))
 
 
 def add_resume_record(db_dir: Path, resume_id: str, collection: str, record: dict[str, Any], replace: bool) -> None:
@@ -1216,6 +1537,7 @@ def init_master_profile(
     label: str,
     created_at: str,
     updated_at: str,
+    workbook_layout: dict[str, Any] | None = None,
     force: bool = False,
 ) -> None:
     init_database(
@@ -1231,6 +1553,7 @@ def init_master_profile(
             },
         ),
         force,
+        workbook_layout,
     )
 
 
@@ -1487,13 +1810,14 @@ def create_resume(
     status: str,
     created_at: str,
     updated_at: str,
+    document_layout: dict[str, Any] | None = None,
     replace: bool = False,
 ) -> str:
     resume = ordered_record(
         RESUME_FIELD_ORDER,
         {"id": resume_id, "label": label, "status": status, "created_at": created_at, "updated_at": updated_at},
     )
-    add_resume(db_dir, resume, replace)
+    add_resume(db_dir, resume, replace, document_layout)
     return resume_id
 
 
@@ -1665,6 +1989,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_db_options(init_parser)
     add_payload_options(init_parser, "profile")
     add_field_options(init_parser, ["id", "person_id", "label", "created_at", "updated_at"])
+    init_parser.add_argument("--workbook-layout-json", type=parse_object, help="Set workbook office_layout from JSON")
     init_parser.add_argument("--force", action="store_true", help="Delete and recreate the target database directory")
 
     profile_parser = subparsers.add_parser("set-profile", help="Replace the master profile metadata")
@@ -1683,12 +2008,18 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_db_options(add_resume_parser)
     add_payload_options(add_resume_parser, "resume")
     add_field_options(add_resume_parser, RESUME_FIELD_ORDER)
+    add_resume_parser.add_argument(
+        "--document-layout-json", type=parse_object, help="Set document office_layout from JSON"
+    )
     add_replace_option(add_resume_parser)
 
     create_resume_parser = subparsers.add_parser("create-resume", help="Create a resume document")
     add_common_db_options(create_resume_parser)
     add_payload_options(create_resume_parser, "resume")
     add_field_options(create_resume_parser, RESUME_FIELD_ORDER)
+    create_resume_parser.add_argument(
+        "--document-layout-json", type=parse_object, help="Set document office_layout from JSON"
+    )
     add_replace_option(create_resume_parser)
 
     add_section_parser = subparsers.add_parser("add-section", help="Add a section to a resume")
@@ -1746,7 +2077,7 @@ def run(args: argparse.Namespace) -> int:
     command = args.command
     if command == "init":
         profile = typed_payload(args, ["id", "person_id", "label", "created_at", "updated_at"], "profile")
-        init_database(args.db_dir, profile, args.force)
+        init_database(args.db_dir, profile, args.force, args.workbook_layout_json)
         return 0
     if command == "set-profile":
         set_profile(
@@ -1760,7 +2091,7 @@ def run(args: argparse.Namespace) -> int:
         return 0
     if command in {"add-resume", "create-resume"}:
         resume = typed_payload(args, RESUME_FIELD_ORDER, "resume")
-        add_resume(args.db_dir, resume, args.replace)
+        add_resume(args.db_dir, resume, args.replace, args.document_layout_json)
         return 0
     if command in {"add-section", "add-resume-section"}:
         section = typed_payload(args, SECTION_FIELD_ORDER, "section")
