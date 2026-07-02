@@ -834,6 +834,9 @@ def test_audit_policy_can_accept_explicit_drift() -> None:
 
     assert classified["status"] == "accepted_drift"
     assert classified["status_reason"] == "Known package-only drift in fake fixture."
+    assert app.audit_policy_summary(audit_policy, Path(r"audit_policies\test_policy.json"))["path"] == (
+        "audit_policies/test_policy.json"
+    )
 
 
 def test_cli_typed_flags_build_expected_payload(tmp_path: Path) -> None:

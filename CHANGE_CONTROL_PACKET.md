@@ -72,6 +72,7 @@ Establish the next controlled development version for the side-by-side private g
 - Added `audit` as the first-class CLI surface for private-safe Office parity reports.
 - Expanded comparison summaries with DOCX package part names, run formatting counts, and XLSX sheet dimensions, headers, and style counts.
 - Added versioned Office audit policy files and schema-backed accepted-drift classification.
+- Added a reviewed accepted-drift policy entry for the generated app-native master workbook columns.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.
 

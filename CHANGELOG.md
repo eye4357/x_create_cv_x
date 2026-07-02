@@ -29,6 +29,7 @@
 - Added `validate-schema` to validate generated JSON against the public contract schemas.
 - Added `audit` to write private-safe JSON and Markdown Office parity reports from existing `_a_priori` and `_a_posteriori` evidence.
 - Added versioned Office audit policy files so accepted drift is explicit data instead of prose.
+- Added a reviewed accepted-drift policy entry for the generated app-native master workbook columns.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 

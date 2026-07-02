@@ -2,6 +2,13 @@
   "schema_version": "1.0.0",
   "policy_version": "0.0.2",
   "name": "default_office_audit_policy",
-  "description": "Default public policy for Office parity audits. It accepts exact or normalized matches and requires explicit review for all remaining drift.",
-  "accepted_differences": []
+  "description": "Default public policy for Office parity audits. It accepts exact or normalized matches plus reviewed, versioned drift entries and requires explicit review for all remaining drift.",
+  "accepted_differences": [
+    {
+      "generated_path": "generated/office/a_posteriori/master_profile_a_posteriori.xlsx",
+      "scope": "workbook_app_native_columns",
+      "reason": "Reviewed v0.0.2 workbook drift: the generated XLSX preserves the canonical nine-sheet app-native workbook contract with ID/Label columns, while the legacy source workbook omits those helper columns.",
+      "reviewed_at": "2026-07-02"
+    }
+  ]
 }

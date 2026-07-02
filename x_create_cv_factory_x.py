@@ -2386,7 +2386,7 @@ def audit_policy_summary(audit_policy: dict[str, Any], policy_path: Path | None 
         "accepted_difference_count": len(audit_policy.get("accepted_differences", [])),
     }
     if policy_path is not None:
-        summary["path"] = str(policy_path)
+        summary["path"] = str(policy_path).replace("\\", "/")
     return summary
 
 
