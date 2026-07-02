@@ -5,6 +5,9 @@ description = "Privacy-first CLI factory for app-native CV and resume JSON."
 requires-python = ">=3.10"
 dependencies = []
 
+[tool.setuptools]
+py-modules = ["x_create_cv_factory_x"]
+
 [project.optional-dependencies]
 dev = [
     "black==24.10.0",
