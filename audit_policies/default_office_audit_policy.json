@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "0.0.2",
+  "name": "default_office_audit_policy",
+  "description": "Default public policy for Office parity audits. It accepts exact or normalized matches and requires explicit review for all remaining drift.",
+  "accepted_differences": []
+}

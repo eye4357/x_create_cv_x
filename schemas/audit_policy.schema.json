@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/x_create_cv_x/schemas/audit_policy.schema.json",
+  "title": "x_create_cv_x Office audit policy contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "policy_version",
+    "name",
+    "description",
+    "accepted_differences"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "accepted_differences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "generated_path",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "generated_path": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "reviewed_by": {
+            "type": "string"
+          },
+          "reviewed_at": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

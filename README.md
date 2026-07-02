@@ -86,9 +86,15 @@ Write the private-safe Office audit reports without regenerating Office outputs:
 python .\x_create_cv_factory_x.py audit
 ```
 
+Use an explicit accepted-drift policy when a release has reviewed, versioned differences:
+
+```powershell
+python .\x_create_cv_factory_x.py audit --policy .\audit_policies\default_office_audit_policy.json
+```
+
 The generated workbook keeps the nine original spreadsheet sheet names, skips redundant collection placeholder rows, uses named app-native fields instead of raw `a`/`b`/`c` columns, and reads sheet/column/style settings from generated JSON `office_layout`. The generated DOCX files read document margins/styles, page size, document flow, tables, paragraph alignment/spacing/indentation/tab stops, optional package parts, and per-item `block_style`, `numbering`, and rich `runs` from the same JSON-backed contract.
 
-The `audit` command writes both the machine-readable comparison JSON and a Markdown report with private-safe structure metrics: DOCX package parts, paragraph/run/style counts, hyperlinks, tabs, tables, numbering, XLSX sheet names, dimensions, headers, and style counts. The report does not treat accepted drift as implicit; review-required differences must be explicitly classified before a release.
+The `audit` command writes both the machine-readable comparison JSON and a Markdown report with private-safe structure metrics: DOCX package parts, paragraph/run/style counts, hyperlinks, tabs, tables, numbering, XLSX sheet names, dimensions, headers, and style counts. Audit policy files live under `audit_policies/`; they version accepted drift so review-required differences must be explicitly classified before a release.
 
 The older `validate --expected-zip` command remains available for legacy archive checks, but the active 0.0.2 golden path is `exercise-golden` against `x_create_cv_test_data_x`.
 
@@ -123,7 +129,8 @@ python -m py_compile .\x_create_cv_factory_x.py
 The repository includes:
 
 - `pyproject.toml` for project metadata, pytest discovery, Ruff rules, Black formatting, and strict mypy settings.
-- `schemas/` with the public JSON Schema contracts for master profile, resume, workbook layout, and document layout JSON.
+- `schemas/` with the public JSON Schema contracts for master profile, resume, workbook layout, document layout, and audit policy JSON.
+- `audit_policies/` with versioned Office audit policies for explicit accepted-drift classification.
 - `.vscode/settings.json` with Pylance strict type checking and pytest discovery.
 - `.github/workflows/ci.yml` to run tests, Ruff, Black, and mypy on every push and pull request.
 - Unit tests that rebuild fake CV JSON and validate zip comparison behavior without private data.

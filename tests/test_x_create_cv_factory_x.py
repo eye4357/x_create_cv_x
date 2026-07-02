@@ -266,6 +266,7 @@ def test_schema_validation_reports_contract_path() -> None:
 def test_layout_contract_schemas_accept_default_layouts() -> None:
     app.validate_contract(app.default_workbook_layout(), "workbook_layout")
     app.validate_contract(app.default_document_layout("resume_2017_a_posteriori.docx"), "document_layout")
+    app.validate_contract_file(app.DEFAULT_AUDIT_POLICY, "audit_policy")
 
 
 def test_validate_against_zip_passes_for_fake_database(tmp_path: Path) -> None:
@@ -790,7 +791,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         source_path.write_bytes(generated_path.read_bytes())
 
     comparisons = app.office_comparisons(evidence_dir)
-    assert [comparison["status"] for comparison in comparisons] == ["normalized_match"] * 4
+    assert [comparison["status"] for comparison in comparisons] == ["pass"] * 4
     assert app.office_report_name("generated\\office\\a_posteriori\\resume.docx") == "resume.docx"
 
     assert app.main(["audit", "--evidence-dir", str(evidence_dir)]) == 0
@@ -806,6 +807,33 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "## DOCX Structure" in audit_text
     assert "## XLSX Structure" in audit_text
     assert "master_profile_a_posteriori.xlsx" in audit_text
+
+
+def test_audit_policy_can_accept_explicit_drift() -> None:
+    comparison = {
+        "generated": {"path": "generated/office/a_posteriori/resume_fake.docx"},
+        "source": {"path": "source_office/a_priori/resume_fake.docx"},
+        "byte_identical": False,
+        "normalized_text_match": False,
+    }
+    audit_policy = {
+        "schema_version": app.SCHEMA_VERSION,
+        "policy_version": "test",
+        "name": "test_policy",
+        "description": "Test policy",
+        "accepted_differences": [
+            {
+                "generated_path": r"generated\office\a_posteriori\resume_fake.docx",
+                "scope": "package",
+                "reason": "Known package-only drift in fake fixture.",
+            }
+        ],
+    }
+
+    classified = app.apply_audit_policy(comparison, audit_policy)
+
+    assert classified["status"] == "accepted_drift"
+    assert classified["status_reason"] == "Known package-only drift in fake fixture."
 
 
 def test_cli_typed_flags_build_expected_payload(tmp_path: Path) -> None:

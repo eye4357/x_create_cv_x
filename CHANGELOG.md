@@ -28,6 +28,7 @@
 - Added public JSON Schema contracts for master profile, resume, workbook layout, and document layout JSON.
 - Added `validate-schema` to validate generated JSON against the public contract schemas.
 - Added `audit` to write private-safe JSON and Markdown Office parity reports from existing `_a_priori` and `_a_posteriori` evidence.
+- Added versioned Office audit policy files so accepted drift is explicit data instead of prose.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 
@@ -42,6 +43,7 @@
 - Updated the Office regeneration plan to include the current 2024 resume as the fourth golden source.
 - Extended generated JSON writes and the private golden exercise to validate schema-backed API contracts.
 - Expanded Office comparison metrics for DOCX package parts, run formatting counts, and XLSX sheet dimensions, headers, and styles.
+- Changed Office audit status classification to policy-backed `pass`, `accepted_drift`, or `review_required`.
 
 ### Security
 

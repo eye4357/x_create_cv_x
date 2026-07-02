@@ -23,6 +23,8 @@ Relationship = tuple[str, str, str] | tuple[str, str, str, str]
 MASTER_FILE = "master_profile.json"
 DEFAULT_DB_DIR = Path("data/private/cv_factory_output")
 SCHEMA_DIR = Path(__file__).resolve().parent / "schemas"
+AUDIT_POLICY_DIR = Path(__file__).resolve().parent / "audit_policies"
+DEFAULT_AUDIT_POLICY = AUDIT_POLICY_DIR / "default_office_audit_policy.json"
 RESUME_APP_MODEL = "resume_document_crud"
 MASTER_APP_MODEL = "master_profile_crud"
 SCHEMA_VERSION = "1.0.0"
@@ -32,6 +34,7 @@ CONTRACT_SCHEMA_FILES = {
     "resume": "resume.schema.json",
     "workbook_layout": "workbook_layout.schema.json",
     "document_layout": "document_layout.schema.json",
+    "audit_policy": "audit_policy.schema.json",
 }
 DEFAULT_GOLDEN_EVIDENCE_DIR = Path("../x_create_cv_test_data_x/evidence")
 DEFAULT_EVIDENCE_MANIFEST = DEFAULT_GOLDEN_EVIDENCE_DIR / "a_priori_manifest.json"
@@ -482,6 +485,8 @@ def infer_contract_schema_name(data: dict[str, Any], path: Path) -> str:
         return "master_profile"
     if app_model == RESUME_APP_MODEL:
         return "resume"
+    if "policy_version" in data and "accepted_differences" in data:
+        return "audit_policy"
     if "sheets" in data:
         return "workbook_layout"
     if any(
@@ -2306,7 +2311,55 @@ def office_file_summary(relative_path: str, path: Path) -> dict[str, Any]:
     return summary
 
 
-def office_comparisons(evidence_dir: Path) -> list[dict[str, Any]]:
+def load_audit_policy(path: Path) -> dict[str, Any]:
+    policy = read_json(path)
+    validate_contract(policy, "audit_policy")
+    return policy
+
+
+def accepted_difference_for(comparison: dict[str, Any], audit_policy: dict[str, Any]) -> dict[str, Any] | None:
+    generated = comparison.get("generated")
+    generated_path = str(generated.get("path", "")) if isinstance(generated, dict) else ""
+    generated_path_normalized = generated_path.replace("\\", "/")
+    generated_name = office_report_name(generated_path)
+    generated_candidates = {generated_path, generated_path_normalized, generated_name, "*"}
+    entries = audit_policy.get("accepted_differences")
+    if not isinstance(entries, list):
+        return None
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        policy_path = entry.get("generated_path")
+        if not isinstance(policy_path, str):
+            continue
+        if policy_path in generated_candidates or policy_path.replace("\\", "/") in generated_candidates:
+            return entry
+    return None
+
+
+def apply_audit_policy(comparison: dict[str, Any], audit_policy: dict[str, Any]) -> dict[str, Any]:
+    classified = dict(comparison)
+    if comparison.get("byte_identical") is True:
+        classified["status"] = "pass"
+        classified["status_reason"] = "Generated file is byte-identical to source evidence."
+        return classified
+    if comparison.get("normalized_text_match") is True:
+        classified["status"] = "pass"
+        classified["status_reason"] = "Normalized text matches source evidence."
+        return classified
+    accepted_difference = accepted_difference_for(comparison, audit_policy)
+    if accepted_difference is not None:
+        classified["status"] = "accepted_drift"
+        classified["status_reason"] = scalar_text(accepted_difference.get("reason"))
+        classified["accepted_difference"] = accepted_difference
+        return classified
+    classified["status"] = "review_required"
+    classified["status_reason"] = "No policy entry accepts this generated/source difference."
+    return classified
+
+
+def office_comparisons(evidence_dir: Path, audit_policy: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    policy = audit_policy or load_audit_policy(DEFAULT_AUDIT_POLICY)
     comparisons: list[dict[str, Any]] = []
     for generated_name, generated_relative_path in GOLDEN_OFFICE_EXPECTATIONS.items():
         source_relative_path = GOLDEN_SOURCE_OFFICE[generated_name]
@@ -2315,20 +2368,31 @@ def office_comparisons(evidence_dir: Path) -> list[dict[str, Any]]:
         generated_normalized = generated_summary.get("normalized_text")
         source_normalized = source_summary.get("normalized_text")
         normalized_match = isinstance(generated_normalized, dict) and generated_normalized == source_normalized
-        comparisons.append(
-            {
-                "generated": generated_summary,
-                "source": source_summary,
-                "byte_identical": generated_summary["sha256"] == source_summary["sha256"],
-                "normalized_text_match": normalized_match,
-                "status": "normalized_match" if normalized_match else "review_required",
-            }
-        )
+        comparison = {
+            "generated": generated_summary,
+            "source": source_summary,
+            "byte_identical": generated_summary["sha256"] == source_summary["sha256"],
+            "normalized_text_match": normalized_match,
+        }
+        comparisons.append(apply_audit_policy(comparison, policy))
     return comparisons
 
 
-def write_office_comparison_report(evidence_dir: Path) -> Path:
-    comparisons = office_comparisons(evidence_dir)
+def audit_policy_summary(audit_policy: dict[str, Any], policy_path: Path | None = None) -> dict[str, Any]:
+    summary = {
+        "schema_version": audit_policy.get("schema_version"),
+        "policy_version": audit_policy.get("policy_version"),
+        "name": audit_policy.get("name"),
+        "accepted_difference_count": len(audit_policy.get("accepted_differences", [])),
+    }
+    if policy_path is not None:
+        summary["path"] = str(policy_path)
+    return summary
+
+
+def write_office_comparison_report(evidence_dir: Path, policy_path: Path = DEFAULT_AUDIT_POLICY) -> Path:
+    audit_policy = load_audit_policy(policy_path)
+    comparisons = office_comparisons(evidence_dir, audit_policy)
     report_path = evidence_dir / GOLDEN_OFFICE_REPORT
     write_json(
         report_path,
@@ -2336,6 +2400,7 @@ def write_office_comparison_report(evidence_dir: Path) -> Path:
             "schema_version": SCHEMA_VERSION,
             "generator": f"x_create_cv_x {VERSION}",
             "purpose": "Private comparison report for generated _a_posteriori Office evidence",
+            "audit_policy": audit_policy_summary(audit_policy, policy_path),
             "comparisons": comparisons,
         },
     )
@@ -2383,17 +2448,19 @@ def append_metric_table(
     lines.append("")
 
 
-def write_office_audit_report(evidence_dir: Path) -> Path:
-    comparisons = office_comparisons(evidence_dir)
+def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AUDIT_POLICY) -> Path:
+    audit_policy = load_audit_policy(policy_path)
+    comparisons = office_comparisons(evidence_dir, audit_policy)
     lines = [
         "# A Posteriori Office Audit",
         "",
         f"Generator: `x_create_cv_x {VERSION}`",
+        f"Audit policy: `{audit_policy.get('name')}` version `{audit_policy.get('policy_version')}`",
         "",
         "## Summary",
         "",
-        "| File | Type | Byte Identical | Normalized Text Match | Status | Source Lines | Generated Lines |",
-        "| --- | --- | ---: | ---: | --- | ---: | ---: |",
+        "| File | Type | Byte Identical | Normalized Text Match | Status | Reason | Source Lines | Generated Lines |",
+        "| --- | --- | ---: | ---: | --- | --- | ---: | ---: |",
     ]
     for comparison in comparisons:
         generated = comparison["generated"]
@@ -2403,7 +2470,8 @@ def write_office_audit_report(evidence_dir: Path) -> Path:
             f"| {markdown_cell(office_report_name(generated_relative_path))} | "
             f"{markdown_cell(office_report_suffix(generated_relative_path))} | "
             f"{markdown_cell(comparison['byte_identical'])} | {markdown_cell(comparison['normalized_text_match'])} | "
-            f"{markdown_cell(comparison['status'])} | {markdown_cell(normalized_metric(source, 'line_count'))} | "
+            f"{markdown_cell(comparison['status'])} | {markdown_cell(comparison.get('status_reason', ''))} | "
+            f"{markdown_cell(normalized_metric(source, 'line_count'))} | "
             f"{markdown_cell(normalized_metric(generated, 'line_count'))} |"
         )
 
@@ -2467,11 +2535,23 @@ def write_office_audit_report(evidence_dir: Path) -> Path:
         [
             "## Known Acceptable Differences",
             "",
-            "No accepted-drift policy file is applied yet. Entries with `review_required` status need explicit "
-            "human review before release.",
-            "",
         ]
     )
+    accepted_differences = audit_policy.get("accepted_differences")
+    if isinstance(accepted_differences, list) and accepted_differences:
+        lines.extend(["| Generated Path | Scope | Reason |", "| --- | --- | --- |"])
+        for entry in accepted_differences:
+            if not isinstance(entry, dict):
+                continue
+            lines.append(
+                f"| {markdown_cell(entry.get('generated_path', ''))} | {markdown_cell(entry.get('scope', ''))} | "
+                f"{markdown_cell(entry.get('reason', ''))} |"
+            )
+    else:
+        lines.append(
+            "The active policy contains no accepted-drift entries; unmatched differences remain review-required."
+        )
+    lines.append("")
     report_path = evidence_dir / GOLDEN_OFFICE_AUDIT_REPORT
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text("\n".join(lines), encoding="utf-8")
@@ -3231,6 +3311,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     audit_parser = subparsers.add_parser("audit", help="Write private-safe Office parity audit reports")
     audit_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
+    audit_parser.add_argument("--policy", type=Path, default=DEFAULT_AUDIT_POLICY, help="Office audit policy JSON")
     audit_parser.add_argument("--no-json", action="store_true", help="Skip the machine-readable JSON report")
     return parser
 
@@ -3296,8 +3377,8 @@ def run(args: argparse.Namespace) -> int:
         print(f"Generated golden Office evidence: {generated_office_count} files; {report_count} reports")
         return 0
     if command == "audit":
-        json_report = None if args.no_json else write_office_comparison_report(args.evidence_dir)
-        markdown_report = write_office_audit_report(args.evidence_dir)
+        json_report = None if args.no_json else write_office_comparison_report(args.evidence_dir, args.policy)
+        markdown_report = write_office_audit_report(args.evidence_dir, args.policy)
         reports = [str(markdown_report)]
         if json_report is not None:
             reports.append(str(json_report))
