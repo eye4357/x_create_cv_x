@@ -44,6 +44,8 @@ Establish the next controlled development version for the side-by-side private g
 - Added deterministic XLSX/DOCX generation from golden JSON for the private `_a_posteriori` Office evidence.
 - Added `generate-golden-office` to write private Office evidence and a comparison report under `x_create_cv_test_data_x/evidence`.
 - Extended `exercise-golden` to regenerate Office files into a temporary directory and byte-compare them against stored `_a_posteriori` Office evidence.
+- Improved XLSX generation to preserve the original nine-sheet workbook shape while adding structured app-native data.
+- Tuned DOCX generation toward `_a_priori` page setup and paragraph style parity.
 - Updated README, changelog, and security policy notes for the Office-regeneration evidence workflow.
 - Preserved public CI as fake-fixture only; private Office evidence is exercised locally only when the private repo is present.
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 from typing import Any, cast
@@ -154,6 +155,23 @@ def make_expected_zip(db_dir: Path, zip_path: Path, prefix: str) -> None:
             zip_file.write(db_dir / filename, f"{prefix}/{filename}")
 
 
+def workbook_sheet_names(path: Path) -> list[str]:
+    namespace = {"s": app.SHEET_NS}
+    with zipfile.ZipFile(path) as workbook:
+        root = ET.fromstring(workbook.read("xl/workbook.xml"))
+    return [str(sheet.attrib["name"]) for sheet in root.findall(".//s:sheet", namespace)]
+
+
+def docx_section_margins(path: Path) -> dict[str, str]:
+    namespace = {"w": app.WORD_NS}
+    with zipfile.ZipFile(path) as document:
+        root = ET.fromstring(document.read("word/document.xml"))
+    margins = root.find(".//w:pgMar", namespace)
+    if margins is None:
+        raise AssertionError("generated DOCX must contain section margins")
+    return {key.split("}")[-1]: value for key, value in margins.attrib.items()}
+
+
 def test_version_constant_matches_cli(capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as exit_info:
         app.main(["--version"])
@@ -286,6 +304,13 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
     generated_office_count, report_count = app.write_golden_office_outputs(evidence_dir, write_report=False)
     assert generated_office_count == 3
     assert report_count == 0
+    assert workbook_sheet_names(evidence_dir / app.GOLDEN_OFFICE_EXPECTATIONS["master_profile_a_posteriori.xlsx"]) == [
+        sheet_name for sheet_name, _collection_name, _raw_fields, _structured_fields in app.XLSX_SHEET_DEFINITIONS
+    ]
+    assert (
+        docx_section_margins(evidence_dir / app.GOLDEN_OFFICE_EXPECTATIONS["resume_2023_a_posteriori.docx"])["right"]
+        == "1800"
+    )
     a_priori_manifest = tmp_path / "evidence" / "a_priori_manifest.json"
     app.write_json(
         a_priori_manifest,

@@ -11,6 +11,8 @@
 - Extended `exercise-golden` to run private rebuild scripts in a temporary directory and compare generated JSON against stored `_a_posteriori` JSON evidence.
 - Added deterministic stdlib XLSX/DOCX generation for private golden `_a_posteriori` Office evidence.
 - Added `generate-golden-office` to create private Office evidence and a comparison report from golden JSON.
+- Improved generated XLSX evidence to use the same nine workbook sheets as the `_a_priori` spreadsheet, with structured data added after the source-shaped columns.
+- Tuned generated DOCX evidence toward `_a_priori` page setup and paragraph styles, including source-like margins and list/title/heading styles.
 - Documented the ignored private evidence location for the original `_a_priori` Office files.
 - Linked the Office regeneration plan from the README.
 

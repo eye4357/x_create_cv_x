@@ -52,6 +52,69 @@ GOLDEN_OFFICE_REPORT = "reports/a_posteriori_office_comparison.json"
 ZIP_TIMESTAMP = (2026, 7, 1, 0, 0, 0)
 WORD_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 SHEET_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+XLSX_SHEET_DEFINITIONS = [
+    ("Highlights", "highlights", ["a"], ["id", "label", "highlights"]),
+    (
+        "Jobs",
+        "jobs",
+        ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"],
+        ["id", "label", "job_title", "employer", "vehicle_program", "start_date", "end_date", "time_spent"],
+    ),
+    (
+        "Standards Development",
+        "standards",
+        ["a", "b", "c", "d", "e", "f"],
+        ["id", "label", "organization", "title_of_standard", "role", "start_date", "end_date", "time_spent"],
+    ),
+    (
+        "School",
+        "education",
+        ["a", "b", "c", "d", "e", "f"],
+        ["id", "label", "school", "degree", "start_date", "end_date", "time_spent"],
+    ),
+    (
+        "Certifications",
+        "certifications",
+        ["a", "b", "c"],
+        ["id", "label", "certificate_subject", "certificate_name", "certificate_number"],
+    ),
+    ("Patents", "patents", ["a", "b", "c"], ["id", "label", "patent_name", "patent_number", "patent_url"]),
+    (
+        "Publications",
+        "publications",
+        ["a", "b", "c", "d", "e"],
+        ["id", "label", "year", "publication_name", "publisher", "publication_reference", "publication_url"],
+    ),
+    (
+        "Lectures",
+        "lectures",
+        ["a", "b", "c"],
+        ["id", "label", "year", "publication_or_lecture_name", "publisher_name"],
+    ),
+    (
+        "Residences",
+        "residences",
+        ["a", "b", "c", "d"],
+        ["id", "label", "residence", "start_date", "end_date", "time_spent"],
+    ),
+]
+DOCX_PAGE_LAYOUTS: dict[str, dict[str, Any]] = {
+    "resume_2017_a_posteriori.docx": {
+        "margins": {"top": "1440", "right": "1440", "bottom": "1440", "left": "1440", "header": "720", "footer": "720"},
+        "title_style": None,
+        "section_style": None,
+        "item_style": "ListParagraph",
+    },
+    "resume_2023_a_posteriori.docx": {
+        "margins": {"top": "1440", "right": "1800", "bottom": "1440", "left": "1800", "header": "720", "footer": "720"},
+        "title_style": "Title",
+        "section_style": "Heading1",
+        "secondary_section_style": "Heading2",
+        "item_style": "ListBullet",
+        "text_item_style": "ListParagraph",
+    },
+}
 
 MASTER_COLLECTIONS = [
     "people",
@@ -353,28 +416,56 @@ def column_name(index: int) -> str:
     return name
 
 
-def master_profile_rows(master: dict[str, Any]) -> list[list[str]]:
-    rows = [["scope", "collection", "record_id", "field", "value"]]
-    profile = master.get("profile")
-    if isinstance(profile, dict):
-        for field, value in profile.items():
-            rows.append(["profile", "profile", "", str(field), scalar_text(value)])
+def header_label(field: str) -> str:
+    if len(field) == 1 and field.isalpha():
+        return field.upper()
+    return field.replace("_", " ").title()
 
+
+def unique_fields(*field_groups: list[str]) -> list[str]:
+    fields: list[str] = []
+    for field_group in field_groups:
+        for field in field_group:
+            if field not in fields:
+                fields.append(field)
+    return fields
+
+
+def sheet_rows(
+    master: dict[str, Any], collection_name: str, raw_fields: list[str], structured_fields: list[str]
+) -> list[list[str]]:
+    fields = unique_fields(raw_fields, structured_fields)
+    rows = [[header_label(field) for field in fields]]
     collections = master.get("collections")
-    if isinstance(collections, dict):
-        collection_names = [name for name in MASTER_COLLECTIONS if name in collections]
-        collection_names.extend(sorted(name for name in collections if name not in MASTER_COLLECTIONS))
-        for collection_name in collection_names:
-            records = collections.get(collection_name)
-            if not isinstance(records, list):
-                continue
-            for record in records:
-                if not isinstance(record, dict):
-                    continue
-                record_id = scalar_text(record.get("id"))
-                for field, value in record.items():
-                    rows.append(["collection", str(collection_name), record_id, str(field), scalar_text(value)])
+    records = collections.get(collection_name) if isinstance(collections, dict) else []
+    if not isinstance(records, list):
+        return rows
+    for record in records:
+        if isinstance(record, dict):
+            rows.append([scalar_text(record.get(field)) for field in fields])
     return rows
+
+
+def workbook_sheets(master: dict[str, Any]) -> list[tuple[str, list[list[str]]]]:
+    return [
+        (sheet_name, sheet_rows(master, collection_name, raw_fields, structured_fields))
+        for sheet_name, collection_name, raw_fields, structured_fields in XLSX_SHEET_DEFINITIONS
+    ]
+
+
+def worksheet_dimension(rows: list[list[str]]) -> str:
+    row_count = max(len(rows), 1)
+    column_count = max((len(row) for row in rows), default=1)
+    return f"A1:{column_name(column_count)}{row_count}"
+
+
+def column_widths(rows: list[list[str]]) -> list[float]:
+    column_count = max((len(row) for row in rows), default=1)
+    widths: list[float] = []
+    for column_index in range(column_count):
+        width = max((len(row[column_index]) for row in rows if column_index < len(row)), default=8)
+        widths.append(float(max(10, min(width + 2, 42))))
+    return widths
 
 
 def worksheet_xml(rows: list[list[str]]) -> str:
@@ -383,18 +474,39 @@ def worksheet_xml(rows: list[list[str]]) -> str:
         cells: list[str] = []
         for column_index, value in enumerate(row, start=1):
             cell_ref = f"{column_name(column_index)}{row_index}"
-            cells.append(f'<c r="{cell_ref}" t="inlineStr"><is><t xml:space="preserve">{xml_text(value)}</t></is></c>')
+            style_id = "1" if row_index == 1 else "2"
+            cells.append(
+                f'<c r="{cell_ref}" s="{style_id}" t="inlineStr"><is><t xml:space="preserve">'
+                f"{xml_text(value)}</t></is></c>"
+            )
         rendered_rows.append(f'<row r="{row_index}">{"".join(cells)}</row>')
-    last_row = max(len(rows), 1)
+    widths = "".join(
+        f'<col min="{index}" max="{index}" width="{width:.2f}" customWidth="1"/>'
+        for index, width in enumerate(column_widths(rows), start=1)
+    )
+    dimension = worksheet_dimension(rows)
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-        'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-        f'<dimension ref="A1:E{last_row}"/><sheetData>{"".join(rendered_rows)}</sheetData></worksheet>'
+        f'<worksheet xmlns="{SHEET_NS}" xmlns:r="{REL_NS}">'
+        f'<dimension ref="{dimension}"/>'
+        '<sheetViews><sheetView tabSelected="0" workbookViewId="0">'
+        '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
+        '<selection pane="bottomLeft"/></sheetView></sheetViews>'
+        '<sheetFormatPr defaultRowHeight="15"/>'
+        f"<cols>{widths}</cols>"
+        f'<sheetData>{"".join(rendered_rows)}</sheetData>'
+        f'<autoFilter ref="{dimension}"/>'
+        '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>'
+        "</worksheet>"
     )
 
 
-def workbook_content_types() -> str:
+def workbook_content_types(sheet_count: int) -> str:
+    sheet_overrides = "".join(
+        f'<Override PartName="/xl/worksheets/sheet{index}.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+        for index in range(1, sheet_count + 1)
+    )
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
@@ -402,8 +514,7 @@ def workbook_content_types() -> str:
         '<Default Extension="xml" ContentType="application/xml"/>'
         '<Override PartName="/xl/workbook.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-        '<Override PartName="/xl/worksheets/sheet1.xml" '
-        'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+        f"{sheet_overrides}"
         '<Override PartName="/xl/styles.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
         '<Override PartName="/docProps/core.xml" '
@@ -414,9 +525,68 @@ def workbook_content_types() -> str:
     )
 
 
+def workbook_xml(sheet_names: list[str]) -> str:
+    sheets = "".join(
+        f'<sheet name="{xml_attr(sheet_name)}" sheetId="{index}" r:id="rId{index}"/>'
+        for index, sheet_name in enumerate(sheet_names, start=1)
+    )
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<workbook xmlns="{SHEET_NS}" xmlns:r="{REL_NS}"><sheets>{sheets}</sheets></workbook>'
+    )
+
+
+def workbook_relationships(sheet_count: int) -> str:
+    relationships = [
+        (
+            f"rId{index}",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+            f"worksheets/sheet{index}.xml",
+        )
+        for index in range(1, sheet_count + 1)
+    ]
+    relationships.append(
+        (
+            f"rId{sheet_count + 1}",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+            "styles.xml",
+        )
+    )
+    return relationships_xml(relationships)
+
+
+def workbook_styles_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<styleSheet xmlns="{SHEET_NS}">'
+        '<fonts count="3">'
+        '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/></font>'
+        '<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font>'
+        '<font><i/><sz val="11"/><color rgb="FF666666"/><name val="Calibri"/><family val="2"/></font>'
+        '</fonts><fills count="4">'
+        '<fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'
+        '<fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill>'
+        '<fill><patternFill patternType="solid"><fgColor rgb="FFD9EAF7"/><bgColor indexed="64"/></patternFill></fill>'
+        '</fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>'
+        '<border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right>'
+        '<top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom>'
+        "<diagonal/></border></borders>"
+        '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+        '<cellXfs count="3">'
+        '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+        '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'
+        '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1">'
+        '<alignment vertical="top" wrapText="1"/></xf>'
+        '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
+        "</styleSheet>"
+    )
+
+
 def write_master_workbook(master: dict[str, Any], path: Path) -> None:
+    sheets = workbook_sheets(master)
+    sheet_names = [sheet_name for sheet_name, _rows in sheets]
     entries = [
-        ("[Content_Types].xml", workbook_content_types()),
+        ("[Content_Types].xml", workbook_content_types(len(sheets))),
         (
             "_rels/.rels",
             relationships_xml(
@@ -439,43 +609,13 @@ def write_master_workbook(master: dict[str, Any], path: Path) -> None:
                 ]
             ),
         ),
-        (
-            "xl/workbook.xml",
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-            '<sheets><sheet name="Master Profile" sheetId="1" r:id="rId1"/></sheets></workbook>',
-        ),
-        (
-            "xl/_rels/workbook.xml.rels",
-            relationships_xml(
-                [
-                    (
-                        "rId1",
-                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
-                        "worksheets/sheet1.xml",
-                    ),
-                    (
-                        "rId2",
-                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
-                        "styles.xml",
-                    ),
-                ]
-            ),
-        ),
-        (
-            "xl/styles.xml",
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-            '<fonts count="1"><font><sz val="11"/><name val="Aptos"/></font></fonts>'
-            '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
-            '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
-            '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-            '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
-            '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
-            "</styleSheet>",
-        ),
-        ("xl/worksheets/sheet1.xml", worksheet_xml(master_profile_rows(master))),
+        ("xl/workbook.xml", workbook_xml(sheet_names)),
+        ("xl/_rels/workbook.xml.rels", workbook_relationships(len(sheets))),
+        ("xl/styles.xml", workbook_styles_xml()),
+        *[
+            (f"xl/worksheets/sheet{index}.xml", worksheet_xml(rows))
+            for index, (_sheet_name, rows) in enumerate(sheets, start=1)
+        ],
         (
             "docProps/core.xml",
             '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -555,15 +695,34 @@ def resume_item_text(item: dict[str, Any], records_by_id: dict[str, dict[str, An
     return ""
 
 
-def resume_lines(master: dict[str, Any], resume: dict[str, Any]) -> list[tuple[str, str | None]]:
+def layout_style(layout: dict[str, Any], key: str) -> str | None:
+    value = layout.get(key)
+    return value if isinstance(value, str) else None
+
+
+def layout_section_style(layout: dict[str, Any], section: dict[str, Any]) -> str | None:
+    secondary_style = layout_style(layout, "secondary_section_style")
+    if secondary_style is not None and sort_order(section) > 3:
+        return secondary_style
+    return layout_style(layout, "section_style")
+
+
+def layout_item_style(layout: dict[str, Any], item: dict[str, Any]) -> str | None:
+    if item.get("kind") == "text":
+        text_style = layout_style(layout, "text_item_style")
+        if text_style is not None:
+            return text_style
+    return layout_style(layout, "item_style")
+
+
+def resume_lines(
+    master: dict[str, Any], resume: dict[str, Any], layout: dict[str, Any]
+) -> list[tuple[str, str | None]]:
     records_by_id = master_records_by_id(master)
     resume_value = resume.get("resume")
     resume_meta = resume_value if isinstance(resume_value, dict) else {}
     label = scalar_text(resume_meta.get("label") or resume_meta.get("id") or "Resume")
-    lines: list[tuple[str, str | None]] = [(label, "Heading1")]
-    status = scalar_text(resume_meta.get("status"))
-    if status:
-        lines.append((f"Status: {status}", None))
+    lines: list[tuple[str, str | None]] = [(label, layout_style(layout, "title_style"))]
 
     collections_value = resume.get("collections")
     collections = collections_value if isinstance(collections_value, dict) else {}
@@ -578,7 +737,7 @@ def resume_lines(master: dict[str, Any], resume: dict[str, Any]) -> list[tuple[s
         if section.get("is_visible") is False:
             continue
         title = scalar_text(section.get("title") or section.get("id") or "Section")
-        lines.append((title, "Heading2"))
+        lines.append((title, layout_section_style(layout, section)))
         section_id = section.get("id")
         section_items = [item for item in item_records if item.get("section_id") == section_id]
         for item in sorted(section_items, key=sort_order):
@@ -587,7 +746,7 @@ def resume_lines(master: dict[str, Any], resume: dict[str, Any]) -> list[tuple[s
             item_text = resume_item_text(item, records_by_id)
             for paragraph in item_text.splitlines() or [item_text]:
                 if paragraph.strip():
-                    lines.append((paragraph, None))
+                    lines.append((paragraph, layout_item_style(layout, item)))
     return lines
 
 
@@ -596,13 +755,30 @@ def docx_paragraph(text: str, style: str | None = None) -> str:
     return f'<w:p>{style_xml}<w:r><w:t xml:space="preserve">{xml_text(text)}</w:t></w:r></w:p>'
 
 
-def docx_document_xml(lines: list[tuple[str, str | None]]) -> str:
+def docx_margins(layout: dict[str, Any]) -> dict[str, str]:
+    value = layout.get("margins")
+    if not isinstance(value, dict):
+        value = {}
+    return {
+        "top": scalar_text(value.get("top") or "1440"),
+        "right": scalar_text(value.get("right") or "1440"),
+        "bottom": scalar_text(value.get("bottom") or "1440"),
+        "left": scalar_text(value.get("left") or "1440"),
+        "header": scalar_text(value.get("header") or "720"),
+        "footer": scalar_text(value.get("footer") or "720"),
+    }
+
+
+def docx_document_xml(lines: list[tuple[str, str | None]], layout: dict[str, Any]) -> str:
     paragraphs = "".join(docx_paragraph(text, style) for text, style in lines)
+    margins = docx_margins(layout)
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:document xmlns:w="{WORD_NS}"><w:body>{paragraphs}'
-        '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="720" w:right="720" '
-        'w:bottom="720" w:left="720" w:header="360" w:footer="360" w:gutter="0"/></w:sectPr>'
+        '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
+        f'<w:pgMar w:top="{margins["top"]}" w:right="{margins["right"]}" '
+        f'w:bottom="{margins["bottom"]}" w:left="{margins["left"]}" '
+        f'w:header="{margins["header"]}" w:footer="{margins["footer"]}" w:gutter="0"/></w:sectPr>'
         "</w:body></w:document>"
     )
 
@@ -617,6 +793,10 @@ def document_content_types() -> str:
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
         '<Override PartName="/word/styles.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+        '<Override PartName="/word/numbering.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+        '<Override PartName="/word/settings.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'
         '<Override PartName="/docProps/core.xml" '
         'ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
         '<Override PartName="/docProps/app.xml" '
@@ -625,7 +805,59 @@ def document_content_types() -> str:
     )
 
 
+def docx_styles_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:styles xmlns:w="{WORD_NS}">'
+        '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/>'
+        '<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/>'
+        '<w:pPr><w:spacing w:after="120"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/>'
+        '<w:pPr><w:spacing w:before="160" w:after="80"/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/>'
+        '<w:pPr><w:spacing w:before="120" w:after="60"/></w:pPr><w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720"/></w:pPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="ListBullet"><w:name w:val="List Bullet"/>'
+        '<w:basedOn w:val="ListParagraph"/><w:pPr><w:numPr><w:ilvl w:val="0"/>'
+        '<w:numId w:val="1"/></w:numPr></w:pPr></w:style>'
+        "</w:styles>"
+    )
+
+
+def docx_numbering_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:numbering xmlns:w="{WORD_NS}">'
+        '<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>'
+        '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/>'
+        '<w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl></w:abstractNum>'
+        '<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>'
+        "</w:numbering>"
+    )
+
+
+def docx_document_relationships_xml() -> str:
+    return relationships_xml(
+        [
+            ("rId1", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles", "styles.xml"),
+            ("rId2", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering", "numbering.xml"),
+            ("rId3", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings", "settings.xml"),
+        ]
+    )
+
+
+def docx_settings_xml() -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:settings xmlns:w="{WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>'
+    )
+
+
 def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: Path) -> None:
+    layout = DOCX_PAGE_LAYOUTS.get(path.name, DOCX_PAGE_LAYOUTS["resume_2017_a_posteriori.docx"])
     resume_value = resume.get("resume")
     resume_meta = resume_value if isinstance(resume_value, dict) else {}
     title = scalar_text(resume_meta.get("label") or "Resume")
@@ -653,20 +885,11 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
                 ]
             ),
         ),
-        ("word/document.xml", docx_document_xml(resume_lines(master, resume))),
-        (
-            "word/styles.xml",
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            f'<w:styles xmlns:w="{WORD_NS}">'
-            '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'
-            '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/>'
-            '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="160"/></w:pPr>'
-            '<w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>'
-            '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/>'
-            '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="160" w:after="80"/></w:pPr>'
-            '<w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>'
-            "</w:styles>",
-        ),
+        ("word/_rels/document.xml.rels", docx_document_relationships_xml()),
+        ("word/document.xml", docx_document_xml(resume_lines(master, resume, layout), layout)),
+        ("word/styles.xml", docx_styles_xml()),
+        ("word/numbering.xml", docx_numbering_xml()),
+        ("word/settings.xml", docx_settings_xml()),
         (
             "docProps/core.xml",
             '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
