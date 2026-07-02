@@ -411,6 +411,8 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     with zipfile.ZipFile(workbook_path) as workbook:
         content_types_xml = workbook.read("[Content_Types].xml").decode("utf-8")
         root_relationships_xml = workbook.read("_rels/.rels").decode("utf-8")
+        core_properties_xml = workbook.read("docProps/core.xml").decode("utf-8")
+        app_properties_xml = workbook.read("docProps/app.xml").decode("utf-8")
         workbook_xml = workbook.read("xl/workbook.xml").decode("utf-8")
         workbook_relationships_xml = workbook.read("xl/_rels/workbook.xml.rels").decode("utf-8")
 
@@ -436,6 +438,12 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         'Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" '
         'Target="docProps/app.xml"' in root_relationships_xml
     )
+    assert "<dc:title>Master Profile A Posteriori</dc:title>" in core_properties_xml
+    assert "<dc:creator>x_create_cv_x</dc:creator>" in core_properties_xml
+    assert "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>" in core_properties_xml
+    assert '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>' in core_properties_xml
+    assert '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>' in core_properties_xml
+    assert "<Application>x_create_cv_x</Application>" in app_properties_xml
     assert '<sheet name="Highlights" sheetId="1" r:id="rId1"/>' in workbook_xml
     assert (
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" '
