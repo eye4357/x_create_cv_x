@@ -17,7 +17,7 @@ DEFAULT_DB_DIR = Path("data/private/cv_factory_output")
 RESUME_APP_MODEL = "resume_document_crud"
 MASTER_APP_MODEL = "master_profile_crud"
 SCHEMA_VERSION = "1.0.0"
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 
 MASTER_COLLECTIONS = [
     "people",

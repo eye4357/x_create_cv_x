@@ -2,7 +2,7 @@
 
 Privacy-first CLI tooling for building app-native CV and resume data as deterministic JSON.
 
-Version: `0.0.1`
+Version: `0.0.2`
 
 The project keeps source code, docs, tests, and fake fixtures public while real CV data stays in ignored local folders.
 
@@ -50,6 +50,8 @@ python -m pytest
 ## Private Seeds
 
 The private Python seed scripts live under `data/private/` and are intentionally ignored by Git because they contain private CV data. They rebuild the master profile and both resume documents as readable action logs using granular functions such as `add_job(...)`, `add_patent(...)`, `add_resume_section(...)`, and `add_resume_item(...)`.
+
+The original source ZIP archives for the Office-regeneration roadmap live under `data/private/evidence/source_zips/`. They are private local evidence, not public fixtures, and are intentionally ignored by Git.
 
 When private data is available locally, validate the generated JSON against the private golden archive:
 
@@ -99,6 +101,7 @@ The repository includes:
 ## Documentation
 
 - See [ONLINE_SERVICE_STRATEGY.md](ONLINE_SERVICE_STRATEGY.md) for the future showcase/service path.
+- See [CV_OFFICE_REGENERATION_PLAN.md](CV_OFFICE_REGENERATION_PLAN.md) for the source-ZIP, XLSX, and DOCX regeneration roadmap.
 - See [SECURITY.md](SECURITY.md) for private-data handling rules.
 - See [CHANGE_CONTROL_PACKET.md](CHANGE_CONTROL_PACKET.md) for the current controlled release record.
 - See [CHANGELOG.md](CHANGELOG.md) for release history.

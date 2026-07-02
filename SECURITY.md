@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The current supported development version is `0.0.1`.
+The current supported development version is `0.0.2`.
 
 ## Private Data Boundary
 
@@ -22,13 +22,14 @@ Public files must not contain:
 - Real names, addresses, phone numbers, emails, employment history, publication identifiers tied to the private profile, or other PII.
 - Private seed scripts.
 - `data/private/private.zip`.
+- Original source ZIP archives from `data/private/evidence/source_zips/`.
 - Generated private JSON from `data/private/`.
 - Raw extraction output or legacy source archives.
 - Tokens, passwords, API keys, or local machine secrets.
 
 ## Local Private Workflow
 
-Real CV data belongs under ignored local paths such as `data/private/`. The private golden zip and private seed scripts are local validation tools only. They are not part of CI and must not be committed.
+Real CV data belongs under ignored local paths such as `data/private/`. The private golden zip, original source ZIP archives, and private seed scripts are local validation tools only. They are not part of CI and must not be committed.
 
 ## CI And Tests
 

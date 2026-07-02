@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.0.2 - 2026-07-01
+
+### Added
+
+- Added the Office regeneration roadmap for source-ZIP evidence, XLSX generation, DOCX generation, and normalized comparison reports.
+- Documented the ignored private evidence location for the original source ZIP archives.
+- Linked the Office regeneration plan from the README.
+
+### Changed
+
+- Bumped the development version to `0.0.2` after the `v0.0.1` release.
+- Reframed `private.zip` as a legacy/private validation reference to be replaced or downgraded by source-ZIP evidence.
+
+### Security
+
+- Kept original source ZIP archives under the ignored `data/private/evidence/source_zips/` boundary.
+- Clarified that source ZIP archives are private local evidence and are not public fixtures or CI inputs.
+
 ## 0.0.1 - 2026-07-01
 
 ### Added

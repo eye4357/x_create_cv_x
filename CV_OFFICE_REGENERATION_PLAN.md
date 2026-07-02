@@ -2,6 +2,8 @@
 
 Date: 2026-07-01
 
+Version note: `0.0.2` records this roadmap and the private source-ZIP evidence location. The full XLSX/DOCX regeneration implementation remains the next engineering milestone.
+
 ## Goal
 
 Replace the current private `private.zip` golden reference with a stronger evidence workflow based on the three original source archives now stored under `data/private/evidence/source_zips/`:
@@ -54,7 +56,7 @@ The source archives should be used to extract original XLSX/DOCX files into a ca
 
 ## Acceptance Criteria
 
-Version 0.0.2 or the next private milestone is complete when all of the following are true:
+The full Office-regeneration milestone is complete when all of the following are true:
 
 - The current `private.zip` validation path is replaced or downgraded to a legacy compatibility check.
 - A source-zip ingestion command can extract the original Office files into ignored local evidence folders.
