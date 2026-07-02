@@ -15,6 +15,7 @@
 - Added DOCX numbering definition audit metrics for abstract IDs, num IDs, levels, bullet text patterns, and fonts.
 - Added DOCX page setup audit metrics for page size, margins, and section header/footer references.
 - Added DOCX style definition audit metrics for defaults, based-on links, run properties, paragraph properties, and style numbering.
+- Added DOCX package, body-shape, font-table, and style-use audit report metrics.
 
 ### Changed
 
@@ -25,6 +26,7 @@
 - Expanded XLSX structure summaries and Markdown audit reports to expose package and relationship details.
 - Expanded XLSX sheet summaries and Markdown audit reports to expose generated worksheet page margins.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
+- Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 - Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.

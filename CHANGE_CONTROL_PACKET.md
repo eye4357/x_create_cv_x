@@ -53,6 +53,8 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert XLSX package relationship metrics without private data.
 - Extended public fake Office tests to assert XLSX page-margin metrics without private data.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
+- Expanded DOCX Markdown audit reports to expose package flags, body child counts, relationship type maps, font table names, and used styles.
+- Extended public fake Office tests to assert DOCX package, body-shape, font-table, and used-style metrics without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.
 - Extended public fake Office tests to assert external hyperlink relationship conformance without private data.
 - Expanded DOCX structure summaries and Markdown audit reports to expose paragraph style, alignment, spacing, indentation, and tab-stop counts.

@@ -689,6 +689,17 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "customXml/_rels/item1.xml.rels" in part_names
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
+    assert structure_summary["has_theme"] is True
+    assert structure_summary["has_font_table"] is True
+    assert structure_summary["has_web_settings"] is True
+    assert structure_summary["has_footnotes"] is True
+    assert structure_summary["has_endnotes"] is True
+    assert structure_summary["has_custom_xml"] is True
+    assert structure_summary["header_count"] == 1
+    assert structure_summary["footer_count"] == 1
+    assert structure_summary["body_child_counts"] == {"p": 1, "tbl": 1, "sectPr": 1}
+    assert structure_summary["font_names"] == ["Calibri", "Symbol", "Courier New"]
+    assert structure_summary["styles"] == ["Title"]
     assert '<w:tabs><w:tab w:val="right" w:leader="none" w:pos="10800"/></w:tabs>' in document_xml
     assert '<w:spacing w:after="0" w:line="240" w:lineRule="auto"/>' in document_xml
     assert '<w:ind w:left="720" w:hanging="360"/>' in document_xml

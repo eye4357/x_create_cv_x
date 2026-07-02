@@ -19,6 +19,7 @@ Status: Development checkpoint, not a public production release
 - Expanded XLSX audit metrics with generated worksheet page margins.
 - Expanded the Markdown Office audit report to show generated XLSX freeze-pane and autofilter state.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
+- Expanded DOCX audit reports with package flags, body child counts, font table names, and used styles.
 - Expanded DOCX audit metrics with relationship counts and external hyperlink relationship counts.
 - Expanded DOCX audit metrics with paragraph style, alignment, spacing, indentation, and tab-stop counts.
 - Expanded DOCX audit metrics with table row, cell, paragraph, grid-width, and cell-width geometry.
@@ -29,6 +30,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for XLSX style color and cell-format audit metrics.
 - Added public fake-fixture coverage for XLSX package part and relationship audit metrics.
 - Added public fake-fixture coverage for XLSX page-margin audit metrics.
+- Added public fake-fixture coverage for DOCX package flags, body child counts, font table names, and used styles.
 - Added public fake-fixture coverage for external hyperlink relationship conformance.
 - Added public fake-fixture coverage for DOCX paragraph property audit metrics.
 - Added public fake-fixture coverage for DOCX table width audit metrics.

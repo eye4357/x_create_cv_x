@@ -2834,8 +2834,20 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
 
     lines.extend(["", "## DOCX Structure", ""])
     docx_metrics = [
+        "part_names",
         "part_count",
+        "has_theme",
+        "has_font_table",
+        "has_web_settings",
+        "has_footnotes",
+        "has_endnotes",
+        "has_custom_xml",
+        "header_count",
+        "footer_count",
+        "body_child_counts",
         "relationship_count",
+        "relationship_type_counts",
+        "relationship_target_mode_counts",
         "external_relationship_count",
         "external_hyperlink_relationship_count",
         "page_size",
@@ -2880,6 +2892,8 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         "style_paragraph_spacing",
         "style_paragraph_indents",
         "style_numbering",
+        "font_names",
+        "styles",
     ]
     for comparison in comparisons:
         generated = comparison["generated"]
