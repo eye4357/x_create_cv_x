@@ -2,15 +2,17 @@
 
 Date: 2026-07-01
 
-Version note: `0.0.2` records this roadmap and the private source-ZIP evidence location. The full XLSX/DOCX regeneration implementation remains the next engineering milestone.
+Version note: `0.0.2` records this roadmap, the private `_a_priori` Office evidence location, and the evidence integrity gate. The full XLSX/DOCX regeneration implementation remains the next engineering milestone.
 
 ## Goal
 
-Replace the current private `private.zip` golden reference with a stronger evidence workflow based on the three original source archives now stored under `data/private/evidence/source_zips/`:
+Replace the current private `private.zip` golden reference with a stronger evidence workflow based on three original Office files extracted from the source archives and stored under `data/private/evidence/source_office/a_priori/`:
 
-- `R_cv_2017_1129_0848.zip`
-- `R_cv_2023_0315_2158.zip`
-- `R_cv_2023_0501_1427.zip`
+- `R_cv_2017_1129_0848_a_priori.docx`
+- `R_cv_2023_0315_2158_a_priori.docx`
+- `R_cv_2023_0501_1427_a_priori.xlsx`
+
+The `_a_priori` suffix marks original source evidence known before regeneration. Future whole-cloth generated XLSX and DOCX outputs should use an `_a_posteriori` suffix.
 
 The target end state is that `x_create_cv_x` can rebuild the app-native CV database, regenerate the spreadsheet database, regenerate the 2017 resume DOCX, regenerate the 2023 resume DOCX, and compare those outputs against the original source evidence.
 
@@ -24,15 +26,16 @@ The XLSX comparison should allow known historical drift because the original spr
 
 Keep four evidence classes together locally, but do not commit private content to public Git:
 
-1. Source evidence: the three original ZIP files under `data/private/evidence/source_zips/`.
+1. Source evidence: the three original `_a_priori` Office files under `data/private/evidence/source_office/a_priori/`.
 2. Rebuild scripts: Python scripts that create master data, the spreadsheet database, and each resume document from code.
-3. Regenerated evidence: the new whole-cloth XLSX and DOCX files produced by the scripts.
-4. Comparison evidence: normalized manifests, hashes, diffs, and validation reports proving what matches exactly and what intentionally differs.
+3. Regenerated evidence: the new whole-cloth `_a_posteriori` XLSX and DOCX files produced by the scripts.
+4. Comparison evidence: SHA-256 manifests, normalized manifests, hashes, diffs, and validation reports proving what matches exactly and what intentionally differs.
 
 Recommended ignored local layout inside `x_create_cv_x`:
 
 ```text
-data/private/evidence/source_zips/
+data/private/evidence/a_priori_manifest.json
+data/private/evidence/source_office/a_priori/
 data/private/evidence/generated/
 data/private/evidence/normalized/
 data/private/evidence/reports/
@@ -43,23 +46,24 @@ The public repo should keep only fake fixtures, public code, public tests, and d
 
 ## Target Outputs
 
-The whole-cloth rebuild should produce:
+The whole-cloth rebuild should produce `_a_posteriori` outputs:
 
 - `master_profile.json`
 - `resume_2017.json`
 - `resume_2023.json`
-- an XLSX database generated from `master_profile.json`
-- a 2017 DOCX generated from `resume_2017.json` plus shared profile data
-- a 2023 DOCX generated from `resume_2023.json` plus shared profile data
+- an `_a_posteriori.xlsx` database generated from `master_profile.json`
+- a 2017 `_a_posteriori.docx` generated from `resume_2017.json` plus shared profile data
+- a 2023 `_a_posteriori.docx` generated from `resume_2023.json` plus shared profile data
 
-The source archives should be used to extract original XLSX/DOCX files into a canonical comparison area, not as runtime dependencies for normal generation.
+The `_a_priori` source documents should be used as comparison evidence, not as runtime dependencies for normal generation.
 
 ## Acceptance Criteria
 
 The full Office-regeneration milestone is complete when all of the following are true:
 
 - The current `private.zip` validation path is replaced or downgraded to a legacy compatibility check.
-- A source-zip ingestion command can extract the original Office files into ignored local evidence folders.
+- `check-evidence` passes against the private SHA-256 manifest before any Office regeneration exercise proceeds.
+- The original Office files use the `_a_priori` suffix and remain under ignored local evidence folders.
 - The factory can generate the XLSX database from `master_profile.json` without manual Office editing.
 - The factory can generate the 2017 DOCX from app-native JSON without manual Office editing.
 - The factory can generate the 2023 DOCX from app-native JSON without manual Office editing.
@@ -73,10 +77,9 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ### Phase 1: Evidence Inventory
 
-- Use the three source ZIP files under the ignored evidence source area.
-- Extract their contents into an ignored raw extraction area.
-- Identify which ZIP entry is the original XLSX database, which is the 2017 DOCX, and which is the 2023 DOCX.
-- Generate a private inventory manifest with file names, sizes, hashes, Office document types, and selected package metadata.
+- Use the three `_a_priori` Office files under the ignored evidence source area.
+- Maintain a private SHA-256 manifest with file names, sizes, hashes, Office document types, and selected package metadata.
+- Run `check-evidence` before any private Office regeneration exercise.
 
 ### Phase 2: Normalizers And Comparators
 
@@ -102,7 +105,7 @@ The full Office-regeneration milestone is complete when all of the following are
 ### Phase 5: Factory Integration
 
 - Add CLI commands that match the current button-like domain-action style:
-  - `ingest-source-zips`
+  - `check-evidence`
   - `generate-xlsx`
   - `generate-docx`
   - `compare-office`
@@ -112,7 +115,7 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ### Phase 6: Evidence Bundle
 
-- Create a private local evidence bundle that contains source zips, rebuild scripts, regenerated XLSX/DOCX files, normalized manifests, and comparison reports.
+- Create a private local evidence bundle that contains `_a_priori` Office files, rebuild scripts, regenerated `_a_posteriori` XLSX/DOCX files, normalized manifests, SHA-256 manifests, and comparison reports.
 - Store enough metadata to prove which code commit generated the evidence.
 - Keep the evidence bundle ignored locally unless a separate private repository is intentionally created for it.
 
@@ -132,4 +135,4 @@ The full Office-regeneration milestone is complete when all of the following are
 
 ## First Concrete Task
 
-Create a private evidence inventory command that reads the three source ZIP files under `data/private/evidence/source_zips/`, identifies contained Office documents, extracts them to ignored local evidence folders, and writes a manifest with hashes and document-type metadata. That gives the next implementation pass a stable target before generation code is added.
+Use `check-evidence` as the first step of every private Office regeneration exercise. The next implementation task is to add normalized Office Open XML comparison for `_a_priori` and future `_a_posteriori` files.

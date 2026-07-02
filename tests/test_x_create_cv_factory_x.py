@@ -199,6 +199,60 @@ def test_validate_against_zip_reports_mismatch(tmp_path: Path) -> None:
         app.validate_against_zip(db_dir, zip_path, "expected")
 
 
+def test_check_evidence_manifest_passes_for_fake_files(tmp_path: Path) -> None:
+    evidence_file = tmp_path / "source_office" / "a_priori" / "fake_a_priori.docx"
+    evidence_file.parent.mkdir(parents=True)
+    evidence_file.write_bytes(b"fake office package")
+    manifest_path = tmp_path / "a_priori_manifest.json"
+    app.write_json(
+        manifest_path,
+        {
+            "schema_version": "1.0.0",
+            "algorithm": "sha256",
+            "files": [
+                {
+                    "path": "source_office/a_priori/fake_a_priori.docx",
+                    "bytes": evidence_file.stat().st_size,
+                    "sha256": app.sha256_file(evidence_file),
+                }
+            ],
+        },
+    )
+
+    assert app.check_evidence_manifest(manifest_path) == 1
+
+
+def test_check_evidence_manifest_fails_fast_on_hash_mismatch(tmp_path: Path) -> None:
+    evidence_file = tmp_path / "source_office" / "a_priori" / "fake_a_priori.xlsx"
+    evidence_file.parent.mkdir(parents=True)
+    evidence_file.write_bytes(b"fake office package")
+    manifest_path = tmp_path / "a_priori_manifest.json"
+    app.write_json(
+        manifest_path,
+        {
+            "schema_version": "1.0.0",
+            "algorithm": "sha256",
+            "files": [
+                {
+                    "path": "source_office/a_priori/fake_a_priori.xlsx",
+                    "bytes": evidence_file.stat().st_size,
+                    "sha256": "0" * 64,
+                }
+            ],
+        },
+    )
+
+    with pytest.raises(ValueError, match="Evidence hash mismatch"):
+        app.check_evidence_manifest(manifest_path)
+
+
+def test_cli_check_evidence_reports_missing_manifest(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    result = app.main(["check-evidence", "--manifest", str(tmp_path / "missing.json")])
+
+    assert result == 1
+    assert "Missing JSON file" in capsys.readouterr().err
+
+
 def test_cli_typed_flags_build_expected_payload(tmp_path: Path) -> None:
     assert (
         app.main(

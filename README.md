@@ -51,7 +51,13 @@ python -m pytest
 
 The private Python seed scripts live under `data/private/` and are intentionally ignored by Git because they contain private CV data. They rebuild the master profile and both resume documents as readable action logs using granular functions such as `add_job(...)`, `add_patent(...)`, `add_resume_section(...)`, and `add_resume_item(...)`.
 
-The original source ZIP archives for the Office-regeneration roadmap live under `data/private/evidence/source_zips/`. They are private local evidence, not public fixtures, and are intentionally ignored by Git.
+The original Office files extracted from the source archives live under `data/private/evidence/source_office/a_priori/` with an `_a_priori` filename suffix. These are private local evidence, not public fixtures, and are intentionally ignored by Git. Future whole-cloth regenerated Office files should use an `_a_posteriori` suffix so original evidence and generated evidence are visually distinct.
+
+Before running private Office-regeneration exercises, fast-fail on evidence corruption with the private SHA-256 manifest:
+
+```powershell
+python .\x_create_cv_factory_x.py check-evidence --manifest .\data\private\evidence\a_priori_manifest.json
+```
 
 When private data is available locally, validate the generated JSON against the private golden archive:
 
@@ -101,7 +107,7 @@ The repository includes:
 ## Documentation
 
 - See [ONLINE_SERVICE_STRATEGY.md](ONLINE_SERVICE_STRATEGY.md) for the future showcase/service path.
-- See [CV_OFFICE_REGENERATION_PLAN.md](CV_OFFICE_REGENERATION_PLAN.md) for the source-ZIP, XLSX, and DOCX regeneration roadmap.
+- See [CV_OFFICE_REGENERATION_PLAN.md](CV_OFFICE_REGENERATION_PLAN.md) for the `_a_priori` evidence, `_a_posteriori` generation, XLSX, and DOCX regeneration roadmap.
 - See [SECURITY.md](SECURITY.md) for private-data handling rules.
 - See [CHANGE_CONTROL_PACKET.md](CHANGE_CONTROL_PACKET.md) for the current controlled release record.
 - See [CHANGELOG.md](CHANGELOG.md) for release history.

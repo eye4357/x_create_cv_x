@@ -144,7 +144,7 @@ For a showcase project, start with local-first plus a fake-data hosted demo.
 
 ## Validation Strategy
 
-The current private zip workflow is valuable as a temporary golden-master test. Keep it private.
+The current private zip workflow is valuable as a temporary golden-master test. Keep it private. The Office-regeneration workflow should first run `check-evidence` against the private `_a_priori` SHA-256 manifest, then compare generated `_a_posteriori` outputs against the original evidence.
 
 Public validation should use fake data:
 
@@ -224,6 +224,7 @@ Before publishing as a showcase:
 
 - Remove raw extraction code if it is no longer needed.
 - Keep `private.zip` out of Git.
+- Keep private `_a_priori` and `_a_posteriori` Office evidence out of Git.
 - Keep `data/private/` out of Git.
 - Add fake fixtures and examples.
 - Add a `SECURITY.md` explaining private-data handling.

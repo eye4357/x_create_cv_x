@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import shutil
 import sys
@@ -18,6 +19,8 @@ RESUME_APP_MODEL = "resume_document_crud"
 MASTER_APP_MODEL = "master_profile_crud"
 SCHEMA_VERSION = "1.0.0"
 VERSION = "0.0.2"
+DEFAULT_EVIDENCE_MANIFEST = Path("data/private/evidence/a_priori_manifest.json")
+HASH_CHUNK_SIZE = 1024 * 1024
 
 MASTER_COLLECTIONS = [
     "people",
@@ -212,6 +215,58 @@ def read_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"Expected JSON object in {path}")
     return value
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file_handle:
+        for chunk in iter(lambda: file_handle.read(HASH_CHUNK_SIZE), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def check_evidence_manifest(manifest_path: Path) -> int:
+    manifest = read_json(manifest_path)
+    if manifest.get("algorithm") != "sha256":
+        raise ValueError("Evidence manifest must use sha256")
+
+    entries = manifest.get("files")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("Evidence manifest must contain a non-empty files list")
+
+    manifest_dir = manifest_path.parent.resolve()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValueError("Evidence manifest entries must be JSON objects")
+        relative_path = entry.get("path")
+        expected_sha256 = entry.get("sha256")
+        expected_bytes = entry.get("bytes")
+        if not isinstance(relative_path, str) or not relative_path:
+            raise ValueError("Evidence manifest entries must contain a non-empty path")
+        if not isinstance(expected_sha256, str) or len(expected_sha256) != 64:
+            raise ValueError(f"Evidence manifest entry has an invalid sha256: {relative_path}")
+        if not isinstance(expected_bytes, int) or expected_bytes < 0:
+            raise ValueError(f"Evidence manifest entry has an invalid byte count: {relative_path}")
+
+        evidence_path = (manifest_dir / relative_path).resolve()
+        try:
+            evidence_path.relative_to(manifest_dir)
+        except ValueError as exc:
+            raise ValueError(f"Evidence path escapes manifest directory: {relative_path}") from exc
+        if not evidence_path.exists():
+            raise ValueError(f"Missing evidence file: {relative_path}")
+
+        actual_bytes = evidence_path.stat().st_size
+        if actual_bytes != expected_bytes:
+            raise ValueError(
+                f"Evidence size mismatch {relative_path}: expected {expected_bytes} bytes, got {actual_bytes} bytes"
+            )
+
+        actual_sha256 = sha256_file(evidence_path)
+        if actual_sha256 != expected_sha256.lower():
+            raise ValueError(f"Evidence hash mismatch {relative_path}: expected {expected_sha256}, got {actual_sha256}")
+
+    return len(entries)
 
 
 def master_path(db_dir: Path) -> Path:
@@ -834,6 +889,11 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_db_options(validate_parser)
     validate_parser.add_argument("--expected-zip", type=Path, required=True)
     validate_parser.add_argument("--zip-prefix", default="private/cv_app_crud")
+
+    check_evidence_parser = subparsers.add_parser(
+        "check-evidence", help="Fast-fail if private a priori Office evidence has changed"
+    )
+    check_evidence_parser.add_argument("--manifest", type=Path, default=DEFAULT_EVIDENCE_MANIFEST)
     return parser
 
 
@@ -868,6 +928,10 @@ def run(args: argparse.Namespace) -> int:
     if command == "validate":
         validate_against_zip(args.db_dir, args.expected_zip, args.zip_prefix)
         print("Validation passed")
+        return 0
+    if command == "check-evidence":
+        checked_count = check_evidence_manifest(args.manifest)
+        print(f"Evidence integrity passed: {checked_count} files")
         return 0
     raise ValueError(f"Unknown command: {command}")
 
