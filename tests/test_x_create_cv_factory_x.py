@@ -618,6 +618,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert structure_summary["relationship_type_counts"]["hyperlink"] == 1
     assert structure_summary["relationship_target_mode_counts"] == {"External": 1}
     assert structure_summary["external_hyperlink_relationship_count"] == 1
+    assert structure_summary["styled_paragraph_count"] == 1
+    assert structure_summary["aligned_paragraph_count"] == 1
+    assert structure_summary["spaced_paragraph_count"] == 1
+    assert structure_summary["indented_paragraph_count"] == 1
+    assert structure_summary["tab_stopped_paragraph_count"] == 1
     assert "<w:tbl>" in document_xml
     assert document_xml.count("<w:p>") == 6
     assert document_xml.count("<w:tr>") == 2

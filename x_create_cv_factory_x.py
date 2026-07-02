@@ -2244,6 +2244,27 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
             run_property_counts["colored_run_count"] += 1
         if properties.find("w:rFonts", namespace) is not None:
             run_property_counts["fonted_run_count"] += 1
+    paragraph_property_counts = {
+        "styled_paragraph_count": 0,
+        "aligned_paragraph_count": 0,
+        "spaced_paragraph_count": 0,
+        "indented_paragraph_count": 0,
+        "tab_stopped_paragraph_count": 0,
+    }
+    for paragraph in paragraphs:
+        properties = paragraph.find("w:pPr", namespace)
+        if properties is None:
+            continue
+        if properties.find("w:pStyle", namespace) is not None:
+            paragraph_property_counts["styled_paragraph_count"] += 1
+        if properties.find("w:jc", namespace) is not None:
+            paragraph_property_counts["aligned_paragraph_count"] += 1
+        if properties.find("w:spacing", namespace) is not None:
+            paragraph_property_counts["spaced_paragraph_count"] += 1
+        if properties.find("w:ind", namespace) is not None:
+            paragraph_property_counts["indented_paragraph_count"] += 1
+        if properties.find("w:tabs", namespace) is not None:
+            paragraph_property_counts["tab_stopped_paragraph_count"] += 1
     styles = sorted(
         {
             style.attrib[f"{{{WORD_NS}}}val"]
@@ -2270,6 +2291,7 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
         "external_hyperlink_relationship_count": external_hyperlink_relationship_count,
         "paragraph_count": len(paragraphs),
         "run_count": len(runs),
+        **paragraph_property_counts,
         **run_property_counts,
         "hyperlink_count": len(document.findall(".//w:hyperlink", namespace)),
         "tab_count": len(document.findall(".//w:tab", namespace)),
@@ -2573,6 +2595,11 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         "external_hyperlink_relationship_count",
         "paragraph_count",
         "run_count",
+        "styled_paragraph_count",
+        "aligned_paragraph_count",
+        "spaced_paragraph_count",
+        "indented_paragraph_count",
+        "tab_stopped_paragraph_count",
         "bold_run_count",
         "italic_run_count",
         "underline_run_count",
