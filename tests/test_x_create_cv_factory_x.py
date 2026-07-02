@@ -719,6 +719,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     document_xml = docx_document_xml(document_path)
     relationships_xml = docx_relationships_xml(document_path)
     with zipfile.ZipFile(document_path) as document:
+        font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
         header_xml = document.read("word/header1.xml").decode("utf-8")
         footer_xml = document.read("word/footer1.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
@@ -733,6 +734,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "customXml/_rels/item1.xml.rels" in part_names
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
+    assert '<w:font w:name="Calibri"/><w:font w:name="Symbol"/><w:font w:name="Courier New"/>' in font_table_xml
     assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Header</w:t></w:r>' in header_xml
     assert '<w:r><w:t xml:space="preserve">1</w:t></w:r>' in footer_xml
     expected_relationships = [
