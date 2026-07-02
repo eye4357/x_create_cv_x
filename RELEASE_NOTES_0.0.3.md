@@ -50,6 +50,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX package relationship ID, type, and target binding.
 - Added public fake-fixture coverage for DOCX header and footer part content.
 - Added public fake-fixture coverage for DOCX font table part content.
+- Added public fake-fixture coverage for optional DOCX package part XML content.
 - Added public fake-fixture coverage for XLSX package part and relationship audit metrics.
 - Added public fake-fixture coverage for XLSX page-margin audit metrics.
 - Added public fake-fixture coverage for XLSX row, column, styled-cell, and column-width report metrics.

@@ -720,6 +720,12 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     relationships_xml = docx_relationships_xml(document_path)
     with zipfile.ZipFile(document_path) as document:
         font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
+        web_settings_xml = document.read("word/webSettings.xml").decode("utf-8")
+        footnotes_xml = document.read("word/footnotes.xml").decode("utf-8")
+        endnotes_xml = document.read("word/endnotes.xml").decode("utf-8")
+        custom_xml = document.read("customXml/item1.xml").decode("utf-8")
+        custom_props_xml = document.read("customXml/itemProps1.xml").decode("utf-8")
+        custom_relationships_xml = document.read("customXml/_rels/item1.xml.rels").decode("utf-8")
         header_xml = document.read("word/header1.xml").decode("utf-8")
         footer_xml = document.read("word/footer1.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
@@ -735,6 +741,18 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert "word/header1.xml" in part_names
     assert "word/footer1.xml" in part_names
     assert '<w:font w:name="Calibri"/><w:font w:name="Symbol"/><w:font w:name="Courier New"/>' in font_table_xml
+    assert f'<w:webSettings xmlns:w="{app.WORD_NS}"/>' in web_settings_xml
+    assert '<w:footnote w:type="separator" w:id="-1">' in footnotes_xml
+    assert "<w:continuationSeparator/>" in footnotes_xml
+    assert '<w:endnote w:type="separator" w:id="-1">' in endnotes_xml
+    assert "<w:continuationSeparator/>" in endnotes_xml
+    assert '<cv:metadata xmlns:cv="urn:x-create-cv-x"/>' in custom_xml
+    assert 'ds:itemID="{00000000-0000-0000-0000-000000000001}"' in custom_props_xml
+    assert "<ds:schemaRefs/>" in custom_props_xml
+    assert (
+        'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" '
+        'Target="itemProps1.xml"' in custom_relationships_xml
+    )
     assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Header</w:t></w:r>' in header_xml
     assert '<w:r><w:t xml:space="preserve">1</w:t></w:r>' in footer_xml
     expected_relationships = [

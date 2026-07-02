@@ -59,6 +59,7 @@
 - Extended public fake Office tests to assert DOCX package relationship ID, type, and target binding without private data.
 - Extended public fake Office tests to assert DOCX header and footer part content without private data.
 - Extended public fake Office tests to assert DOCX font table part content without private data.
+- Extended public fake Office tests to assert optional DOCX package part XML content without private data.
 - Extended public fake Office tests to assert DOCX paragraph property audit metrics without private data.
 - Extended public fake Office tests to assert DOCX table width audit metrics without private data.
 - Extended public fake Office tests to assert DOCX numbering definition audit metrics without private data.
