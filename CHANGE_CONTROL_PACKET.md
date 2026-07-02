@@ -41,8 +41,10 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Bumped the development version from `0.0.2` to `0.0.3`.
 - Added schema-backed per-sheet XLSX freeze-header, autofilter, and column-width controls.
 - Added schema-backed XLSX column `value_type` controls for string, number, and boolean cell rendering.
+- Added XLSX style definition audit metrics for fonts, fills, borders, and cell formats.
 - Expanded XLSX structure summaries and Markdown audit reports to expose generated freeze-pane and autofilter state.
 - Expanded XLSX structure summaries and Markdown audit reports to expose cell-type counts.
+- Expanded XLSX structure summaries and Markdown audit reports to expose style color and cell-format details.
 - Extended public fake Office tests to assert workbook conformance controls without private data.
 - Added explicit DOCX run hyperlink/style fields to the public document layout schema.
 - Expanded DOCX structure summaries and Markdown audit reports to expose relationship counts and external hyperlink relationship counts.

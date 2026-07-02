@@ -2475,16 +2475,69 @@ def xlsx_relationship_targets(archive: zipfile.ZipFile) -> dict[str, str]:
     return targets
 
 
-def xlsx_style_summary(archive: zipfile.ZipFile) -> dict[str, int]:
+def xlsx_color_value(element: ET.Element | None) -> str:
+    if element is None:
+        return ""
+    for key, prefix in [("rgb", ""), ("theme", "theme:"), ("indexed", "indexed:")]:
+        value = element.attrib.get(key)
+        if value:
+            return f"{prefix}{value}"
+    return ""
+
+
+def xlsx_child_attribute(element: ET.Element, child_path: str, attribute_name: str, namespace: dict[str, str]) -> str:
+    child = element.find(child_path, namespace)
+    return child.attrib.get(attribute_name, "") if child is not None else ""
+
+
+def xlsx_style_summary(archive: zipfile.ZipFile) -> dict[str, Any]:
     if "xl/styles.xml" not in archive.namelist():
         return {}
     namespace = {"s": SHEET_NS}
     root = ET.fromstring(archive.read("xl/styles.xml"))
+    fonts = root.find("s:fonts", namespace)
+    fills = root.find("s:fills", namespace)
+    borders = root.find("s:borders", namespace)
     cell_xfs = root.find("s:cellXfs", namespace)
     cell_styles = root.find("s:cellStyles", namespace)
+    font_elements = list(fonts) if fonts is not None else []
+    fill_elements = list(fills) if fills is not None else []
+    border_elements = list(borders) if borders is not None else []
+    cell_xf_elements = list(cell_xfs) if cell_xfs is not None else []
+    border_colors = sorted(
+        {
+            color_value
+            for border in border_elements
+            for color_value in [
+                xlsx_color_value(color)
+                for side in ["left", "right", "top", "bottom"]
+                for color in [border.find(f"s:{side}/s:color", namespace)]
+            ]
+            if color_value
+        }
+    )
     return {
-        "cell_xfs_count": len(list(cell_xfs)) if cell_xfs is not None else 0,
+        "font_count": len(font_elements),
+        "fill_count": len(fill_elements),
+        "border_count": len(border_elements),
+        "cell_xfs_count": len(cell_xf_elements),
         "cell_style_count": len(list(cell_styles)) if cell_styles is not None else 0,
+        "font_names": [xlsx_child_attribute(font, "s:name", "val", namespace) for font in font_elements],
+        "font_colors": [xlsx_color_value(font.find("s:color", namespace)) for font in font_elements],
+        "bold_font_indexes": [
+            index for index, font in enumerate(font_elements) if font.find("s:b", namespace) is not None
+        ],
+        "italic_font_indexes": [
+            index for index, font in enumerate(font_elements) if font.find("s:i", namespace) is not None
+        ],
+        "fill_fg_colors": [
+            color_value
+            for fill in fill_elements
+            for color_value in [xlsx_color_value(fill.find("s:patternFill/s:fgColor", namespace))]
+            if color_value
+        ],
+        "border_colors": border_colors,
+        "cell_xfs": [dict(cell_xf.attrib) for cell_xf in cell_xf_elements],
     }
 
 
@@ -2794,7 +2847,7 @@ def write_office_audit_report(evidence_dir: Path, policy_path: Path = DEFAULT_AU
         if office_report_suffix(generated_relative_path) != ".xlsx":
             continue
         lines.extend([f"### {office_report_name(generated_relative_path)}", ""])
-        append_metric_table(lines, generated, source, ["sheet_count"])
+        append_metric_table(lines, generated, source, ["sheet_count", "styles"])
         generated_sheets = structure_metric(generated, "sheets")
         source_sheets = structure_metric(source, "sheets")
         if isinstance(generated_sheets, list) and isinstance(source_sheets, list):

@@ -357,7 +357,13 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     master: dict[str, Any] = {
         "office_layout": {
             "workbook": {
-                "styles": {"freeze_header": False, "auto_filter": False},
+                "styles": {
+                    "freeze_header": False,
+                    "auto_filter": False,
+                    "header_fill": "FFABCDEF",
+                    "header_font_color": "FF102030",
+                    "body_border_color": "FF405060",
+                },
                 "sheets": [
                     {
                         "name": "Highlights",
@@ -408,6 +414,18 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert sheet_summary["auto_filter_ref"] == "A1:E2"
     assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25", "10.00", "10.00"]
     assert sheet_summary["cell_type_counts"] == {"inlineStr": 8, "number": 1, "b": 1}
+    style_summary = app.xlsx_structure_summary(workbook_path)["styles"]
+    assert style_summary["font_count"] == 3
+    assert style_summary["fill_count"] == 4
+    assert style_summary["border_count"] == 2
+    assert style_summary["font_colors"] == ["theme:1", "FF102030", "FF666666"]
+    assert style_summary["fill_fg_colors"] == ["FFABCDEF", "FFD9EAF7"]
+    assert style_summary["border_colors"] == ["FF405060"]
+    assert style_summary["bold_font_indexes"] == [1]
+    assert style_summary["italic_font_indexes"] == [2]
+    assert style_summary["cell_xfs"][1]["fontId"] == "1"
+    assert style_summary["cell_xfs"][1]["fillId"] == "2"
+    assert style_summary["cell_xfs"][1]["borderId"] == "1"
     worksheet_xml = first_worksheet_xml(workbook_path)
     assert '<c r="D2" s="2"><v>98.5</v></c>' in worksheet_xml
     assert '<c r="E2" s="2" t="b"><v>1</v></c>' in worksheet_xml
