@@ -115,6 +115,7 @@
 - Extended public fake Office tests to assert Office audit JSON metadata and policy summaries without private data.
 - Extended public fake Office tests to assert Office audit policy review-required classification without private data.
 - Extended public fake Office tests to assert Office audit Markdown DOCX package and style rows without private data.
+- Extended public fake Office tests to assert Office audit Markdown DOCX package flag, page, and font rows without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX styles XML without private data.

@@ -2248,8 +2248,13 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "## XLSX Structure" in audit_text
     assert "### resume_2017_a_posteriori.docx" in audit_text
     assert "| part_count | 17 | 17 |" in audit_text
+    assert "| has_theme | true | true |" in audit_text
+    assert "| has_font_table | true | true |" in audit_text
     assert "| relationship_count | 9 | 9 |" in audit_text
+    assert "| external_hyperlink_relationship_count | 0 | 0 |" in audit_text
+    assert '| page_size | {"h": "15840", "w": "12240"} | {"h": "15840", "w": "12240"} |' in audit_text
     assert '| numbering_num_ids | ["1"] | ["1"] |' in audit_text
+    assert '| font_names | ["Calibri", "Symbol"] | ["Calibri", "Symbol"] |' in audit_text
     assert (
         '| style_definition_ids | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", '
         '"ListBullet"] | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", "ListBullet"] |' in audit_text
