@@ -698,6 +698,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     }
     document_path = tmp_path / "layout_contract.docx"
     app.write_resume_document(master, resume, document_path)
+    part_names = docx_part_names(document_path)
     document_xml = docx_document_xml(document_path)
     with zipfile.ZipFile(document_path) as document:
         content_types_xml = document.read("[Content_Types].xml").decode("utf-8")
@@ -718,6 +719,27 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         custom_relationships_xml = document.read("customXml/_rels/item1.xml.rels").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
+    assert part_names == [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "customXml/_rels/item1.xml.rels",
+        "customXml/item1.xml",
+        "customXml/itemProps1.xml",
+        "docProps/app.xml",
+        "docProps/core.xml",
+        "word/_rels/document.xml.rels",
+        "word/document.xml",
+        "word/endnotes.xml",
+        "word/fontTable.xml",
+        "word/footnotes.xml",
+        "word/numbering.xml",
+        "word/settings.xml",
+        "word/styles.xml",
+        "word/theme/theme1.xml",
+        "word/webSettings.xml",
+    ]
+    assert structure_summary["part_names"] == part_names
+    assert structure_summary["part_count"] == len(part_names)
     assert document_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:document xmlns:w="{app.WORD_NS}" xmlns:r="{app.REL_NS}"><w:body>'
