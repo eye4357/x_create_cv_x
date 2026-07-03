@@ -123,6 +123,7 @@
 - Extended public fake Office tests to assert Office audit Markdown XLSX multi-column sheet-detail rows without private data.
 - Extended public fake Office tests to assert Office audit Markdown XLSX standards sheet-detail rows without private data.
 - Extended public fake Office tests to assert Office audit Markdown XLSX certification sheet-detail rows without private data.
+- Extended public fake Office tests to assert Office audit Markdown XLSX patent sheet-detail rows without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX styles XML without private data.
