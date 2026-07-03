@@ -2288,6 +2288,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| has_extended_properties | true | true |" in audit_text
     assert "| has_styles | true | true |" in audit_text
     assert (
+        '| root_relationship_type_counts | {"core-properties": 1, "extended-properties": 1, '
+        '"officeDocument": 1} | {"core-properties": 1, "extended-properties": 1, "officeDocument": 1} |' in audit_text
+    )
+    assert (
+        '| workbook_relationship_type_counts | {"styles": 1, "worksheet": 9} | '
+        '{"styles": 1, "worksheet": 9} |' in audit_text
+    )
+    assert (
         '| sheet_names | ["Highlights", "Jobs", "Standards Development", "School", "Certifications", '
         '"Patents", "Publications", "Lectures", "Residences"] | ["Highlights", "Jobs", '
         '"Standards Development", "School", "Certifications", "Patents", "Publications", "Lectures", '
