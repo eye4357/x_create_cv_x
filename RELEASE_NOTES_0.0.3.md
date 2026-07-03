@@ -107,6 +107,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit Markdown DOCX package and style rows.
 - Added public fake-fixture coverage for Office audit Markdown DOCX package flag, page, and font rows.
 - Added public fake-fixture coverage for Office audit Markdown DOCX page-margin and style-property rows.
+- Added public fake-fixture coverage for Office audit Markdown DOCX style-size, style-numbering, and numbering-font rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
