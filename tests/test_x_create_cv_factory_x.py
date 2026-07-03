@@ -2263,6 +2263,12 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "| --- | ---: | ---: |\n"
         "| part_names |" in audit_text
     )
+    assert (
+        "### resume_2024_a_posteriori.docx\n\n"
+        "| Metric | Source | Generated |\n"
+        "| --- | ---: | ---: |\n"
+        "| part_names |" in audit_text
+    )
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
     assert "| has_font_table | true | true |" in audit_text
