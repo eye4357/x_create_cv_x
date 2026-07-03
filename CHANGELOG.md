@@ -69,6 +69,7 @@
 - Extended public fake Office tests to assert DOCX theme color, font, and line-style XML without private data.
 - Extended public fake Office tests to assert DOCX package root relationship XML without private data.
 - Extended public fake Office tests to assert DOCX content-type default declarations without private data.
+- Extended public fake Office tests to assert enabled DOCX content-type override XML without private data.
 - Extended public fake Office tests to assert DOCX document root namespace envelope XML without private data.
 - Extended public fake Office tests to assert DOCX default section page size and margin XML without private data.
 - Extended public fake Office tests to assert DOCX table width and border property XML without private data.
