@@ -945,6 +945,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         content_types_xml = document.read("[Content_Types].xml").decode("utf-8")
         root_relationships_xml = document.read("_rels/.rels").decode("utf-8")
         theme_xml = document.read("word/theme/theme1.xml").decode("utf-8")
+        styles_xml = document.read("word/styles.xml").decode("utf-8")
         numbering_xml = document.read("word/numbering.xml").decode("utf-8")
         settings_xml = document.read("word/settings.xml").decode("utf-8")
         font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
@@ -1272,6 +1273,27 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert structure_summary["body_child_counts"] == {"p": 1, "tbl": 1, "sectPr": 1}
     assert structure_summary["font_names"] == ["Calibri", "Symbol", "Courier New"]
     assert structure_summary["styles"] == ["Title"]
+    assert styles_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:styles xmlns:w="{app.WORD_NS}">'
+        '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/>'
+        '<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="120"/></w:pPr>'
+        '<w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="160" w:after="80"/></w:pPr>'
+        '<w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="120" w:after="60"/></w:pPr>'
+        '<w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720"/></w:pPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="ListBullet"><w:name w:val="List Bullet"/>'
+        '<w:basedOn w:val="ListParagraph"/><w:pPr><w:numPr><w:ilvl w:val="0"/>'
+        '<w:numId w:val="1"/></w:numPr></w:pPr></w:style>'
+        "</w:styles>"
+    )
     assert document_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:document xmlns:w="{app.WORD_NS}" xmlns:r="{app.REL_NS}"><w:body>'

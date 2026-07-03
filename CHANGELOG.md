@@ -75,6 +75,7 @@
 - Extended public fake Office tests to assert DOCX settings part and default tab stop XML without private data.
 - Extended public fake Office tests to assert exact DOCX flow/table document XML without private data.
 - Extended public fake Office tests to assert exact DOCX flow/package numbering XML without private data.
+- Extended public fake Office tests to assert exact DOCX flow/package styles XML without private data.
 - Extended public fake Office tests to assert exact DOCX layout document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.
