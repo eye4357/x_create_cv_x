@@ -707,6 +707,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         docx_relationships_xml = document.read("word/_rels/document.xml.rels").decode("utf-8")
         docx_styles_xml = document.read("word/styles.xml").decode("utf-8")
         docx_numbering_xml = document.read("word/numbering.xml").decode("utf-8")
+        docx_settings_xml = document.read("word/settings.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
     assert document_xml == (
@@ -825,6 +826,10 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         'Target="endnotes.xml"/><Relationship Id="rId11" '
         'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" '
         'Target="../customXml/item1.xml"/></Relationships>'
+    )
+    assert docx_settings_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:settings xmlns:w="{app.WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>'
     )
     assert docx_styles_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
