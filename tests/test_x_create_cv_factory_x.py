@@ -746,24 +746,26 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
         "<Application>x_create_cv_x</Application></Properties>"
     )
-    assert f'<w:styles xmlns:w="{app.WORD_NS}">' in docx_styles_xml
-    assert (
+    assert docx_styles_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:styles xmlns:w="{app.WORD_NS}">'
         '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/>'
-        '<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:style>' in docx_styles_xml
-    )
-    assert (
+        '<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="120"/></w:pPr>'
+        '<w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>'
         '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/>'
         '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="160" w:after="80"/></w:pPr>'
-        '<w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>' in docx_styles_xml
-    )
-    assert (
+        '<w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>'
+        '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/>'
+        '<w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="120" w:after="60"/></w:pPr>'
+        '<w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style>'
         '<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/>'
-        '<w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720"/></w:pPr></w:style>' in docx_styles_xml
-    )
-    assert (
+        '<w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720"/></w:pPr></w:style>'
         '<w:style w:type="paragraph" w:styleId="ListBullet"><w:name w:val="List Bullet"/>'
         '<w:basedOn w:val="ListParagraph"/><w:pPr><w:numPr><w:ilvl w:val="0"/>'
-        '<w:numId w:val="1"/></w:numPr></w:pPr></w:style>' in docx_styles_xml
+        '<w:numId w:val="1"/></w:numPr></w:pPr></w:style>'
+        "</w:styles>"
     )
     assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Styled</w:t></w:r>' in document_xml
     assert (
