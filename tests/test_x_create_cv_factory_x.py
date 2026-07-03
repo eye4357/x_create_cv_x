@@ -2222,6 +2222,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][1]["generated"]["structure"]["style_definition_count"] == 6
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
+    assert (
+        "| master_profile_a_posteriori.xlsx | .xlsx | true | true | pass | "
+        "Generated file is byte-identical to source evidence. | 9 | 9 |" in audit_text
+    )
+    assert (
+        "| resume_2017_a_posteriori.docx | .docx | true | true | pass | "
+        "Generated file is byte-identical to source evidence. | 1 | 1 |" in audit_text
+    )
     assert "## DOCX Structure" in audit_text
     assert "## XLSX Structure" in audit_text
     assert "master_profile_a_posteriori.xlsx" in audit_text

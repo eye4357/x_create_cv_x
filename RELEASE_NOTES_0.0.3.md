@@ -98,6 +98,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX flow/package structure summary numbering metadata.
 - Added public fake-fixture coverage for Office audit JSON report structure parity.
 - Added public fake-fixture coverage for Office audit JSON report byte and normalized-text parity.
+- Added public fake-fixture coverage for Office audit Markdown summary rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
