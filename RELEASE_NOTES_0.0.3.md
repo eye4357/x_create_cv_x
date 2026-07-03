@@ -79,6 +79,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for exact DOCX layout package part manifest.
 - Added public fake-fixture coverage for exact XLSX layout package part manifest.
 - Added public fake-fixture coverage for XLSX layout workbook summary sheet projections.
+- Added public fake-fixture coverage for exact XLSX layout style summary cell format projections.
 - Added public fake-fixture coverage for lean DOCX custom XML sidecar omission.
 - Added public fake-fixture coverage for lean DOCX header and footer omission.
 - Added public fake-fixture coverage for lean DOCX disabled optional content type omission.

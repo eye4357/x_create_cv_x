@@ -650,16 +650,28 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert style_summary["border_colors"] == ["FF405060"]
     assert style_summary["bold_font_indexes"] == [1]
     assert style_summary["italic_font_indexes"] == [2]
-    assert style_summary["cell_xfs"][0] == {"numFmtId": "0", "fontId": "0", "fillId": "0", "borderId": "0", "xfId": "0"}
-    assert style_summary["cell_xfs"][1]["fontId"] == "1"
-    assert style_summary["cell_xfs"][1]["fillId"] == "2"
-    assert style_summary["cell_xfs"][1]["borderId"] == "1"
-    assert style_summary["cell_xfs"][1]["applyFont"] == "1"
-    assert style_summary["cell_xfs"][1]["applyFill"] == "1"
-    assert style_summary["cell_xfs"][1]["applyBorder"] == "1"
-    assert style_summary["cell_xfs"][2]["borderId"] == "1"
-    assert style_summary["cell_xfs"][2]["applyBorder"] == "1"
-    assert style_summary["cell_xfs"][2]["applyAlignment"] == "1"
+    assert style_summary["cell_xfs"] == [
+        {"numFmtId": "0", "fontId": "0", "fillId": "0", "borderId": "0", "xfId": "0"},
+        {
+            "numFmtId": "0",
+            "fontId": "1",
+            "fillId": "2",
+            "borderId": "1",
+            "xfId": "0",
+            "applyFont": "1",
+            "applyFill": "1",
+            "applyBorder": "1",
+        },
+        {
+            "numFmtId": "0",
+            "fontId": "0",
+            "fillId": "0",
+            "borderId": "1",
+            "xfId": "0",
+            "applyBorder": "1",
+            "applyAlignment": "1",
+        },
+    ]
     worksheet_xml = first_worksheet_xml(workbook_path)
     assert worksheet_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
