@@ -2357,6 +2357,22 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"Title Of Standard", "Role", "Start Date", "End Date", "Time Spent"] |' in audit_text
     )
     assert (
+        "| School | School | xl/worksheets/sheet4.xml | xl/worksheets/sheet4.xml | "
+        "A1:H1 | A1:H1 | 1 | 1 | 8 | 8 | 8 | 8 | "
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        "A1:H1 | A1:H1 | "
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '["10.00", "10.00", "10.00", "10.00", "10.00", "12.00", "10.00", "12.00"] | '
+        '["10.00", "10.00", "10.00", "10.00", "10.00", "12.00", "10.00", "12.00"] | '
+        '{"inlineStr": 8} | {"inlineStr": 8} | ["ID", "Label", "School", "Address", '
+        '"Degree", "Start Date", "End Date", "Time Spent"] | ["ID", "Label", "School", '
+        '"Address", "Degree", "Start Date", "End Date", "Time Spent"] |' in audit_text
+    )
+    assert (
         "| Certifications | Certifications | xl/worksheets/sheet5.xml | "
         "xl/worksheets/sheet5.xml | A1:E1 | A1:E1 | 1 | 1 | 5 | 5 | 5 | 5 | "
         '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
