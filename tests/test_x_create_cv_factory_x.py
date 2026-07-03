@@ -1046,6 +1046,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert structure_summary["body_child_counts"] == {"p": 1, "tbl": 1, "sectPr": 1}
     assert structure_summary["font_names"] == ["Calibri", "Symbol", "Courier New"]
     assert structure_summary["styles"] == ["Title"]
+    assert document_xml.startswith(
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:document xmlns:w="{app.WORD_NS}" xmlns:r="{app.REL_NS}"><w:body>'
+    )
+    assert document_xml.endswith("</w:body></w:document>")
     assert '<w:tabs><w:tab w:val="right" w:leader="none" w:pos="10800"/></w:tabs>' in document_xml
     assert '<w:spacing w:after="0" w:line="240" w:lineRule="auto"/>' in document_xml
     assert '<w:ind w:left="720" w:hanging="360"/>' in document_xml
