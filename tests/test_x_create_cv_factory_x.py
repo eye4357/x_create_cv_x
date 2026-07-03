@@ -2241,6 +2241,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "Source Cell Types | Generated Cell Types" in audit_text
     assert "Source Freeze Pane | Generated Freeze Pane | Source Filter | Generated Filter" in audit_text
     assert "Source Page Margins | Generated Page Margins | Source Column Widths | Generated Column Widths" in audit_text
+    assert "## Known Acceptable Differences" in audit_text
+    assert "| Generated Path | Scope | Reason |" in audit_text
+    assert (
+        "| generated/office/a_posteriori/master_profile_a_posteriori.xlsx | workbook_app_native_columns | "
+        "Reviewed v0.0.2 workbook drift: the generated XLSX preserves the canonical nine-sheet app-native "
+        "workbook contract with ID/Label columns, while the legacy source workbook omits those helper columns. |"
+        in audit_text
+    )
 
 
 def test_audit_policy_can_accept_explicit_drift() -> None:
