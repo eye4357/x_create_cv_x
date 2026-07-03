@@ -118,6 +118,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert exact lean DOCX styles XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX font table XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX settings XML without private data.
+- Extended public fake Office tests to assert exact lean DOCX theme XML without private data.
 - Extended public fake Office tests to assert exact DOCX settings part XML without private data.
 - Extended public fake Office tests to assert exact DOCX package part manifest without private data.
 - Extended public fake Office tests to assert DOCX structure summary package manifest without private data.
