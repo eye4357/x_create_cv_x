@@ -1500,6 +1500,7 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         numbering_xml = document.read("word/numbering.xml").decode("utf-8")
         styles_xml = document.read("word/styles.xml").decode("utf-8")
         font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
+        settings_xml = document.read("word/settings.xml").decode("utf-8")
         content_types = document.read("[Content_Types].xml").decode("utf-8")
     assert root_relationships == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1570,6 +1571,10 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert font_table_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:fonts xmlns:w="{app.WORD_NS}"><w:font w:name="Calibri"/><w:font w:name="Symbol"/></w:fonts>'
+    )
+    assert settings_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:settings xmlns:w="{app.WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>'
     )
     assert content_types == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'

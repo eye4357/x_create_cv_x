@@ -69,6 +69,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
 - Added public fake-fixture coverage for exact lean DOCX font table XML.
+- Added public fake-fixture coverage for exact lean DOCX settings XML.
 - Added public fake-fixture coverage for DOCX settings part and default tab stop XML.
 - Added public fake-fixture coverage for exact DOCX settings part XML.
 - Added public fake-fixture coverage for exact DOCX package part manifest.
