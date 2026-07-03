@@ -419,6 +419,10 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
 
     assert workbook_sheet_names(workbook_path) == ["Highlights"]
     assert (
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>' in content_types_xml
+    )
+    assert (
         '<Override PartName="/xl/workbook.xml" '
         'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
         in content_types_xml
