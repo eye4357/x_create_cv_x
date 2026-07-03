@@ -1744,6 +1744,39 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert structure_summary["underline_run_count"] == 0
     assert structure_summary["colored_run_count"] == 0
     assert structure_summary["fonted_run_count"] == 0
+    assert structure_summary["style_definition_count"] == 6
+    assert structure_summary["style_definition_ids"] == [
+        "Normal",
+        "Title",
+        "Heading1",
+        "Heading2",
+        "ListParagraph",
+        "ListBullet",
+    ]
+    assert structure_summary["default_style_ids"] == ["Normal"]
+    assert structure_summary["style_based_on"] == {
+        "Title": "Normal",
+        "Heading1": "Normal",
+        "Heading2": "Normal",
+        "ListParagraph": "Normal",
+        "ListBullet": "ListParagraph",
+    }
+    assert structure_summary["style_run_fonts"] == {"Normal": "Calibri"}
+    assert structure_summary["style_run_sizes"] == {
+        "Normal": "22",
+        "Title": "32",
+        "Heading1": "24",
+        "Heading2": "22",
+    }
+    assert structure_summary["style_bold_ids"] == ["Title", "Heading1", "Heading2"]
+    assert structure_summary["style_paragraph_spacing"] == {
+        "Title": {"after": "120"},
+        "Heading1": {"before": "160", "after": "80"},
+        "Heading2": {"before": "120", "after": "60"},
+    }
+    assert structure_summary["style_paragraph_indents"] == {"ListParagraph": {"left": "720"}}
+    assert structure_summary["style_numbering"] == {"ListBullet": {"level": "0", "num_id": "1"}}
+    assert structure_summary["styles"] == []
     with zipfile.ZipFile(document_path) as document:
         root_relationships = document.read("_rels/.rels").decode("utf-8")
         document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")
