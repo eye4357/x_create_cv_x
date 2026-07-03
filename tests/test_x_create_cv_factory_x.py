@@ -621,22 +621,33 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert style_summary["cell_xfs"][2]["applyBorder"] == "1"
     assert style_summary["cell_xfs"][2]["applyAlignment"] == "1"
     worksheet_xml = first_worksheet_xml(workbook_path)
-    assert f'<worksheet xmlns="{app.SHEET_NS}" xmlns:r="{app.REL_NS}">' in worksheet_xml
-    assert '<dimension ref="A1:E2"/>' in worksheet_xml
-    assert '<sheetViews><sheetView tabSelected="0" workbookViewId="0">' in worksheet_xml
-    assert '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>' in worksheet_xml
-    assert '<selection pane="bottomLeft"/>' in worksheet_xml
-    assert '<sheetFormatPr defaultRowHeight="15"/>' in worksheet_xml
-    assert '<sheetData><row r="1">' in worksheet_xml
-    assert '</row><row r="2">' in worksheet_xml
-    assert '<autoFilter ref="A1:E2"/>' in worksheet_xml
-    assert '<pageMargins left="0.2" right="0.4" top="0.6" bottom="0.8" header="0.1" footer="0.3"/>' in worksheet_xml
-    assert '<col min="1" max="1" width="8.50" customWidth="1"/>' in worksheet_xml
-    assert '<col min="4" max="4" width="10.00" customWidth="1"/>' in worksheet_xml
-    assert '<c r="A1" s="1" t="inlineStr"><is><t xml:space="preserve">ID</t></is></c>' in worksheet_xml
-    assert '<c r="C2" s="2" t="inlineStr"><is><t xml:space="preserve">Structured value</t></is></c>' in worksheet_xml
-    assert '<c r="D2" s="2"><v>98.5</v></c>' in worksheet_xml
-    assert '<c r="E2" s="2" t="b"><v>1</v></c>' in worksheet_xml
+    assert worksheet_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<worksheet xmlns="{app.SHEET_NS}" xmlns:r="{app.REL_NS}">'
+        '<dimension ref="A1:E2"/>'
+        '<sheetViews><sheetView tabSelected="0" workbookViewId="0">'
+        '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
+        '<selection pane="bottomLeft"/></sheetView></sheetViews>'
+        '<sheetFormatPr defaultRowHeight="15"/>'
+        '<cols><col min="1" max="1" width="8.50" customWidth="1"/>'
+        '<col min="2" max="2" width="13.00" customWidth="1"/>'
+        '<col min="3" max="3" width="28.25" customWidth="1"/>'
+        '<col min="4" max="4" width="10.00" customWidth="1"/>'
+        '<col min="5" max="5" width="10.00" customWidth="1"/></cols>'
+        '<sheetData><row r="1">'
+        '<c r="A1" s="1" t="inlineStr"><is><t xml:space="preserve">ID</t></is></c>'
+        '<c r="B1" s="1" t="inlineStr"><is><t xml:space="preserve">Label</t></is></c>'
+        '<c r="C1" s="1" t="inlineStr"><is><t xml:space="preserve">Highlights</t></is></c>'
+        '<c r="D1" s="1" t="inlineStr"><is><t xml:space="preserve">Score</t></is></c>'
+        '<c r="E1" s="1" t="inlineStr"><is><t xml:space="preserve">Current</t></is></c></row>'
+        '<row r="2"><c r="A2" s="2" t="inlineStr"><is><t xml:space="preserve">highlight_001</t></is></c>'
+        '<c r="B2" s="2" t="inlineStr"><is><t xml:space="preserve">One</t></is></c>'
+        '<c r="C2" s="2" t="inlineStr"><is><t xml:space="preserve">Structured value</t></is></c>'
+        '<c r="D2" s="2"><v>98.5</v></c><c r="E2" s="2" t="b"><v>1</v></c></row></sheetData>'
+        '<autoFilter ref="A1:E2"/>'
+        '<pageMargins left="0.2" right="0.4" top="0.6" bottom="0.8" header="0.1" footer="0.3"/>'
+        "</worksheet>"
+    )
 
     resume = {
         "office_layout": {
