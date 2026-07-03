@@ -2255,6 +2255,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "## DOCX Structure" in audit_text
     assert "## XLSX Structure" in audit_text
     assert "### resume_2017_a_posteriori.docx" in audit_text
+    assert "### resume_2023_a_posteriori.docx" in audit_text
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
     assert "| has_font_table | true | true |" in audit_text
