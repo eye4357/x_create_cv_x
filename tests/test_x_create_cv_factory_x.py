@@ -471,12 +471,25 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         'Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" '
         'Target="docProps/app.xml"' in root_relationships_xml
     )
-    assert "<dc:title>Master Profile A Posteriori</dc:title>" in core_properties_xml
-    assert "<dc:creator>x_create_cv_x</dc:creator>" in core_properties_xml
-    assert "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>" in core_properties_xml
-    assert '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>' in core_properties_xml
-    assert '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>' in core_properties_xml
-    assert "<Application>x_create_cv_x</Application>" in app_properties_xml
+    assert core_properties_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
+        'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+        'xmlns:dcterms="http://purl.org/dc/terms/" '
+        'xmlns:dcmitype="http://purl.org/dc/dcmitype/" '
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+        "<dc:title>Master Profile A Posteriori</dc:title><dc:creator>x_create_cv_x</dc:creator>"
+        "<cp:lastModifiedBy>x_create_cv_x</cp:lastModifiedBy>"
+        '<dcterms:created xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:created>'
+        '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>'
+        "</cp:coreProperties>"
+    )
+    assert app_properties_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
+        'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+        "<Application>x_create_cv_x</Application></Properties>"
+    )
     assert workbook_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<workbook xmlns="{app.SHEET_NS}" xmlns:r="{app.REL_NS}"><sheets>'
