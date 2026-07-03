@@ -72,6 +72,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX theme color, font, and line-style XML.
 - Added public fake-fixture coverage for exact DOCX theme XML.
 - Added public fake-fixture coverage for DOCX package root relationship XML.
+- Added public fake-fixture coverage for exact DOCX core and app property metadata XML.
 - Added public fake-fixture coverage for DOCX content-type default declarations.
 - Added public fake-fixture coverage for enabled DOCX content-type override XML.
 - Added public fake-fixture coverage for DOCX document root namespace envelope XML.

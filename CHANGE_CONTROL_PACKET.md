@@ -119,6 +119,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert DOCX theme color, font, and line-style XML without private data.
 - Extended public fake Office tests to assert exact DOCX theme XML without private data.
 - Extended public fake Office tests to assert DOCX package root relationship XML without private data.
+- Extended public fake Office tests to assert exact DOCX core and app property metadata XML without private data.
 - Extended public fake Office tests to assert DOCX content-type default declarations without private data.
 - Extended public fake Office tests to assert enabled DOCX content-type override XML without private data.
 - Extended public fake Office tests to assert DOCX document root namespace envelope XML without private data.
