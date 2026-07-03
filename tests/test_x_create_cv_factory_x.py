@@ -1727,6 +1727,13 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert structure_summary["table_cell_count"] == 0
     assert structure_summary["table_paragraph_count"] == 0
     assert structure_summary["numbered_paragraph_count"] == 0
+    assert structure_summary["numbering_abstract_count"] == 1
+    assert structure_summary["numbering_num_count"] == 1
+    assert structure_summary["numbering_level_count"] == 2
+    assert structure_summary["numbering_abstract_ids"] == ["1"]
+    assert structure_summary["numbering_num_ids"] == ["1"]
+    assert structure_summary["numbering_level_texts"] == ["\u2022"]
+    assert structure_summary["numbering_level_fonts"] == ["Symbol"]
     assert structure_summary["styled_paragraph_count"] == 0
     assert structure_summary["aligned_paragraph_count"] == 0
     assert structure_summary["spaced_paragraph_count"] == 0

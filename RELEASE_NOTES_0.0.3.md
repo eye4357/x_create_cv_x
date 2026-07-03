@@ -84,6 +84,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for lean DOCX structure summary body shape and font names.
 - Added public fake-fixture coverage for lean DOCX structure summary content counters.
 - Added public fake-fixture coverage for lean DOCX structure summary formatting counters.
+- Added public fake-fixture coverage for lean DOCX structure summary numbering counters.
 - Added public fake-fixture coverage for exact DOCX layout document XML.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
