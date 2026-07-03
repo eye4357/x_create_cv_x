@@ -74,6 +74,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for exact DOCX layout endnotes XML.
 - Added public fake-fixture coverage for exact DOCX layout custom XML item.
 - Added public fake-fixture coverage for exact DOCX layout custom XML properties.
+- Added public fake-fixture coverage for exact DOCX layout custom XML relationships.
 - Added public fake-fixture coverage for exact DOCX layout document XML.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.

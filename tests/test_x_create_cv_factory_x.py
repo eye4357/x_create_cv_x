@@ -714,6 +714,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         docx_endnotes_xml = document.read("word/endnotes.xml").decode("utf-8")
         custom_xml = document.read("customXml/item1.xml").decode("utf-8")
         custom_props_xml = document.read("customXml/itemProps1.xml").decode("utf-8")
+        custom_relationships_xml = document.read("customXml/_rels/item1.xml.rels").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
     assert document_xml == (
@@ -867,6 +868,13 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         '<ds:datastoreItem ds:itemID="{00000000-0000-0000-0000-000000000001}" '
         'xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml">'
         "<ds:schemaRefs/></ds:datastoreItem>"
+    )
+    assert custom_relationships_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" '
+        'Target="itemProps1.xml"/></Relationships>'
     )
     assert docx_styles_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
