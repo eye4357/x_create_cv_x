@@ -2210,6 +2210,16 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert audit_path.exists()
     assert json_path.exists()
     report = app.read_json(json_path)
+    assert report["schema_version"] == app.SCHEMA_VERSION
+    assert report["generator"] == f"x_create_cv_x {app.VERSION}"
+    assert report["purpose"] == "Private comparison report for generated _a_posteriori Office evidence"
+    assert report["audit_policy"] == {
+        "schema_version": app.SCHEMA_VERSION,
+        "policy_version": "0.0.2",
+        "name": "default_office_audit_policy",
+        "accepted_difference_count": 1,
+        "path": str(app.DEFAULT_AUDIT_POLICY).replace("\\", "/"),
+    }
     assert [comparison["status"] for comparison in report["comparisons"]] == ["pass"] * 4
     assert [comparison["byte_identical"] for comparison in report["comparisons"]] == [True] * 4
     assert [comparison["normalized_text_match"] for comparison in report["comparisons"]] == [True] * 4
