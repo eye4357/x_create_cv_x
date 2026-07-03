@@ -2211,8 +2211,13 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert json_path.exists()
     report = app.read_json(json_path)
     assert [comparison["status"] for comparison in report["comparisons"]] == ["pass"] * 4
+    assert [comparison["byte_identical"] for comparison in report["comparisons"]] == [True] * 4
+    assert [comparison["normalized_text_match"] for comparison in report["comparisons"]] == [True] * 4
     for comparison in report["comparisons"]:
+        assert comparison["generated"]["normalized_text"] == comparison["source"]["normalized_text"]
         assert comparison["generated"]["structure"] == comparison["source"]["structure"]
+    assert report["comparisons"][0]["generated"]["normalized_text"]["line_count"] == 9
+    assert report["comparisons"][1]["generated"]["normalized_text"]["line_count"] == 1
     assert report["comparisons"][0]["generated"]["structure"]["sheet_count"] == 9
     assert report["comparisons"][1]["generated"]["structure"]["style_definition_count"] == 6
     audit_text = audit_path.read_text(encoding="utf-8")

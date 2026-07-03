@@ -107,6 +107,7 @@
 - Extended public fake Office tests to assert DOCX flow/package structure summary style metadata without private data.
 - Extended public fake Office tests to assert DOCX flow/package structure summary numbering metadata without private data.
 - Extended public fake Office tests to assert Office audit JSON report structure parity without private data.
+- Extended public fake Office tests to assert Office audit JSON report byte and normalized-text parity without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX styles XML without private data.
