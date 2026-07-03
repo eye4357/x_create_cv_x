@@ -1043,11 +1043,26 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "ListBullet",
     ]
     assert structure_summary["default_style_ids"] == ["Normal"]
-    assert structure_summary["style_based_on"]["ListBullet"] == "ListParagraph"
+    assert structure_summary["style_based_on"] == {
+        "Title": "Normal",
+        "Heading1": "Normal",
+        "Heading2": "Normal",
+        "ListParagraph": "Normal",
+        "ListBullet": "ListParagraph",
+    }
     assert structure_summary["style_run_fonts"] == {"Normal": "Calibri"}
-    assert structure_summary["style_run_sizes"]["Heading1"] == "24"
+    assert structure_summary["style_run_sizes"] == {
+        "Normal": "22",
+        "Title": "32",
+        "Heading1": "24",
+        "Heading2": "22",
+    }
     assert structure_summary["style_bold_ids"] == ["Title", "Heading1", "Heading2"]
-    assert structure_summary["style_paragraph_spacing"]["Heading1"] == {"before": "160", "after": "80"}
+    assert structure_summary["style_paragraph_spacing"] == {
+        "Title": {"after": "120"},
+        "Heading1": {"before": "160", "after": "80"},
+        "Heading2": {"before": "120", "after": "60"},
+    }
     assert structure_summary["style_paragraph_indents"]["ListParagraph"] == {"left": "720"}
     assert structure_summary["style_numbering"] == {"ListBullet": {"level": "0", "num_id": "1"}}
 
