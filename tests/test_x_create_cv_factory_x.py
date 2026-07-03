@@ -1497,6 +1497,7 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         root_relationships = document.read("_rels/.rels").decode("utf-8")
         document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")
         document_xml = document.read("word/document.xml").decode("utf-8")
+        numbering_xml = document.read("word/numbering.xml").decode("utf-8")
         content_types = document.read("[Content_Types].xml").decode("utf-8")
     assert root_relationships == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1527,6 +1528,21 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
         '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" '
         'w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>'
+    )
+    expected_abstract_num_xml = (
+        '<w:multiLevelType w:val="hybridMultilevel"/>'
+        '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+        '<w:lvlText w:val="\u2022"/><w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+        '<w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+        '<w:lvlText w:val="\u2022"/><w:pPr><w:ind w:left="1440" w:hanging="360"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+    )
+    assert numbering_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:numbering xmlns:w="{app.WORD_NS}">'
+        f'<w:abstractNum w:abstractNumId="1">{expected_abstract_num_xml}</w:abstractNum>'
+        '<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num></w:numbering>'
     )
     assert content_types == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
