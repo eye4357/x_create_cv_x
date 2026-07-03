@@ -706,6 +706,18 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         docx_numbering_xml = document.read("word/numbering.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
+    assert document_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:document xmlns:w="{app.WORD_NS}" xmlns:r="{app.REL_NS}"><w:body>'
+        '<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:numPr>'
+        '<w:ilvl w:val="0"/><w:numId w:val="7"/></w:numPr></w:pPr>'
+        '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Styled</w:t></w:r>'
+        '<w:r><w:rPr><w:i/><w:u w:val="single"/></w:rPr>'
+        '<w:t xml:space="preserve"> run</w:t></w:r></w:p><w:sectPr>'
+        '<w:pgSz w:w="12240" w:h="15840" w:orient="portrait"/>'
+        '<w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" '
+        'w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>'
+    )
     assert '<w:pStyle w:val="Heading1"/>' in document_xml
     assert '<w:numId w:val="7"/>' in document_xml
     assert '<w:numPr><w:ilvl w:val="0"/><w:numId w:val="7"/></w:numPr>' in document_xml
