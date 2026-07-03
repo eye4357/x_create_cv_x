@@ -1693,6 +1693,8 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert "customXml/item1.xml" not in part_names
     assert "customXml/itemProps1.xml" not in part_names
     assert "customXml/_rels/item1.xml.rels" not in part_names
+    assert "word/header1.xml" not in part_names
+    assert "word/footer1.xml" not in part_names
     assert structure_summary["part_names"] == part_names
     assert structure_summary["part_count"] == len(part_names)
     assert structure_summary["has_theme"] is True
