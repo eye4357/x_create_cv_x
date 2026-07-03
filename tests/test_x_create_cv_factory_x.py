@@ -1244,6 +1244,41 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert structure_summary["body_child_counts"] == {"p": 1, "tbl": 1, "sectPr": 1}
     assert structure_summary["font_names"] == ["Calibri", "Symbol", "Courier New"]
     assert structure_summary["styles"] == ["Title"]
+    assert document_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:document xmlns:w="{app.WORD_NS}" xmlns:r="{app.REL_NS}"><w:body>'
+        '<w:p><w:pPr><w:pStyle w:val="Title"/>'
+        '<w:tabs><w:tab w:val="right" w:leader="none" w:pos="10800"/></w:tabs>'
+        '<w:spacing w:after="0" w:line="240" w:lineRule="auto"/>'
+        '<w:ind w:left="720" w:hanging="360"/><w:jc w:val="center"/></w:pPr>'
+        '<w:r><w:t xml:space="preserve">Intro</w:t></w:r></w:p>'
+        '<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders>'
+        '<w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+        '<w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/></w:tblBorders></w:tblPr>'
+        '<w:tblGrid><w:gridCol w:w="2400"/><w:gridCol w:w="2400"/></w:tblGrid>'
+        '<w:tr><w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/></w:tcPr>'
+        '<w:p><w:r><w:t xml:space="preserve">Left</w:t></w:r></w:p></w:tc>'
+        '<w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/></w:tcPr>'
+        '<w:p><w:r><w:t xml:space="preserve">Right</w:t></w:r></w:p></w:tc></w:tr>'
+        '<w:tr><w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/></w:tcPr>'
+        '<w:p><w:r><w:t xml:space="preserve">Bottom</w:t></w:r></w:p><w:p><w:r></w:r></w:p></w:tc>'
+        '<w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/></w:tcPr><w:p>'
+        '<w:hyperlink r:id="rId101" w:history="1"><w:r><w:rPr>'
+        '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>'
+        '<w:i/><w:color w:val="0563C1"/><w:sz w:val="22"/></w:rPr>'
+        '<w:t xml:space="preserve">Inline cell</w:t></w:r></w:hyperlink>'
+        '<w:r><w:tab/></w:r><w:r><w:t xml:space="preserve">after tab</w:t></w:r>'
+        "</w:p></w:tc></w:tr></w:tbl><w:sectPr>"
+        '<w:headerReference w:type="default" r:id="rId7"/>'
+        '<w:footerReference w:type="default" r:id="rId8"/>'
+        '<w:pgSz w:w="12240" w:h="15840"/>'
+        '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" '
+        'w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>'
+    )
     assert document_xml.startswith(
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:document xmlns:w="{app.WORD_NS}" xmlns:r="{app.REL_NS}"><w:body>'
