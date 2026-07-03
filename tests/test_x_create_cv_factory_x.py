@@ -2321,6 +2321,25 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '{"inlineStr": 3} | {"inlineStr": 3} | ["ID", "Label", "Highlights"] | '
         '["ID", "Label", "Highlights"] |' in audit_text
     )
+    assert (
+        "| Jobs | Jobs | xl/worksheets/sheet2.xml | xl/worksheets/sheet2.xml | A1:M1 | "
+        "A1:M1 | 1 | 1 | 13 | 13 | 13 | 13 | "
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        "A1:M1 | A1:M1 | "
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '["10.00", "10.00", "11.00", "11.00", "16.00", "17.00", "10.00", "10.00", "20.00", '
+        '"12.00", "12.00", "10.00", "12.00"] | ["10.00", "10.00", "11.00", "11.00", '
+        '"16.00", "17.00", "10.00", "10.00", "20.00", "12.00", "12.00", "10.00", "12.00"] | '
+        '{"inlineStr": 13} | {"inlineStr": 13} | ["ID", "Label", "Job Title", "Job Focus", '
+        '"Job Highlights", "Vehicle Program", "Employer", "Address", "Reason For Leaving", "Salary Usd", '
+        '"Start Date", "End Date", "Time Spent"] | ["ID", "Label", "Job Title", "Job Focus", '
+        '"Job Highlights", "Vehicle Program", "Employer", "Address", "Reason For Leaving", "Salary Usd", '
+        '"Start Date", "End Date", "Time Spent"] |' in audit_text
+    )
     assert "## Known Acceptable Differences" in audit_text
     assert "| Generated Path | Scope | Reason |" in audit_text
     assert (
