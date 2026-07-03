@@ -2303,6 +2303,13 @@ def test_audit_policy_can_accept_explicit_drift() -> None:
     assert app.audit_policy_summary(audit_policy, Path(r"audit_policies\test_policy.json"))["path"] == (
         "audit_policies/test_policy.json"
     )
+    unaccepted_comparison = dict(comparison)
+    unaccepted_comparison["generated"] = {"path": "generated/office/a_posteriori/unlisted.docx"}
+
+    unaccepted = app.apply_audit_policy(unaccepted_comparison, audit_policy)
+
+    assert unaccepted["status"] == "review_required"
+    assert unaccepted["status_reason"] == "No policy entry accepts this generated/source difference."
 
 
 def test_cli_typed_flags_build_expected_payload(tmp_path: Path) -> None:
