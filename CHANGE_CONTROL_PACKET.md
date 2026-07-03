@@ -100,6 +100,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert DOCX optional content-type package binding without private data.
 - Extended public fake Office tests to assert lean DOCX optional-package part manifest without private data.
 - Extended public fake Office tests to assert lean DOCX optional-package content-type XML without private data.
+- Extended public fake Office tests to assert lean DOCX optional-package document relationship XML without private data.
 - Extended public fake Office tests to assert DOCX baseline and optional document relationship binding without private data.
 - Extended public fake Office tests to assert exact DOCX document relationship XML with optional package parts and hyperlink targets without private data.
 - Extended public fake Office tests to assert DOCX settings part and default tab stop XML without private data.

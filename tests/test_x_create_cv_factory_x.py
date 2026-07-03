@@ -1358,9 +1358,25 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert "customXml/item1.xml" not in part_names
     with zipfile.ZipFile(document_path) as document:
         root_relationships = document.read("_rels/.rels").decode("utf-8")
+        document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")
         content_types = document.read("[Content_Types].xml").decode("utf-8")
     assert "core-properties" not in root_relationships
     assert "extended-properties" not in root_relationships
+    assert document_relationships == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
+        'Target="styles.xml"/><Relationship Id="rId2" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" '
+        'Target="numbering.xml"/><Relationship Id="rId3" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" '
+        'Target="settings.xml"/><Relationship Id="rId4" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" '
+        'Target="theme/theme1.xml"/><Relationship Id="rId5" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" '
+        'Target="fontTable.xml"/></Relationships>'
+    )
     assert content_types == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
