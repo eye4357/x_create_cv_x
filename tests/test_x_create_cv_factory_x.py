@@ -1084,6 +1084,35 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     )
     assert '<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">Header</w:t></w:r>' in header_xml
     assert '<w:r><w:t xml:space="preserve">1</w:t></w:r>' in footer_xml
+    assert relationships_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
+        'Target="styles.xml"/><Relationship Id="rId2" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" '
+        'Target="numbering.xml"/><Relationship Id="rId3" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" '
+        'Target="settings.xml"/><Relationship Id="rId4" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" '
+        'Target="theme/theme1.xml"/><Relationship Id="rId5" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" '
+        'Target="fontTable.xml"/><Relationship Id="rId6" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings" '
+        'Target="webSettings.xml"/><Relationship Id="rId7" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" '
+        'Target="header1.xml"/><Relationship Id="rId8" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" '
+        'Target="footer1.xml"/><Relationship Id="rId9" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" '
+        'Target="footnotes.xml"/><Relationship Id="rId10" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes" '
+        'Target="endnotes.xml"/><Relationship Id="rId11" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" '
+        'Target="../customXml/item1.xml"/><Relationship Id="rId101" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '
+        'Target="https://example.test/cv" TargetMode="External"/></Relationships>'
+    )
     expected_relationships = [
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
         'Target="styles.xml"',
