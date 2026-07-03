@@ -709,6 +709,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         docx_numbering_xml = document.read("word/numbering.xml").decode("utf-8")
         docx_settings_xml = document.read("word/settings.xml").decode("utf-8")
         docx_font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
+        docx_web_settings_xml = document.read("word/webSettings.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
     assert document_xml == (
@@ -835,6 +836,9 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert docx_font_table_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:fonts xmlns:w="{app.WORD_NS}"><w:font w:name="Calibri"/><w:font w:name="Symbol"/></w:fonts>'
+    )
+    assert docx_web_settings_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' f'<w:webSettings xmlns:w="{app.WORD_NS}"/>'
     )
     assert docx_styles_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
