@@ -608,7 +608,36 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "rId1": "xl/worksheets/sheet1.xml",
         "rId2": "xl/styles.xml",
     }
+    assert workbook_summary["sheet_count"] == 1
     assert workbook_summary["sheet_names"] == ["Highlights"]
+    assert workbook_summary["sheets"] == [
+        {
+            "path": "xl/worksheets/sheet1.xml",
+            "dimension": "A1:E2",
+            "row_count": 2,
+            "column_count": 5,
+            "headers": ["ID", "Label", "Highlights", "Score", "Current"],
+            "styled_cell_count": 10,
+            "cell_type_counts": {"inlineStr": 8, "number": 1, "b": 1},
+            "auto_filter_ref": "A1:E2",
+            "freeze_pane": {
+                "ySplit": "1",
+                "topLeftCell": "A2",
+                "activePane": "bottomLeft",
+                "state": "frozen",
+            },
+            "page_margins": {
+                "left": "0.2",
+                "right": "0.4",
+                "top": "0.6",
+                "bottom": "0.8",
+                "header": "0.1",
+                "footer": "0.3",
+            },
+            "column_widths": ["8.50", "13.00", "28.25", "10.00", "10.00"],
+            "name": "Highlights",
+        }
+    ]
     style_summary = workbook_summary["styles"]
     assert style_summary["font_count"] == 3
     assert style_summary["fill_count"] == 4

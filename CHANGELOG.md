@@ -88,6 +88,7 @@
 - Extended public fake Office tests to assert exact DOCX layout generated theme XML without private data.
 - Extended public fake Office tests to assert exact DOCX layout package part manifest without private data.
 - Extended public fake Office tests to assert exact XLSX layout package part manifest without private data.
+- Extended public fake Office tests to assert XLSX layout workbook summary sheet projections without private data.
 - Extended public fake Office tests to assert lean DOCX custom XML sidecar parts are omitted without private data.
 - Extended public fake Office tests to assert lean DOCX header and footer parts are omitted without private data.
 - Extended public fake Office tests to assert lean DOCX disabled optional content type overrides are omitted without private data.
