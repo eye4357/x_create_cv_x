@@ -1339,6 +1339,17 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     app.write_resume_document(master, resume, document_path)
 
     part_names = docx_part_names(document_path)
+    assert part_names == [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "word/_rels/document.xml.rels",
+        "word/document.xml",
+        "word/fontTable.xml",
+        "word/numbering.xml",
+        "word/settings.xml",
+        "word/styles.xml",
+        "word/theme/theme1.xml",
+    ]
     assert "docProps/core.xml" not in part_names
     assert "docProps/app.xml" not in part_names
     assert "word/webSettings.xml" not in part_names
