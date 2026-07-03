@@ -112,6 +112,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit Markdown XLSX relationship-count rows.
 - Added public fake-fixture coverage for Office audit Markdown XLSX multi-column sheet-detail rows.
 - Added public fake-fixture coverage for Office audit Markdown XLSX standards sheet-detail rows.
+- Added public fake-fixture coverage for Office audit Markdown XLSX certification sheet-detail rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
