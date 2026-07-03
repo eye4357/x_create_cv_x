@@ -56,6 +56,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX settings part and default tab stop XML.
 - Added public fake-fixture coverage for exact DOCX settings part XML.
 - Added public fake-fixture coverage for exact DOCX package part manifest.
+- Added public fake-fixture coverage for DOCX structure summary package manifest.
 - Added public fake-fixture coverage for DOCX header and footer part XML.
 - Added public fake-fixture coverage for DOCX custom XML item, properties, and relationship part XML.
 - Added public fake-fixture coverage for DOCX footnotes and endnotes part XML.

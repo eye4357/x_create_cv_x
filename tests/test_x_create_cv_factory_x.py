@@ -904,6 +904,8 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         "word/theme/theme1.xml",
         "word/webSettings.xml",
     ]
+    assert structure_summary["part_names"] == part_names
+    assert structure_summary["part_count"] == len(part_names)
     assert "word/theme/theme1.xml" in part_names
     assert "word/settings.xml" in part_names
     assert "word/fontTable.xml" in part_names
