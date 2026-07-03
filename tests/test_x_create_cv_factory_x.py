@@ -1694,6 +1694,13 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         "table_paragraph_count": 5,
         "numbered_paragraph_count": 0,
     }
+    assert structure_summary["numbering_abstract_count"] == 1
+    assert structure_summary["numbering_num_count"] == 1
+    assert structure_summary["numbering_level_count"] == 2
+    assert structure_summary["numbering_abstract_ids"] == ["1"]
+    assert structure_summary["numbering_num_ids"] == ["1"]
+    assert structure_summary["numbering_level_texts"] == ["\u2022"]
+    assert structure_summary["numbering_level_fonts"] == ["Symbol"]
     assert "<w:tbl>" in document_xml
     assert (
         '<w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders>'
