@@ -1103,6 +1103,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert document_xml.count("<w:tc>") == 4
     assert structure_summary["table_grid_widths"] == [["2400", "2400"]]
     assert structure_summary["table_cell_widths"] == [[["2400", "2400"], ["2400", "2400"]]]
+    assert '<w:pgSz w:w="12240" w:h="15840"/>' in document_xml
+    assert (
+        '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" '
+        'w:header="720" w:footer="720" w:gutter="0"/>' in document_xml
+    )
     assert '<w:headerReference w:type="default" r:id="rId7"/>' in document_xml
     assert '<w:footerReference w:type="default" r:id="rId8"/>' in document_xml
     assert structure_summary["section_header_references"] == [{"type": "default", "id": "rId7"}]
