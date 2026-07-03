@@ -2246,6 +2246,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "| resume_2023_a_posteriori.docx | .docx | true | true | pass | "
         "Generated file is byte-identical to source evidence. | 1 | 1 |" in audit_text
     )
+    assert (
+        "| resume_2024_a_posteriori.docx | .docx | true | true | pass | "
+        "Generated file is byte-identical to source evidence. | 1 | 1 |" in audit_text
+    )
     assert "| style_definition_count | 6 | 6 |" in audit_text
     assert "| sheet_count | 9 | 9 |" in audit_text
     assert "## DOCX Structure" in audit_text
