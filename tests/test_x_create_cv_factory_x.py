@@ -2281,6 +2281,18 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"ListBullet"] | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", "ListBullet"] |' in audit_text
     )
     assert "master_profile_a_posteriori.xlsx" in audit_text
+    assert "### master_profile_a_posteriori.xlsx" in audit_text
+    assert "| part_count | 16 | 16 |" in audit_text
+    assert "| worksheet_part_count | 9 | 9 |" in audit_text
+    assert "| has_core_properties | true | true |" in audit_text
+    assert "| has_extended_properties | true | true |" in audit_text
+    assert "| has_styles | true | true |" in audit_text
+    assert (
+        '| sheet_names | ["Highlights", "Jobs", "Standards Development", "School", "Certifications", '
+        '"Patents", "Publications", "Lectures", "Residences"] | ["Highlights", "Jobs", '
+        '"Standards Development", "School", "Certifications", "Patents", "Publications", "Lectures", '
+        '"Residences"] |' in audit_text
+    )
     assert "| Source Sheet | Generated Sheet | Source Path | Generated Path |" in audit_text
     assert "Source Rows | Generated Rows | Source Columns | Generated Columns" in audit_text
     assert "Source Styled Cells | Generated Styled Cells" in audit_text
