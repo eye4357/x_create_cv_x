@@ -1499,6 +1499,7 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         document_xml = document.read("word/document.xml").decode("utf-8")
         numbering_xml = document.read("word/numbering.xml").decode("utf-8")
         styles_xml = document.read("word/styles.xml").decode("utf-8")
+        font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
         content_types = document.read("[Content_Types].xml").decode("utf-8")
     assert root_relationships == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1565,6 +1566,10 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         '<w:basedOn w:val="ListParagraph"/><w:pPr><w:numPr><w:ilvl w:val="0"/>'
         '<w:numId w:val="1"/></w:numPr></w:pPr></w:style>'
         "</w:styles>"
+    )
+    assert font_table_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:fonts xmlns:w="{app.WORD_NS}"><w:font w:name="Calibri"/><w:font w:name="Symbol"/></w:fonts>'
     )
     assert content_types == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
