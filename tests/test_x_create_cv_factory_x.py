@@ -1234,6 +1234,40 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert structure_summary["spaced_paragraph_count"] == 1
     assert structure_summary["indented_paragraph_count"] == 1
     assert structure_summary["tab_stopped_paragraph_count"] == 1
+    assert {
+        summary_key: structure_summary[summary_key]
+        for summary_key in [
+            "paragraph_count",
+            "run_count",
+            "bold_run_count",
+            "italic_run_count",
+            "underline_run_count",
+            "colored_run_count",
+            "fonted_run_count",
+            "hyperlink_count",
+            "tab_count",
+            "table_count",
+            "table_row_count",
+            "table_cell_count",
+            "table_paragraph_count",
+            "numbered_paragraph_count",
+        ]
+    } == {
+        "paragraph_count": 6,
+        "run_count": 8,
+        "bold_run_count": 0,
+        "italic_run_count": 1,
+        "underline_run_count": 0,
+        "colored_run_count": 1,
+        "fonted_run_count": 1,
+        "hyperlink_count": 1,
+        "tab_count": 2,
+        "table_count": 1,
+        "table_row_count": 2,
+        "table_cell_count": 4,
+        "table_paragraph_count": 5,
+        "numbered_paragraph_count": 0,
+    }
     assert "<w:tbl>" in document_xml
     assert (
         '<w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders>'
