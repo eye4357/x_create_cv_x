@@ -1360,8 +1360,13 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         root_relationships = document.read("_rels/.rels").decode("utf-8")
         document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")
         content_types = document.read("[Content_Types].xml").decode("utf-8")
-    assert "core-properties" not in root_relationships
-    assert "extended-properties" not in root_relationships
+    assert root_relationships == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+        'Target="word/document.xml"/></Relationships>'
+    )
     assert document_relationships == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
