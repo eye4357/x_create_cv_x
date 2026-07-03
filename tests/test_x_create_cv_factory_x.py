@@ -700,8 +700,11 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     app.write_resume_document(master, resume, document_path)
     document_xml = docx_document_xml(document_path)
     with zipfile.ZipFile(document_path) as document:
+        content_types_xml = document.read("[Content_Types].xml").decode("utf-8")
+        root_relationships_xml = document.read("_rels/.rels").decode("utf-8")
         core_properties_xml = document.read("docProps/core.xml").decode("utf-8")
         app_properties_xml = document.read("docProps/app.xml").decode("utf-8")
+        docx_relationships_xml = document.read("word/_rels/document.xml.rels").decode("utf-8")
         docx_styles_xml = document.read("word/styles.xml").decode("utf-8")
         docx_numbering_xml = document.read("word/numbering.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
@@ -757,6 +760,71 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
         'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
         "<Application>x_create_cv_x</Application></Properties>"
+    )
+    assert content_types_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>'
+        '<Override PartName="/word/document.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+        '<Override PartName="/word/styles.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+        '<Override PartName="/word/numbering.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+        '<Override PartName="/word/settings.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'
+        '<Override PartName="/word/theme/theme1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
+        '<Override PartName="/word/fontTable.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/>'
+        '<Override PartName="/word/webSettings.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/>'
+        '<Override PartName="/word/footnotes.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>'
+        '<Override PartName="/word/endnotes.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>'
+        '<Override PartName="/customXml/itemProps1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.customXmlProperties+xml"/>'
+        '<Override PartName="/docProps/core.xml" '
+        'ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+        '<Override PartName="/docProps/app.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
+        "</Types>"
+    )
+    assert root_relationships_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+        'Target="word/document.xml"/><Relationship Id="rId2" '
+        'Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" '
+        'Target="docProps/core.xml"/><Relationship Id="rId3" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" '
+        'Target="docProps/app.xml"/></Relationships>'
+    )
+    assert docx_relationships_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
+        'Target="styles.xml"/><Relationship Id="rId2" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" '
+        'Target="numbering.xml"/><Relationship Id="rId3" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" '
+        'Target="settings.xml"/><Relationship Id="rId4" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" '
+        'Target="theme/theme1.xml"/><Relationship Id="rId5" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" '
+        'Target="fontTable.xml"/><Relationship Id="rId6" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings" '
+        'Target="webSettings.xml"/><Relationship Id="rId9" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" '
+        'Target="footnotes.xml"/><Relationship Id="rId10" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes" '
+        'Target="endnotes.xml"/><Relationship Id="rId11" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" '
+        'Target="../customXml/item1.xml"/></Relationships>'
     )
     assert docx_styles_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
