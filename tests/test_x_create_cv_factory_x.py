@@ -1029,7 +1029,9 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert structure_summary["numbering_abstract_count"] == 2
     assert structure_summary["numbering_num_count"] == 2
     assert structure_summary["numbering_level_count"] == 4
+    assert structure_summary["numbering_abstract_ids"] == ["1", "7"]
     assert structure_summary["numbering_num_ids"] == ["1", "7"]
+    assert structure_summary["numbering_level_texts"] == ["\u2022"]
     assert structure_summary["numbering_level_fonts"] == ["Symbol"]
     assert structure_summary["style_definition_count"] == 6
     assert structure_summary["style_definition_ids"] == [

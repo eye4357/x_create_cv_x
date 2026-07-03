@@ -77,6 +77,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for exact DOCX layout custom XML relationships.
 - Added public fake-fixture coverage for exact DOCX layout generated theme XML.
 - Added public fake-fixture coverage for exact DOCX layout package part manifest.
+- Added public fake-fixture coverage for DOCX layout structure summary numbering metadata.
 - Added public fake-fixture coverage for exact XLSX layout package part manifest.
 - Added public fake-fixture coverage for XLSX layout workbook summary sheet projections.
 - Added public fake-fixture coverage for exact XLSX layout style summary cell format projections.

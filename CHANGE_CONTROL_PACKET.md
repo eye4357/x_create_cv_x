@@ -125,6 +125,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert exact DOCX layout custom XML relationships without private data.
 - Extended public fake Office tests to assert exact DOCX layout generated theme XML without private data.
 - Extended public fake Office tests to assert exact DOCX layout package part manifest without private data.
+- Extended public fake Office tests to assert DOCX layout structure summary numbering metadata without private data.
 - Extended public fake Office tests to assert exact XLSX layout package part manifest without private data.
 - Extended public fake Office tests to assert XLSX layout workbook summary sheet projections without private data.
 - Extended public fake Office tests to assert exact XLSX layout style summary cell format projections without private data.
