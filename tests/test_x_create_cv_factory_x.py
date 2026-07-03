@@ -712,6 +712,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         docx_web_settings_xml = document.read("word/webSettings.xml").decode("utf-8")
         docx_footnotes_xml = document.read("word/footnotes.xml").decode("utf-8")
         docx_endnotes_xml = document.read("word/endnotes.xml").decode("utf-8")
+        custom_xml = document.read("customXml/item1.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
     assert document_xml == (
@@ -855,6 +856,10 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "<w:p><w:r><w:separator/></w:r></w:p></w:endnote>"
         '<w:endnote w:type="continuationSeparator" w:id="0"><w:p><w:r>'
         "<w:continuationSeparator/></w:r></w:p></w:endnote></w:endnotes>"
+    )
+    assert (
+        custom_xml
+        == '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cv:metadata xmlns:cv="urn:x-create-cv-x"/>'
     )
     assert docx_styles_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
