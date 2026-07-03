@@ -1361,6 +1361,25 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         content_types = document.read("[Content_Types].xml").decode("utf-8")
     assert "core-properties" not in root_relationships
     assert "extended-properties" not in root_relationships
+    assert content_types == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>'
+        '<Override PartName="/word/document.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+        '<Override PartName="/word/styles.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+        '<Override PartName="/word/numbering.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+        '<Override PartName="/word/settings.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'
+        '<Override PartName="/word/theme/theme1.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
+        '<Override PartName="/word/fontTable.xml" '
+        'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/>'
+        "</Types>"
+    )
     assert "/docProps/core.xml" not in content_types
     assert "/docProps/app.xml" not in content_types
 
