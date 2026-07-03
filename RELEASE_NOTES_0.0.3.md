@@ -64,6 +64,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX baseline and optional document relationship binding.
 - Added public fake-fixture coverage for exact DOCX document relationship XML with optional package parts and hyperlink targets.
 - Added public fake-fixture coverage for exact DOCX flow/table document XML.
+- Added public fake-fixture coverage for exact DOCX flow/package numbering XML.
 - Added public fake-fixture coverage for exact DOCX layout document XML.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.

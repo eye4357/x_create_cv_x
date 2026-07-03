@@ -945,6 +945,7 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         content_types_xml = document.read("[Content_Types].xml").decode("utf-8")
         root_relationships_xml = document.read("_rels/.rels").decode("utf-8")
         theme_xml = document.read("word/theme/theme1.xml").decode("utf-8")
+        numbering_xml = document.read("word/numbering.xml").decode("utf-8")
         settings_xml = document.read("word/settings.xml").decode("utf-8")
         font_table_xml = document.read("word/fontTable.xml").decode("utf-8")
         web_settings_xml = document.read("word/webSettings.xml").decode("utf-8")
@@ -1121,6 +1122,21 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     )
     assert "core-properties" not in root_relationships_xml
     assert "extended-properties" not in root_relationships_xml
+    expected_abstract_num_xml = (
+        '<w:multiLevelType w:val="hybridMultilevel"/>'
+        '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+        '<w:lvlText w:val="\u2022"/><w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+        '<w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+        '<w:lvlText w:val="\u2022"/><w:pPr><w:ind w:left="1440" w:hanging="360"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+    )
+    assert numbering_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:numbering xmlns:w="{app.WORD_NS}">'
+        f'<w:abstractNum w:abstractNumId="1">{expected_abstract_num_xml}</w:abstractNum>'
+        '<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num></w:numbering>'
+    )
     assert settings_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:settings xmlns:w="{app.WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>'
