@@ -1020,7 +1020,10 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     )
     assert "core-properties" not in root_relationships_xml
     assert "extended-properties" not in root_relationships_xml
-    assert f'<w:settings xmlns:w="{app.WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>' in settings_xml
+    assert settings_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:settings xmlns:w="{app.WORD_NS}"><w:defaultTabStop w:val="720"/></w:settings>'
+    )
     assert font_table_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:fonts xmlns:w="{app.WORD_NS}">'
