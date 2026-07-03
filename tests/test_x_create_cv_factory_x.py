@@ -2241,6 +2241,20 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "Source Cell Types | Generated Cell Types" in audit_text
     assert "Source Freeze Pane | Generated Freeze Pane | Source Filter | Generated Filter" in audit_text
     assert "Source Page Margins | Generated Page Margins | Source Column Widths | Generated Column Widths" in audit_text
+    assert (
+        "| Highlights | Highlights | xl/worksheets/sheet1.xml | xl/worksheets/sheet1.xml | A1:C1 | "
+        "A1:C1 | 1 | 1 | 3 | 3 | 3 | 3 | "
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        "A1:C1 | A1:C1 | "
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '["10.00", "10.00", "12.00"] | ["10.00", "10.00", "12.00"] | '
+        '{"inlineStr": 3} | {"inlineStr": 3} | ["ID", "Label", "Highlights"] | '
+        '["ID", "Label", "Highlights"] |' in audit_text
+    )
     assert "## Known Acceptable Differences" in audit_text
     assert "| Generated Path | Scope | Reason |" in audit_text
     assert (

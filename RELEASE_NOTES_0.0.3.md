@@ -101,6 +101,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit Markdown summary rows.
 - Added public fake-fixture coverage for Office audit Markdown structure metric rows.
 - Added public fake-fixture coverage for Office audit Markdown accepted-drift policy rows.
+- Added public fake-fixture coverage for Office audit Markdown XLSX sheet-detail rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.

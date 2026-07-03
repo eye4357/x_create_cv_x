@@ -111,6 +111,7 @@
 - Extended public fake Office tests to assert Office audit Markdown summary rows without private data.
 - Extended public fake Office tests to assert Office audit Markdown structure metric rows without private data.
 - Extended public fake Office tests to assert Office audit Markdown accepted-drift policy rows without private data.
+- Extended public fake Office tests to assert Office audit Markdown XLSX sheet-detail rows without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX styles XML without private data.
