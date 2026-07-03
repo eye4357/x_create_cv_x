@@ -97,6 +97,7 @@
 - Extended public fake Office tests to assert lean DOCX structure summary numbering counters without private data.
 - Extended public fake Office tests to assert lean DOCX structure summary style metadata without private data.
 - Extended public fake Office tests to assert lean DOCX structure summary page geometry without private data.
+- Extended public fake Office tests to assert lean DOCX structure summary table geometry absence without private data.
 - Extended public fake Office tests to assert exact DOCX layout document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.

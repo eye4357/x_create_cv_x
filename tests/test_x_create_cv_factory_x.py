@@ -1738,6 +1738,8 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert structure_summary["table_row_count"] == 0
     assert structure_summary["table_cell_count"] == 0
     assert structure_summary["table_paragraph_count"] == 0
+    assert structure_summary["table_grid_widths"] == []
+    assert structure_summary["table_cell_widths"] == []
     assert structure_summary["numbered_paragraph_count"] == 0
     assert structure_summary["numbering_abstract_count"] == 1
     assert structure_summary["numbering_num_count"] == 1
