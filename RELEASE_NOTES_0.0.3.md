@@ -59,6 +59,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX structure summary package manifest.
 - Added public fake-fixture coverage for DOCX structure summary relationship counts.
 - Added public fake-fixture coverage for DOCX structure summary content counters.
+- Added public fake-fixture coverage for DOCX structure summary page setup values.
 - Added public fake-fixture coverage for DOCX header and footer part XML.
 - Added public fake-fixture coverage for DOCX custom XML item, properties, and relationship part XML.
 - Added public fake-fixture coverage for DOCX footnotes and endnotes part XML.

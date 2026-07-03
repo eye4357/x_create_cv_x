@@ -1299,6 +1299,16 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     )
     assert '<w:headerReference w:type="default" r:id="rId7"/>' in document_xml
     assert '<w:footerReference w:type="default" r:id="rId8"/>' in document_xml
+    assert structure_summary["page_size"] == {"w": "12240", "h": "15840"}
+    assert structure_summary["page_margins"] == {
+        "top": "1440",
+        "right": "1440",
+        "bottom": "1440",
+        "left": "1440",
+        "header": "720",
+        "footer": "720",
+        "gutter": "0",
+    }
     assert structure_summary["section_header_references"] == [{"type": "default", "id": "rId7"}]
     assert structure_summary["section_footer_references"] == [{"type": "default", "id": "rId8"}]
 
