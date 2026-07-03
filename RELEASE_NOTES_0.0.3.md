@@ -78,6 +78,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for exact DOCX layout generated theme XML.
 - Added public fake-fixture coverage for exact DOCX layout package part manifest.
 - Added public fake-fixture coverage for exact XLSX layout package part manifest.
+- Added public fake-fixture coverage for lean DOCX custom XML sidecar omission.
 - Added public fake-fixture coverage for exact DOCX layout document XML.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
