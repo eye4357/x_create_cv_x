@@ -2232,6 +2232,8 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][1]["generated"]["structure"]["style_definition_count"] == 6
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
+    assert f"Generator: `x_create_cv_x {app.VERSION}`" in audit_text
+    assert "Audit policy: `default_office_audit_policy` version `0.0.2`" in audit_text
     assert (
         "| master_profile_a_posteriori.xlsx | .xlsx | true | true | pass | "
         "Generated file is byte-identical to source evidence. | 9 | 9 |" in audit_text
@@ -2244,6 +2246,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| sheet_count | 9 | 9 |" in audit_text
     assert "## DOCX Structure" in audit_text
     assert "## XLSX Structure" in audit_text
+    assert "### resume_2017_a_posteriori.docx" in audit_text
+    assert "| part_count | 17 | 17 |" in audit_text
+    assert "| relationship_count | 9 | 9 |" in audit_text
+    assert '| numbering_num_ids | ["1"] | ["1"] |' in audit_text
+    assert (
+        '| style_definition_ids | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", '
+        '"ListBullet"] | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", "ListBullet"] |' in audit_text
+    )
     assert "master_profile_a_posteriori.xlsx" in audit_text
     assert "| Source Sheet | Generated Sheet | Source Path | Generated Path |" in audit_text
     assert "Source Rows | Generated Rows | Source Columns | Generated Columns" in audit_text
