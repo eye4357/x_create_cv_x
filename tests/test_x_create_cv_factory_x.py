@@ -885,6 +885,25 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
         footer_xml = document.read("word/footer1.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
+    assert part_names == [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "customXml/_rels/item1.xml.rels",
+        "customXml/item1.xml",
+        "customXml/itemProps1.xml",
+        "word/_rels/document.xml.rels",
+        "word/document.xml",
+        "word/endnotes.xml",
+        "word/fontTable.xml",
+        "word/footer1.xml",
+        "word/footnotes.xml",
+        "word/header1.xml",
+        "word/numbering.xml",
+        "word/settings.xml",
+        "word/styles.xml",
+        "word/theme/theme1.xml",
+        "word/webSettings.xml",
+    ]
     assert "word/theme/theme1.xml" in part_names
     assert "word/settings.xml" in part_names
     assert "word/fontTable.xml" in part_names
