@@ -1718,6 +1718,15 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert structure_summary["relationship_target_mode_counts"] == {}
     assert structure_summary["external_relationship_count"] == 0
     assert structure_summary["external_hyperlink_relationship_count"] == 0
+    assert structure_summary["paragraph_count"] == 1
+    assert structure_summary["run_count"] == 1
+    assert structure_summary["hyperlink_count"] == 0
+    assert structure_summary["tab_count"] == 0
+    assert structure_summary["table_count"] == 0
+    assert structure_summary["table_row_count"] == 0
+    assert structure_summary["table_cell_count"] == 0
+    assert structure_summary["table_paragraph_count"] == 0
+    assert structure_summary["numbered_paragraph_count"] == 0
     with zipfile.ZipFile(document_path) as document:
         root_relationships = document.read("_rels/.rels").decode("utf-8")
         document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")
