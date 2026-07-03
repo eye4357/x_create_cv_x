@@ -2209,6 +2209,12 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "Office audit written" in output
     assert audit_path.exists()
     assert json_path.exists()
+    report = app.read_json(json_path)
+    assert [comparison["status"] for comparison in report["comparisons"]] == ["pass"] * 4
+    for comparison in report["comparisons"]:
+        assert comparison["generated"]["structure"] == comparison["source"]["structure"]
+    assert report["comparisons"][0]["generated"]["structure"]["sheet_count"] == 9
+    assert report["comparisons"][1]["generated"]["structure"]["style_definition_count"] == 6
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
     assert "## DOCX Structure" in audit_text
