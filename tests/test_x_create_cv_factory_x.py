@@ -1496,6 +1496,7 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     with zipfile.ZipFile(document_path) as document:
         root_relationships = document.read("_rels/.rels").decode("utf-8")
         document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")
+        document_xml = document.read("word/document.xml").decode("utf-8")
         content_types = document.read("[Content_Types].xml").decode("utf-8")
     assert root_relationships == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1518,6 +1519,14 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
         'Target="theme/theme1.xml"/><Relationship Id="rId5" '
         'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" '
         'Target="fontTable.xml"/></Relationships>'
+    )
+    assert document_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:document xmlns:w="{app.WORD_NS}" xmlns:r="{app.REL_NS}"><w:body>'
+        '<w:p><w:r><w:t xml:space="preserve">Lean package</w:t></w:r></w:p>'
+        '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
+        '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" '
+        'w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>'
     )
     assert content_types == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
