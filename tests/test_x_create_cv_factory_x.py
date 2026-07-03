@@ -409,6 +409,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     workbook_path = tmp_path / "layout_contract.xlsx"
     app.write_master_workbook(master, workbook_path)
     with zipfile.ZipFile(workbook_path) as workbook:
+        workbook_part_names = sorted(workbook.namelist())
         content_types_xml = workbook.read("[Content_Types].xml").decode("utf-8")
         root_relationships_xml = workbook.read("_rels/.rels").decode("utf-8")
         core_properties_xml = workbook.read("docProps/core.xml").decode("utf-8")
@@ -418,6 +419,16 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         styles_xml = workbook.read("xl/styles.xml").decode("utf-8")
 
     assert workbook_sheet_names(workbook_path) == ["Highlights"]
+    assert workbook_part_names == [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "docProps/app.xml",
+        "docProps/core.xml",
+        "xl/_rels/workbook.xml.rels",
+        "xl/styles.xml",
+        "xl/workbook.xml",
+        "xl/worksheets/sheet1.xml",
+    ]
     assert content_types_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
