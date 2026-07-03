@@ -926,6 +926,13 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     ]
     for expected_theme_fragment in expected_theme_fragments:
         assert expected_theme_fragment in theme_xml
+    assert root_relationships_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+        'Target="word/document.xml"/></Relationships>'
+    )
     assert (
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
         'Target="word/document.xml"' in root_relationships_xml
