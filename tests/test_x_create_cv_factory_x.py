@@ -1339,6 +1339,7 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     app.write_resume_document(master, resume, document_path)
 
     part_names = docx_part_names(document_path)
+    structure_summary = app.docx_structure_summary(document_path)
     assert part_names == [
         "[Content_Types].xml",
         "_rels/.rels",
@@ -1356,6 +1357,27 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert "word/footnotes.xml" not in part_names
     assert "word/endnotes.xml" not in part_names
     assert "customXml/item1.xml" not in part_names
+    assert structure_summary["part_names"] == part_names
+    assert structure_summary["part_count"] == len(part_names)
+    assert structure_summary["has_theme"] is True
+    assert structure_summary["has_font_table"] is True
+    assert structure_summary["has_web_settings"] is False
+    assert structure_summary["has_footnotes"] is False
+    assert structure_summary["has_endnotes"] is False
+    assert structure_summary["has_custom_xml"] is False
+    assert structure_summary["header_count"] == 0
+    assert structure_summary["footer_count"] == 0
+    assert structure_summary["relationship_count"] == 5
+    assert structure_summary["relationship_type_counts"] == {
+        "styles": 1,
+        "numbering": 1,
+        "settings": 1,
+        "theme": 1,
+        "fontTable": 1,
+    }
+    assert structure_summary["relationship_target_mode_counts"] == {}
+    assert structure_summary["external_relationship_count"] == 0
+    assert structure_summary["external_hyperlink_relationship_count"] == 0
     with zipfile.ZipFile(document_path) as document:
         root_relationships = document.read("_rels/.rels").decode("utf-8")
         document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")

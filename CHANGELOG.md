@@ -64,6 +64,7 @@
 - Extended public fake Office tests to assert lean DOCX optional-package content-type XML without private data.
 - Extended public fake Office tests to assert lean DOCX optional-package document relationship XML without private data.
 - Extended public fake Office tests to assert lean DOCX optional-package root relationship XML without private data.
+- Extended public fake Office tests to assert lean DOCX optional-package structure summary package flags and relationship counters without private data.
 - Extended public fake Office tests to assert DOCX baseline and optional document relationship binding without private data.
 - Extended public fake Office tests to assert exact DOCX document relationship XML with optional package parts and hyperlink targets without private data.
 - Extended public fake Office tests to assert DOCX settings part and default tab stop XML without private data.
