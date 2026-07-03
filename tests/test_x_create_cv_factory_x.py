@@ -713,6 +713,7 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         docx_footnotes_xml = document.read("word/footnotes.xml").decode("utf-8")
         docx_endnotes_xml = document.read("word/endnotes.xml").decode("utf-8")
         custom_xml = document.read("customXml/item1.xml").decode("utf-8")
+        custom_props_xml = document.read("customXml/itemProps1.xml").decode("utf-8")
     structure_summary = app.docx_structure_summary(document_path)
 
     assert document_xml == (
@@ -860,6 +861,12 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert (
         custom_xml
         == '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cv:metadata xmlns:cv="urn:x-create-cv-x"/>'
+    )
+    assert custom_props_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<ds:datastoreItem ds:itemID="{00000000-0000-0000-0000-000000000001}" '
+        'xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml">'
+        "<ds:schemaRefs/></ds:datastoreItem>"
     )
     assert docx_styles_xml == (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
