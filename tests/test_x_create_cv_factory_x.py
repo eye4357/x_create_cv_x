@@ -1210,8 +1210,24 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
     assert '<w:sz w:val="22"/>' in document_xml
     assert 'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"' in relationships_xml
     assert 'Target="https://example.test/cv" TargetMode="External"' in relationships_xml
+    assert structure_summary["relationship_count"] == 12
+    assert structure_summary["relationship_type_counts"] == {
+        "styles": 1,
+        "numbering": 1,
+        "settings": 1,
+        "theme": 1,
+        "fontTable": 1,
+        "webSettings": 1,
+        "header": 1,
+        "footer": 1,
+        "footnotes": 1,
+        "endnotes": 1,
+        "customXml": 1,
+        "hyperlink": 1,
+    }
     assert structure_summary["relationship_type_counts"]["hyperlink"] == 1
     assert structure_summary["relationship_target_mode_counts"] == {"External": 1}
+    assert structure_summary["external_relationship_count"] == 1
     assert structure_summary["external_hyperlink_relationship_count"] == 1
     assert structure_summary["styled_paragraph_count"] == 1
     assert structure_summary["aligned_paragraph_count"] == 1
