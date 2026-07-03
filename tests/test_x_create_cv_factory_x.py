@@ -1705,6 +1705,8 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert structure_summary["has_custom_xml"] is False
     assert structure_summary["header_count"] == 0
     assert structure_summary["footer_count"] == 0
+    assert structure_summary["body_child_counts"] == {"p": 1, "sectPr": 1}
+    assert structure_summary["font_names"] == ["Calibri", "Symbol"]
     assert structure_summary["relationship_count"] == 5
     assert structure_summary["relationship_type_counts"] == {
         "styles": 1,
