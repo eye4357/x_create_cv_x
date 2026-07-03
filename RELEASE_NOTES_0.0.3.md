@@ -52,6 +52,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for exact XLSX worksheet XML.
 - Added public fake-fixture coverage for DOCX styles XML definitions and list-style binding.
 - Added public fake-fixture coverage for DOCX numbering XML abstract and concrete numbering bindings.
+- Added public fake-fixture coverage for exact DOCX numbering XML.
 - Added public fake-fixture coverage for DOCX content-type and root relationship package binding.
 - Added public fake-fixture coverage for DOCX optional content-type package binding.
 - Added public fake-fixture coverage for lean DOCX optional-package part manifest.

@@ -61,6 +61,7 @@
 - Extended public fake Office tests to assert exact XLSX worksheet XML without private data.
 - Extended public fake Office tests to assert DOCX styles XML definitions and list-style binding without private data.
 - Extended public fake Office tests to assert DOCX numbering XML abstract and concrete numbering bindings without private data.
+- Extended public fake Office tests to assert exact DOCX numbering XML without private data.
 - Extended public fake Office tests to assert DOCX content-type and root relationship package binding without private data.
 - Extended public fake Office tests to assert DOCX optional content-type package binding without private data.
 - Extended public fake Office tests to assert lean DOCX optional-package part manifest without private data.

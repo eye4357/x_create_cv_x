@@ -769,15 +769,24 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert (
         '<w:r><w:rPr><w:i/><w:u w:val="single"/></w:rPr>' '<w:t xml:space="preserve"> run</w:t></w:r>' in document_xml
     )
-    assert f'<w:numbering xmlns:w="{app.WORD_NS}">' in docx_numbering_xml
-    assert '<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>' in docx_numbering_xml
-    assert '<w:abstractNum w:abstractNumId="7"><w:multiLevelType w:val="hybridMultilevel"/>' in docx_numbering_xml
-    assert '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>' in docx_numbering_xml
-    assert '<w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr>' in docx_numbering_xml
-    assert '<w:pPr><w:ind w:left="1440" w:hanging="360"/></w:pPr>' in docx_numbering_xml
-    assert '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr>' in docx_numbering_xml
-    assert '<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>' in docx_numbering_xml
-    assert '<w:num w:numId="7"><w:abstractNumId w:val="7"/></w:num>' in docx_numbering_xml
+    expected_abstract_num_xml = (
+        '<w:multiLevelType w:val="hybridMultilevel"/>'
+        '<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+        '<w:lvlText w:val="\u2022"/><w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+        '<w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="bullet"/>'
+        '<w:lvlText w:val="\u2022"/><w:pPr><w:ind w:left="1440" w:hanging="360"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol" w:hint="default"/></w:rPr></w:lvl>'
+    )
+    assert docx_numbering_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<w:numbering xmlns:w="{app.WORD_NS}">'
+        f'<w:abstractNum w:abstractNumId="1">{expected_abstract_num_xml}</w:abstractNum>'
+        f'<w:abstractNum w:abstractNumId="7">{expected_abstract_num_xml}</w:abstractNum>'
+        '<w:num w:numId="1"><w:abstractNumId w:val="1"/></w:num>'
+        '<w:num w:numId="7"><w:abstractNumId w:val="7"/></w:num>'
+        "</w:numbering>"
+    )
     assert structure_summary["numbered_paragraph_count"] == 1
     assert structure_summary["numbering_abstract_count"] == 2
     assert structure_summary["numbering_num_count"] == 2
