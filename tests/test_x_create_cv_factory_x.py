@@ -1850,6 +1850,12 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     )
     assert "/docProps/core.xml" not in content_types
     assert "/docProps/app.xml" not in content_types
+    assert "/word/webSettings.xml" not in content_types
+    assert "/word/footnotes.xml" not in content_types
+    assert "/word/endnotes.xml" not in content_types
+    assert "/customXml/itemProps1.xml" not in content_types
+    assert "/word/header1.xml" not in content_types
+    assert "/word/footer1.xml" not in content_types
 
 
 def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
