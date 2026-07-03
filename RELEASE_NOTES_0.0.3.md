@@ -70,6 +70,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for exact DOCX layout settings XML.
 - Added public fake-fixture coverage for exact DOCX layout font table XML.
 - Added public fake-fixture coverage for exact DOCX layout web settings XML.
+- Added public fake-fixture coverage for exact DOCX layout footnotes XML.
 - Added public fake-fixture coverage for exact DOCX layout document XML.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
