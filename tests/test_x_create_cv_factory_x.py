@@ -2340,6 +2340,22 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"Job Highlights", "Vehicle Program", "Employer", "Address", "Reason For Leaving", "Salary Usd", '
         '"Start Date", "End Date", "Time Spent"] |' in audit_text
     )
+    assert (
+        "| Standards Development | Standards Development | xl/worksheets/sheet3.xml | "
+        "xl/worksheets/sheet3.xml | A1:H1 | A1:H1 | 1 | 1 | 8 | 8 | 8 | 8 | "
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        "A1:H1 | A1:H1 | "
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '["10.00", "10.00", "14.00", "19.00", "10.00", "12.00", "10.00", "12.00"] | '
+        '["10.00", "10.00", "14.00", "19.00", "10.00", "12.00", "10.00", "12.00"] | '
+        '{"inlineStr": 8} | {"inlineStr": 8} | ["ID", "Label", "Organization", "Title Of Standard", '
+        '"Role", "Start Date", "End Date", "Time Spent"] | ["ID", "Label", "Organization", '
+        '"Title Of Standard", "Role", "Start Date", "End Date", "Time Spent"] |' in audit_text
+    )
     assert "## Known Acceptable Differences" in audit_text
     assert "| Generated Path | Scope | Reason |" in audit_text
     assert (
