@@ -2387,6 +2387,22 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '{"inlineStr": 5} | {"inlineStr": 5} | ["ID", "Label", "Patent Name", "Patent Number", '
         '"Patent Url"] | ["ID", "Label", "Patent Name", "Patent Number", "Patent Url"] |' in audit_text
     )
+    assert (
+        "| Publications | Publications | xl/worksheets/sheet7.xml | "
+        "xl/worksheets/sheet7.xml | A1:G1 | A1:G1 | 1 | 1 | 7 | 7 | 7 | 7 | "
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        "A1:G1 | A1:G1 | "
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '["10.00", "10.00", "10.00", "18.00", "11.00", "23.00", "17.00"] | '
+        '["10.00", "10.00", "10.00", "18.00", "11.00", "23.00", "17.00"] | '
+        '{"inlineStr": 7} | {"inlineStr": 7} | ["ID", "Label", "Year", "Publication Name", '
+        '"Publisher", "Publication Reference", "Publication Url"] | ["ID", "Label", "Year", '
+        '"Publication Name", "Publisher", "Publication Reference", "Publication Url"] |' in audit_text
+    )
     assert "## Known Acceptable Differences" in audit_text
     assert "| Generated Path | Scope | Reason |" in audit_text
     assert (

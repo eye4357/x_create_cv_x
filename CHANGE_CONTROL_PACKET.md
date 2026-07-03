@@ -162,6 +162,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert Office audit Markdown XLSX standards sheet-detail rows without private data.
 - Extended public fake Office tests to assert Office audit Markdown XLSX certification sheet-detail rows without private data.
 - Extended public fake Office tests to assert Office audit Markdown XLSX patent sheet-detail rows without private data.
+- Extended public fake Office tests to assert Office audit Markdown XLSX publication sheet-detail rows without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX styles XML without private data.
