@@ -513,20 +513,32 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         'Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
         'Target="styles.xml"' in workbook_relationships_xml
     )
-    assert f'<styleSheet xmlns="{app.SHEET_NS}">' in styles_xml
-    assert '<fonts count="3">' in styles_xml
-    assert '<font><b/><sz val="11"/><color rgb="FF102030"/><name val="Calibri"/><family val="2"/></font>' in styles_xml
-    assert '<fills count="4">' in styles_xml
-    assert '<fgColor rgb="FFABCDEF"/>' in styles_xml
-    assert '<borders count="2">' in styles_xml
-    assert '<left style="thin"><color rgb="FF405060"/></left>' in styles_xml
-    assert '<right style="thin"><color rgb="FF405060"/></right>' in styles_xml
-    assert '<top style="thin"><color rgb="FF405060"/></top>' in styles_xml
-    assert '<bottom style="thin"><color rgb="FF405060"/></bottom>' in styles_xml
-    assert '<cellXfs count="3">' in styles_xml
-    assert (
+    assert styles_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        f'<styleSheet xmlns="{app.SHEET_NS}">'
+        '<fonts count="3">'
+        '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/></font>'
+        '<font><b/><sz val="11"/><color rgb="FF102030"/><name val="Calibri"/><family val="2"/></font>'
+        '<font><i/><sz val="11"/><color rgb="FF666666"/><name val="Calibri"/><family val="2"/></font>'
+        '</fonts><fills count="4">'
+        '<fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'
+        '<fill><patternFill patternType="solid"><fgColor rgb="FFABCDEF"/>'
+        '<bgColor indexed="64"/></patternFill></fill>'
+        '<fill><patternFill patternType="solid"><fgColor rgb="FFD9EAF7"/><bgColor indexed="64"/></patternFill></fill>'
+        '</fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>'
+        '<border><left style="thin"><color rgb="FF405060"/></left>'
+        '<right style="thin"><color rgb="FF405060"/></right>'
+        '<top style="thin"><color rgb="FF405060"/></top>'
+        '<bottom style="thin"><color rgb="FF405060"/></bottom><diagonal/></border></borders>'
+        '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+        '<cellXfs count="3">'
+        '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+        '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" '
+        'applyFont="1" applyFill="1" applyBorder="1"/>'
         '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1">'
-        '<alignment vertical="top" wrapText="1"/></xf>' in styles_xml
+        '<alignment vertical="top" wrapText="1"/></xf>'
+        '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
+        "</styleSheet>"
     )
     assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights", "Score", "Current"]
     assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value", "", ""]
