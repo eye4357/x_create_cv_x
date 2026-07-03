@@ -65,6 +65,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX table width and border property XML.
 - Added public fake-fixture coverage for XLSX content-type default declarations.
 - Added public fake-fixture coverage for XLSX package root relationship XML.
+- Added public fake-fixture coverage for XLSX workbook relationship XML.
 - Added public fake-fixture coverage for DOCX core and app document property metadata.
 - Added public fake-fixture coverage for DOCX table grid and cell width XML.
 - Added public fake-fixture coverage for DOCX section page margin XML.

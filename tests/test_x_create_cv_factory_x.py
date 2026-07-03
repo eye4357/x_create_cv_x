@@ -461,6 +461,15 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
     assert '<dcterms:modified xsi:type="dcterms:W3CDTF">2026-07-01T00:00:00Z</dcterms:modified>' in core_properties_xml
     assert "<Application>x_create_cv_x</Application>" in app_properties_xml
     assert '<sheet name="Highlights" sheetId="1" r:id="rId1"/>' in workbook_xml
+    assert workbook_relationships_xml == (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" '
+        'Target="worksheets/sheet1.xml"/><Relationship Id="rId2" '
+        'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" '
+        'Target="styles.xml"/></Relationships>'
+    )
     assert (
         'Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" '
         'Target="worksheets/sheet1.xml"' in workbook_relationships_xml
