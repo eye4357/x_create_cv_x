@@ -1727,6 +1727,16 @@ def test_docx_generation_can_omit_optional_package_properties(tmp_path: Path) ->
     assert structure_summary["table_cell_count"] == 0
     assert structure_summary["table_paragraph_count"] == 0
     assert structure_summary["numbered_paragraph_count"] == 0
+    assert structure_summary["styled_paragraph_count"] == 0
+    assert structure_summary["aligned_paragraph_count"] == 0
+    assert structure_summary["spaced_paragraph_count"] == 0
+    assert structure_summary["indented_paragraph_count"] == 0
+    assert structure_summary["tab_stopped_paragraph_count"] == 0
+    assert structure_summary["bold_run_count"] == 0
+    assert structure_summary["italic_run_count"] == 0
+    assert structure_summary["underline_run_count"] == 0
+    assert structure_summary["colored_run_count"] == 0
+    assert structure_summary["fonted_run_count"] == 0
     with zipfile.ZipFile(document_path) as document:
         root_relationships = document.read("_rels/.rels").decode("utf-8")
         document_relationships = document.read("word/_rels/document.xml.rels").decode("utf-8")
