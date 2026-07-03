@@ -2253,8 +2253,16 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| relationship_count | 9 | 9 |" in audit_text
     assert "| external_hyperlink_relationship_count | 0 | 0 |" in audit_text
     assert '| page_size | {"h": "15840", "w": "12240"} | {"h": "15840", "w": "12240"} |' in audit_text
+    assert (
+        '| page_margins | {"bottom": "1440", "footer": "720", "gutter": "0", "header": "720", '
+        '"left": "1440", "right": "1440", "top": "1440"} | {"bottom": "1440", "footer": "720", '
+        '"gutter": "0", "header": "720", "left": "1440", "right": "1440", "top": "1440"} |' in audit_text
+    )
     assert '| numbering_num_ids | ["1"] | ["1"] |' in audit_text
     assert '| font_names | ["Calibri", "Symbol"] | ["Calibri", "Symbol"] |' in audit_text
+    assert '| default_style_ids | ["Normal"] | ["Normal"] |' in audit_text
+    assert '| style_run_fonts | {"Normal": "Calibri"} | {"Normal": "Calibri"} |' in audit_text
+    assert '| style_bold_ids | ["Title", "Heading1", "Heading2"] | ["Title", "Heading1", "Heading2"] |' in audit_text
     assert (
         '| style_definition_ids | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", '
         '"ListBullet"] | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", "ListBullet"] |' in audit_text
