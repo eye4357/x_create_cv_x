@@ -70,6 +70,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for DOCX footnotes and endnotes part XML.
 - Added public fake-fixture coverage for DOCX font table and web settings part XML.
 - Added public fake-fixture coverage for DOCX theme color, font, and line-style XML.
+- Added public fake-fixture coverage for exact DOCX theme XML.
 - Added public fake-fixture coverage for DOCX package root relationship XML.
 - Added public fake-fixture coverage for DOCX content-type default declarations.
 - Added public fake-fixture coverage for enabled DOCX content-type override XML.
