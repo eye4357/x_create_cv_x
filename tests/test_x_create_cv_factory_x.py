@@ -2419,6 +2419,22 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"Publication Or Lecture Name", "Publisher Name"] | ["ID", "Label", "Year", '
         '"Publication Or Lecture Name", "Publisher Name"] |' in audit_text
     )
+    assert (
+        "| Residences | Residences | xl/worksheets/sheet9.xml | xl/worksheets/sheet9.xml | "
+        "A1:F1 | A1:F1 | 1 | 1 | 6 | 6 | 6 | 6 | "
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        '{"activePane": "bottomLeft", "state": "frozen", "topLeftCell": "A2", "ySplit": "1"} | '
+        "A1:F1 | A1:F1 | "
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '{"bottom": "0.75", "footer": "0.3", "header": "0.3", "left": "0.7", '
+        '"right": "0.7", "top": "0.75"} | '
+        '["10.00", "10.00", "11.00", "12.00", "10.00", "12.00"] | '
+        '["10.00", "10.00", "11.00", "12.00", "10.00", "12.00"] | '
+        '{"inlineStr": 6} | {"inlineStr": 6} | ["ID", "Label", "Residence", '
+        '"Start Date", "End Date", "Time Spent"] | ["ID", "Label", "Residence", '
+        '"Start Date", "End Date", "Time Spent"] |' in audit_text
+    )
     assert "## Known Acceptable Differences" in audit_text
     assert "| Generated Path | Scope | Reason |" in audit_text
     assert (
