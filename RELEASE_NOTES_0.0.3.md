@@ -251,6 +251,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2017 underline-run-count rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 underline-run-count rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2024 underline-run-count rows.
+- Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2017 colored-run-count rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
