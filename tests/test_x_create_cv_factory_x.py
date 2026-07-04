@@ -2297,6 +2297,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         in resume_2017_docx_section
     )
     assert (
+        '| style_paragraph_indents | {"ListParagraph": {"left": "720"}} | '
+        '{"ListParagraph": {"left": "720"}} |' in resume_2017_docx_section
+    )
+    assert (
         "### resume_2023_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
         "| --- | ---: | ---: |\n"
