@@ -2275,6 +2275,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| part_count | 17 | 17 |" in resume_2017_docx_section
     assert "| has_theme | true | true |" in resume_2017_docx_section
     assert "| has_font_table | true | true |" in resume_2017_docx_section
+    assert "| relationship_count | 9 | 9 |" in resume_2017_docx_section
     assert (
         "### resume_2023_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
