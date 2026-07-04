@@ -2328,6 +2328,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert '| numbering_num_ids | ["1"] | ["1"] |' in resume_2024_docx_section
     assert '| numbering_level_fonts | ["Symbol"] | ["Symbol"] |' in resume_2024_docx_section
     assert '| font_names | ["Calibri", "Symbol"] | ["Calibri", "Symbol"] |' in resume_2024_docx_section
+    assert '| default_style_ids | ["Normal"] | ["Normal"] |' in resume_2024_docx_section
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
     assert "| has_font_table | true | true |" in audit_text
