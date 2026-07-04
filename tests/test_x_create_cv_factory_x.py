@@ -2364,6 +2364,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '| style_bold_ids | ["Title", "Heading1", "Heading2"] | ["Title", "Heading1", "Heading2"] |'
         in resume_2024_docx_section
     )
+    assert (
+        '| style_paragraph_indents | {"ListParagraph": {"left": "720"}} | '
+        '{"ListParagraph": {"left": "720"}} |' in resume_2024_docx_section
+    )
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
     assert "| has_font_table | true | true |" in audit_text
