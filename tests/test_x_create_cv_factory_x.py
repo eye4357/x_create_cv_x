@@ -2411,6 +2411,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '{"after": "80", "before": "160"}, "Heading2": {"after": "60", "before": "120"}, '
         '"Title": {"after": "120"}} |' in resume_2023_docx_section
     )
+    assert "| section_footer_references | [] | [] |" in resume_2023_docx_section
     assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
