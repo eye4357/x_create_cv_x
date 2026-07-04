@@ -2414,6 +2414,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| footer_count | 0 | 0 |" in resume_2024_docx_section
     assert '| body_child_counts | {"p": 1, "sectPr": 1} | {"p": 1, "sectPr": 1} |' in resume_2024_docx_section
     assert "| relationship_count | 9 | 9 |" in resume_2024_docx_section
+    assert "| relationship_target_mode_counts | {} | {} |" in resume_2024_docx_section
     assert "| external_relationship_count | 0 | 0 |" in resume_2024_docx_section
     assert "| external_hyperlink_relationship_count | 0 | 0 |" in resume_2024_docx_section
     assert '| page_size | {"h": "15840", "w": "12240"} | {"h": "15840", "w": "12240"} |' in resume_2024_docx_section
