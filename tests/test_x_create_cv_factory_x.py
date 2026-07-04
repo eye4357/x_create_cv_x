@@ -2371,6 +2371,12 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"Title": "Normal"} |' in resume_2023_docx_section
     )
     assert (
+        '| style_paragraph_spacing | {"Heading1": {"after": "80", "before": "160"}, "Heading2": '
+        '{"after": "60", "before": "120"}, "Title": {"after": "120"}} | {"Heading1": '
+        '{"after": "80", "before": "160"}, "Heading2": {"after": "60", "before": "120"}, '
+        '"Title": {"after": "120"}} |' in resume_2023_docx_section
+    )
+    assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
         "| --- | ---: | ---: |\n"
