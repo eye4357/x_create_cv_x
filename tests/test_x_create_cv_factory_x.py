@@ -2352,6 +2352,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '| style_run_sizes | {"Heading1": "24", "Heading2": "22", "Normal": "22", "Title": "32"} | '
         '{"Heading1": "24", "Heading2": "22", "Normal": "22", "Title": "32"} |' in resume_2024_docx_section
     )
+    assert (
+        '| style_bold_ids | ["Title", "Heading1", "Heading2"] | ["Title", "Heading1", "Heading2"] |'
+        in resume_2024_docx_section
+    )
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
     assert "| has_font_table | true | true |" in audit_text
