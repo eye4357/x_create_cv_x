@@ -2429,6 +2429,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| indented_paragraph_count | 0 | 0 |" in resume_2023_docx_section
     assert "| tab_stopped_paragraph_count | 0 | 0 |" in resume_2023_docx_section
     assert "| bold_run_count | 0 | 0 |" in resume_2023_docx_section
+    assert "| italic_run_count | 0 | 0 |" in resume_2023_docx_section
     assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
