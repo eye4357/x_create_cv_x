@@ -2413,6 +2413,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"Title": {"after": "120"}} |' in resume_2023_docx_section
     )
     assert "| section_footer_references | [] | [] |" in resume_2023_docx_section
+    assert "| paragraph_count | 1 | 1 |" in resume_2023_docx_section
     assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
