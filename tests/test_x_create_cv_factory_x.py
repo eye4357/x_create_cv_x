@@ -2343,6 +2343,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| has_endnotes | true | true |" in resume_2023_docx_section
     assert "| has_custom_xml | true | true |" in resume_2023_docx_section
     assert "| header_count | 0 | 0 |" in resume_2023_docx_section
+    assert "| footer_count | 0 | 0 |" in resume_2023_docx_section
     assert "| relationship_count | 9 | 9 |" in resume_2023_docx_section
     assert "| external_hyperlink_relationship_count | 0 | 0 |" in resume_2023_docx_section
     assert '| page_size | {"h": "15840", "w": "12240"} | {"h": "15840", "w": "12240"} |' in resume_2023_docx_section
