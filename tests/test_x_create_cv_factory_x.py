@@ -2315,6 +2315,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert '| default_style_ids | ["Normal"] | ["Normal"] |' in resume_2023_docx_section
     assert '| style_run_fonts | {"Normal": "Calibri"} | {"Normal": "Calibri"} |' in resume_2023_docx_section
     assert (
+        '| style_run_sizes | {"Heading1": "24", "Heading2": "22", "Normal": "22", "Title": "32"} | '
+        '{"Heading1": "24", "Heading2": "22", "Normal": "22", "Title": "32"} |' in resume_2023_docx_section
+    )
+    assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
         "| --- | ---: | ---: |\n"
