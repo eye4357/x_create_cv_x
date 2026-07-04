@@ -2449,6 +2449,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| table_row_count | 0 | 0 |" in resume_2023_docx_section
     assert "| table_cell_count | 0 | 0 |" in resume_2023_docx_section
     assert "| table_paragraph_count | 0 | 0 |" in resume_2023_docx_section
+    assert "| table_grid_widths | [] | [] |" in resume_2023_docx_section
     assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
