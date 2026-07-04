@@ -2299,6 +2299,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"left": "1440", "right": "1440", "top": "1440"} | {"bottom": "1440", "footer": "720", '
         '"gutter": "0", "header": "720", "left": "1440", "right": "1440", "top": "1440"} |' in resume_2017_docx_section
     )
+    assert "| section_header_references | [] | [] |" in resume_2017_docx_section
     assert '| numbering_num_ids | ["1"] | ["1"] |' in resume_2017_docx_section
     assert '| numbering_level_fonts | ["Symbol"] | ["Symbol"] |' in resume_2017_docx_section
     assert '| font_names | ["Calibri", "Symbol"] | ["Calibri", "Symbol"] |' in resume_2017_docx_section
