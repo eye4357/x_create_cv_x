@@ -192,6 +192,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 has-footnotes rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2024 has-footnotes rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2017 has-endnotes rows.
+- Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 has-endnotes rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
