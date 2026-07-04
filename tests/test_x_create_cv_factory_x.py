@@ -2433,6 +2433,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| bold_run_count | 0 | 0 |" in resume_2023_docx_section
     assert "| italic_run_count | 0 | 0 |" in resume_2023_docx_section
     assert "| underline_run_count | 0 | 0 |" in resume_2023_docx_section
+    assert "| colored_run_count | 0 | 0 |" in resume_2023_docx_section
     assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
