@@ -2312,6 +2312,11 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| relationship_count | 9 | 9 |" in resume_2024_docx_section
     assert "| external_hyperlink_relationship_count | 0 | 0 |" in resume_2024_docx_section
     assert '| page_size | {"h": "15840", "w": "12240"} | {"h": "15840", "w": "12240"} |' in resume_2024_docx_section
+    assert (
+        '| page_margins | {"bottom": "1440", "footer": "720", "gutter": "0", "header": "720", '
+        '"left": "1440", "right": "1440", "top": "1440"} | {"bottom": "1440", "footer": "720", '
+        '"gutter": "0", "header": "720", "left": "1440", "right": "1440", "top": "1440"} |' in resume_2024_docx_section
+    )
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
     assert "| has_font_table | true | true |" in audit_text
