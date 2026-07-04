@@ -2310,6 +2310,12 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         in resume_2017_docx_section
     )
     assert (
+        '| style_based_on | {"Heading1": "Normal", "Heading2": "Normal", "ListBullet": '
+        '"ListParagraph", "ListParagraph": "Normal", "Title": "Normal"} | {"Heading1": "Normal", '
+        '"Heading2": "Normal", "ListBullet": "ListParagraph", "ListParagraph": "Normal", '
+        '"Title": "Normal"} |' in resume_2017_docx_section
+    )
+    assert (
         "### resume_2023_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
         "| --- | ---: | ---: |\n"
