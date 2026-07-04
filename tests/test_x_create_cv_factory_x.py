@@ -2272,6 +2272,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "| --- | ---: | ---: |\n"
         "| part_names |" in audit_text
     )
+    assert "| style_definition_count | 6 | 6 |" in resume_2017_docx_section
     assert "| part_count | 17 | 17 |" in resume_2017_docx_section
     assert "| has_theme | true | true |" in resume_2017_docx_section
     assert "| has_font_table | true | true |" in resume_2017_docx_section
