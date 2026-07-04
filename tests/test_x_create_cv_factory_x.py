@@ -2522,6 +2522,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| italic_run_count | 0 | 0 |" in resume_2024_docx_section
     assert "| underline_run_count | 0 | 0 |" in resume_2024_docx_section
     assert "| colored_run_count | 0 | 0 |" in resume_2024_docx_section
+    assert "| fonted_run_count | 0 | 0 |" in resume_2024_docx_section
     assert "| hyperlink_count | 0 | 0 |" in resume_2024_docx_section
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
