@@ -216,6 +216,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 relationship-type-counts rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2024 relationship-type-counts rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2017 section-header-references rows.
+- Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 section-header-references rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
