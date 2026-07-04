@@ -2348,6 +2348,11 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '{"ListBullet": {"level": "0", "num_id": "1"}} |' in resume_2023_docx_section
     )
     assert (
+        '| style_definition_ids | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", '
+        '"ListBullet"] | ["Normal", "Title", "Heading1", "Heading2", "ListParagraph", "ListBullet"] |'
+        in resume_2023_docx_section
+    )
+    assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
         "| --- | ---: | ---: |\n"
