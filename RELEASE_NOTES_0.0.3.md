@@ -279,6 +279,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 table-grid-width rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2024 table-grid-width rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2017 table-cell-width rows.
+- Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 table-cell-width rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
