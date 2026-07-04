@@ -2303,6 +2303,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"gutter": "0", "header": "720", "left": "1800", "right": "1800", "top": "1440"} |' in resume_2023_docx_section
     )
     assert '| numbering_num_ids | ["1"] | ["1"] |' in resume_2023_docx_section
+    assert '| numbering_level_fonts | ["Symbol"] | ["Symbol"] |' in resume_2023_docx_section
     assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
