@@ -2268,6 +2268,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][2]["generated"]["normalized_text"]["line_count"] == 1
     assert report["comparisons"][3]["generated"]["normalized_text"]["line_count"] == 1
     assert report["comparisons"][1]["source"]["normalized_text"]["line_count"] == 1
+    assert report["comparisons"][2]["source"]["normalized_text"]["line_count"] == 1
     assert sorted(report["comparisons"][0]["generated"]["structure"].keys()) == [
         "content_type_overrides",
         "has_core_properties",
