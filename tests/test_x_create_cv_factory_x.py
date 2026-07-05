@@ -2508,6 +2508,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][0]["source"]["structure"]["worksheet_part_count"] == expected_xlsx_worksheet_part_count
     assert report["comparisons"][0]["generated"]["structure"]["sheet_names"] == expected_xlsx_sheet_names
     assert report["comparisons"][0]["source"]["structure"]["sheet_names"] == expected_xlsx_sheet_names
+    assert (
+        report["comparisons"][0]["generated"]["structure"]["part_names"]
+        == report["comparisons"][0]["source"]["structure"]["part_names"]
+    )
     expected_docx_structure_keys = [
         "aligned_paragraph_count",
         "body_child_counts",
