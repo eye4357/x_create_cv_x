@@ -2550,6 +2550,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| table_grid_widths | [] | [] |" in resume_2024_docx_section
     assert "| table_cell_widths | [] | [] |" in resume_2024_docx_section
     assert "| numbered_paragraph_count | 0 | 0 |" in resume_2024_docx_section
+    assert "| numbering_abstract_count | 1 | 1 |" in resume_2024_docx_section
     assert "| part_count | 17 | 17 |" in audit_text
     assert "| has_theme | true | true |" in audit_text
     assert "| has_font_table | true | true |" in audit_text
