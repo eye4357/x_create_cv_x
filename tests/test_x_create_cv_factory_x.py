@@ -2387,6 +2387,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "rId9": "xl/worksheets/sheet9.xml",
         "rId10": "xl/styles.xml",
     }
+    expected_xlsx_worksheet_part_count = 9
     expected_xlsx_sheet_names = [
         "Highlights",
         "Jobs",
@@ -2424,6 +2425,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         report["comparisons"][0]["source"]["structure"]["workbook_relationship_targets"]
         == expected_xlsx_workbook_relationship_targets
     )
+    assert (
+        report["comparisons"][0]["generated"]["structure"]["worksheet_part_count"] == expected_xlsx_worksheet_part_count
+    )
+    assert report["comparisons"][0]["source"]["structure"]["worksheet_part_count"] == expected_xlsx_worksheet_part_count
     assert report["comparisons"][0]["generated"]["structure"]["sheet_names"] == expected_xlsx_sheet_names
     assert report["comparisons"][0]["source"]["structure"]["sheet_names"] == expected_xlsx_sheet_names
     expected_docx_structure_keys = [
