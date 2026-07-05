@@ -2430,11 +2430,30 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "table_row_count",
         "underline_run_count",
     ]
+    expected_docx_relationship_type_counts = {
+        "styles": 1,
+        "numbering": 1,
+        "settings": 1,
+        "theme": 1,
+        "fontTable": 1,
+        "webSettings": 1,
+        "footnotes": 1,
+        "endnotes": 1,
+        "customXml": 1,
+    }
     for index in [1, 2, 3]:
         assert sorted(report["comparisons"][index]["generated"]["structure"].keys()) == expected_docx_structure_keys
         assert sorted(report["comparisons"][index]["source"]["structure"].keys()) == expected_docx_structure_keys
         assert report["comparisons"][index]["generated"]["structure"]["relationship_count"] == 9
         assert report["comparisons"][index]["source"]["structure"]["relationship_count"] == 9
+        assert (
+            report["comparisons"][index]["generated"]["structure"]["relationship_type_counts"]
+            == expected_docx_relationship_type_counts
+        )
+        assert (
+            report["comparisons"][index]["source"]["structure"]["relationship_type_counts"]
+            == expected_docx_relationship_type_counts
+        )
         assert report["comparisons"][index]["generated"]["structure"]["relationship_target_mode_counts"] == {}
         assert report["comparisons"][index]["source"]["structure"]["relationship_target_mode_counts"] == {}
         assert report["comparisons"][index]["generated"]["structure"]["external_relationship_count"] == 0
