@@ -2433,6 +2433,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     for index in [1, 2, 3]:
         assert sorted(report["comparisons"][index]["generated"]["structure"].keys()) == expected_docx_structure_keys
         assert sorted(report["comparisons"][index]["source"]["structure"].keys()) == expected_docx_structure_keys
+        assert report["comparisons"][index]["generated"]["structure"]["relationship_count"] == 9
+        assert report["comparisons"][index]["source"]["structure"]["relationship_count"] == 9
+        assert report["comparisons"][index]["generated"]["structure"]["relationship_target_mode_counts"] == {}
+        assert report["comparisons"][index]["source"]["structure"]["relationship_target_mode_counts"] == {}
+        assert report["comparisons"][index]["generated"]["structure"]["external_relationship_count"] == 0
+        assert report["comparisons"][index]["source"]["structure"]["external_relationship_count"] == 0
+        assert report["comparisons"][index]["generated"]["structure"]["external_hyperlink_relationship_count"] == 0
+        assert report["comparisons"][index]["source"]["structure"]["external_hyperlink_relationship_count"] == 0
     assert report["comparisons"][0]["generated"]["structure"]["sheet_count"] == 9
     assert report["comparisons"][1]["generated"]["structure"]["style_definition_count"] == 6
     audit_text = audit_path.read_text(encoding="utf-8")
