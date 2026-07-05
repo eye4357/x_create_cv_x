@@ -2271,6 +2271,15 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][1]["source"]["normalized_text"]["line_count"] == 1
     assert report["comparisons"][2]["source"]["normalized_text"]["line_count"] == 1
     assert report["comparisons"][3]["source"]["normalized_text"]["line_count"] == 1
+    expected_xlsx_normalized_text_sha256_length = 64
+    assert (
+        len(report["comparisons"][0]["generated"]["normalized_text"]["sha256"])
+        == expected_xlsx_normalized_text_sha256_length
+    )
+    assert (
+        len(report["comparisons"][0]["source"]["normalized_text"]["sha256"])
+        == expected_xlsx_normalized_text_sha256_length
+    )
     expected_docx_normalized_text_sha256_length = 64
     assert (
         len(report["comparisons"][1]["generated"]["normalized_text"]["sha256"])
