@@ -467,6 +467,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON XLSX structure part-names parity contracts on comparison 0 generated and source payloads.
 - Added public fake-fixture coverage for Office audit JSON XLSX structure content-type-overrides parity contracts on comparison 0 generated and source payloads.
 - Added public fake-fixture coverage for Office audit JSON XLSX structure sheet-count parity contracts on comparison 0 generated and source payloads.
+- Added public fake-fixture coverage for Office audit JSON XLSX structure sheet-names parity contracts on comparison 0 generated and source payloads.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 3 generated and source structures.
