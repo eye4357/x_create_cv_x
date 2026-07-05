@@ -2297,6 +2297,34 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "workbook_relationship_type_counts",
         "worksheet_part_count",
     ]
+    assert sorted(report["comparisons"][0]["generated"]["structure"]["styles"].keys()) == [
+        "bold_font_indexes",
+        "border_colors",
+        "border_count",
+        "cell_style_count",
+        "cell_xfs",
+        "cell_xfs_count",
+        "fill_count",
+        "fill_fg_colors",
+        "font_colors",
+        "font_count",
+        "font_names",
+        "italic_font_indexes",
+    ]
+    assert sorted(report["comparisons"][0]["source"]["structure"]["styles"].keys()) == [
+        "bold_font_indexes",
+        "border_colors",
+        "border_count",
+        "cell_style_count",
+        "cell_xfs",
+        "cell_xfs_count",
+        "fill_count",
+        "fill_fg_colors",
+        "font_colors",
+        "font_count",
+        "font_names",
+        "italic_font_indexes",
+    ]
     expected_docx_structure_keys = [
         "aligned_paragraph_count",
         "body_child_counts",
