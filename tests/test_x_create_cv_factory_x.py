@@ -2223,6 +2223,18 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert [comparison["status"] for comparison in report["comparisons"]] == ["pass"] * 4
     assert [comparison["byte_identical"] for comparison in report["comparisons"]] == [True] * 4
     assert [comparison["normalized_text_match"] for comparison in report["comparisons"]] == [True] * 4
+    assert [comparison["generated"]["path"] for comparison in report["comparisons"]] == [
+        "generated/office/a_posteriori/master_profile_a_posteriori.xlsx",
+        "generated/office/a_posteriori/resume_2017_a_posteriori.docx",
+        "generated/office/a_posteriori/resume_2023_a_posteriori.docx",
+        "generated/office/a_posteriori/resume_2024_a_posteriori.docx",
+    ]
+    assert [comparison["source"]["path"] for comparison in report["comparisons"]] == [
+        "source_office/a_priori/R_cv_2023_0501_1427_a_priori.xlsx",
+        "source_office/a_priori/R_cv_2017_1129_0848_a_priori.docx",
+        "source_office/a_priori/R_cv_2023_0315_2158_a_priori.docx",
+        "source_office/a_priori/R_cv_2024_1206_0000_a_priori.docx",
+    ]
     assert [comparison["status_reason"] for comparison in report["comparisons"]] == [
         "Generated file is byte-identical to source evidence."
     ] * 4
