@@ -323,6 +323,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON DOCX relationship-type-count value contracts.
 - Added public fake-fixture coverage for Office audit JSON XLSX relationship-type-count value contracts.
 - Added public fake-fixture coverage for Office audit JSON XLSX workbook-relationship-target value contracts.
+- Added public fake-fixture coverage for Office audit JSON XLSX sheet-name value contracts.
 - Added public fake-fixture coverage for Office audit JSON XLSX styles-summary key contracts.
 - Added public fake-fixture coverage for Office audit JSON XLSX styles-summary value contracts.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
