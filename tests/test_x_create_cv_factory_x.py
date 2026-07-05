@@ -2366,8 +2366,33 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
             },
         ],
     }
+    expected_xlsx_root_relationship_type_counts = {
+        "core-properties": 1,
+        "extended-properties": 1,
+        "officeDocument": 1,
+    }
+    expected_xlsx_workbook_relationship_type_counts = {
+        "styles": 1,
+        "worksheet": 9,
+    }
     assert report["comparisons"][0]["generated"]["structure"]["styles"] == expected_xlsx_styles_summary
     assert report["comparisons"][0]["source"]["structure"]["styles"] == expected_xlsx_styles_summary
+    assert (
+        report["comparisons"][0]["generated"]["structure"]["root_relationship_type_counts"]
+        == expected_xlsx_root_relationship_type_counts
+    )
+    assert (
+        report["comparisons"][0]["source"]["structure"]["root_relationship_type_counts"]
+        == expected_xlsx_root_relationship_type_counts
+    )
+    assert (
+        report["comparisons"][0]["generated"]["structure"]["workbook_relationship_type_counts"]
+        == expected_xlsx_workbook_relationship_type_counts
+    )
+    assert (
+        report["comparisons"][0]["source"]["structure"]["workbook_relationship_type_counts"]
+        == expected_xlsx_workbook_relationship_type_counts
+    )
     expected_docx_structure_keys = [
         "aligned_paragraph_count",
         "body_child_counts",
