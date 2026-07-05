@@ -2905,6 +2905,17 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][2]["source"]["structure"]["numbering_num_ids"] == expected_docx_numbering_num_ids
     assert report["comparisons"][3]["generated"]["structure"]["numbering_num_ids"] == expected_docx_numbering_num_ids
     assert report["comparisons"][3]["source"]["structure"]["numbering_num_ids"] == expected_docx_numbering_num_ids
+    expected_docx_page_margins = {
+        "top": "1440",
+        "right": "1440",
+        "bottom": "1440",
+        "left": "1440",
+        "header": "720",
+        "footer": "720",
+        "gutter": "0",
+    }
+    assert report["comparisons"][1]["generated"]["structure"]["page_margins"] == expected_docx_page_margins
+    assert report["comparisons"][1]["source"]["structure"]["page_margins"] == expected_docx_page_margins
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
     assert f"Generator: `x_create_cv_x {app.VERSION}`" in audit_text
