@@ -2223,6 +2223,9 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert [comparison["status"] for comparison in report["comparisons"]] == ["pass"] * 4
     assert [comparison["byte_identical"] for comparison in report["comparisons"]] == [True] * 4
     assert [comparison["normalized_text_match"] for comparison in report["comparisons"]] == [True] * 4
+    assert [comparison["status_reason"] for comparison in report["comparisons"]] == [
+        "Generated file is byte-identical to source evidence."
+    ] * 4
     for comparison in report["comparisons"]:
         assert comparison["generated"]["normalized_text"] == comparison["source"]["normalized_text"]
         assert comparison["generated"]["structure"] == comparison["source"]["structure"]

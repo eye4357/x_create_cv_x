@@ -309,6 +309,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for scoped Office audit Markdown XLSX content-type-overrides rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown XLSX workbook-relationship-target rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown XLSX styles rows.
+- Added public fake-fixture coverage for Office audit JSON status-reason values.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
