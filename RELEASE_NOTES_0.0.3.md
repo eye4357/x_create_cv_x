@@ -450,6 +450,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON DOCX colored-run-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX colored-run-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX colored-run-count value contracts on comparison 3 generated and source structures.
+- Added public fake-fixture coverage for Office audit JSON DOCX normalized-text line-count value contracts on comparison 2 generated payloads.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 3 generated and source structures.
