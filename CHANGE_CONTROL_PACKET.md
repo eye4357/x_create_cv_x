@@ -521,6 +521,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert Office audit JSON XLSX structure workbook-relationship-targets parity contracts for comparison 0 generated and source payloads without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX structure workbook-relationship-type-counts parity contracts for comparison 0 generated and source payloads without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX structure worksheet-part-count parity contracts for comparison 0 generated and source payloads without private data.
+- Extended public fake Office tests to assert Office audit JSON XLSX structure root-relationship-type-counts parity contracts for comparison 0 generated and source payloads without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX underline-run-count value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX underline-run-count value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX underline-run-count value contracts for comparison 3 generated and source structures without private data.
