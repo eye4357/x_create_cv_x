@@ -2546,8 +2546,23 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         assert report["comparisons"][index]["source"]["structure"]["external_hyperlink_relationship_count"] == 0
     assert report["comparisons"][0]["generated"]["structure"]["sheet_count"] == expected_xlsx_sheet_count
     assert report["comparisons"][0]["source"]["structure"]["sheet_count"] == expected_xlsx_sheet_count
-    assert report["comparisons"][1]["generated"]["structure"]["style_definition_count"] == 6
-    assert report["comparisons"][1]["source"]["structure"]["style_definition_count"] == 6
+    expected_docx_style_definition_count = 6
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["style_definition_count"]
+        == expected_docx_style_definition_count
+    )
+    assert (
+        report["comparisons"][1]["source"]["structure"]["style_definition_count"]
+        == expected_docx_style_definition_count
+    )
+    assert (
+        report["comparisons"][2]["generated"]["structure"]["style_definition_count"]
+        == expected_docx_style_definition_count
+    )
+    assert (
+        report["comparisons"][2]["source"]["structure"]["style_definition_count"]
+        == expected_docx_style_definition_count
+    )
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
     assert f"Generator: `x_create_cv_x {app.VERSION}`" in audit_text
