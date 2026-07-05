@@ -362,6 +362,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert Office audit JSON generated/source byte and SHA parity without private data.
 - Extended public fake Office tests to assert Office audit JSON pass-path accepted-difference absence without private data.
 - Extended public fake Office tests to assert Office audit JSON comparison and nested summary key contracts without private data.
+- Extended public fake Office tests to assert Office audit JSON report and audit-policy key contracts without private data.
 - Extended public fake Office tests to assert exact lean DOCX document XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX numbering XML without private data.
 - Extended public fake Office tests to assert exact lean DOCX styles XML without private data.
