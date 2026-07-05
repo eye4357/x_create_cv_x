@@ -2370,6 +2370,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert numbering_level_texts_parts_2017[1] == numbering_level_texts_parts_2017[2]
     assert '| numbering_num_ids | ["1"] | ["1"] |' in resume_2017_docx_section
     assert '| numbering_abstract_ids | ["1"] | ["1"] |' in resume_2017_docx_section
+    assert "| styles | [] | [] |" in resume_2017_docx_section
     assert (
         "### resume_2023_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
