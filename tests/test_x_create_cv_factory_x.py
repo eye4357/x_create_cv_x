@@ -3098,6 +3098,8 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][1]["source"]["structure"]["bold_run_count"] == expected_docx_bold_run_count
     assert report["comparisons"][2]["generated"]["structure"]["bold_run_count"] == expected_docx_bold_run_count
     assert report["comparisons"][2]["source"]["structure"]["bold_run_count"] == expected_docx_bold_run_count
+    assert report["comparisons"][3]["generated"]["structure"]["bold_run_count"] == expected_docx_bold_run_count
+    assert report["comparisons"][3]["source"]["structure"]["bold_run_count"] == expected_docx_bold_run_count
     expected_docx_underline_run_count = 0
     assert (
         report["comparisons"][1]["generated"]["structure"]["underline_run_count"] == expected_docx_underline_run_count
