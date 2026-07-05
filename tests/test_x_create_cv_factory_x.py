@@ -2516,6 +2516,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         report["comparisons"][0]["generated"]["structure"]["content_type_overrides"]
         == report["comparisons"][0]["source"]["structure"]["content_type_overrides"]
     )
+    assert (
+        report["comparisons"][0]["generated"]["structure"]["sheet_count"]
+        == report["comparisons"][0]["source"]["structure"]["sheet_count"]
+    )
     expected_docx_structure_keys = [
         "aligned_paragraph_count",
         "body_child_counts",
