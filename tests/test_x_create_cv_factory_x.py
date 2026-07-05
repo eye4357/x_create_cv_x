@@ -2388,6 +2388,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "rId10": "xl/styles.xml",
     }
     expected_xlsx_part_count = 16
+    expected_xlsx_has_core_properties = True
     expected_xlsx_worksheet_part_count = 9
     expected_xlsx_sheet_names = [
         "Highlights",
@@ -2428,6 +2429,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     )
     assert report["comparisons"][0]["generated"]["structure"]["part_count"] == expected_xlsx_part_count
     assert report["comparisons"][0]["source"]["structure"]["part_count"] == expected_xlsx_part_count
+    assert (
+        report["comparisons"][0]["generated"]["structure"]["has_core_properties"] == expected_xlsx_has_core_properties
+    )
+    assert report["comparisons"][0]["source"]["structure"]["has_core_properties"] == expected_xlsx_has_core_properties
     assert (
         report["comparisons"][0]["generated"]["structure"]["worksheet_part_count"] == expected_xlsx_worksheet_part_count
     )
