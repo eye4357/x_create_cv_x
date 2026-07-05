@@ -2669,6 +2669,24 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         '"Standards Development", "School", "Certifications", "Patents", "Publications", "Lectures", '
         '"Residences"] |' in audit_text
     )
+    assert (
+        '| styles | {"bold_font_indexes": [1], "border_colors": ["FFBFBFBF"], "border_count": 2, '
+        '"cell_style_count": 1, "cell_xfs": [{"borderId": "0", "fillId": "0", "fontId": "0", '
+        '"numFmtId": "0", "xfId": "0"}, {"applyBorder": "1", "applyFill": "1", "applyFont": "1", '
+        '"borderId": "1", "fillId": "2", "fontId": "1", "numFmtId": "0", "xfId": "0"}, '
+        '{"applyAlignment": "1", "applyBorder": "1", "borderId": "1", "fillId": "0", "fontId": "0", '
+        '"numFmtId": "0", "xfId": "0"}], "cell_xfs_count": 3, "fill_count": 4, '
+        '"fill_fg_colors": ["FF1F4E79", "FFD9EAF7"], "font_colors": ["theme:1", "FFFFFFFF", "FF666666"], '
+        '"font_count": 3, "font_names": ["Calibri", "Calibri", "Calibri"], "italic_font_indexes": [2]} | '
+        '{"bold_font_indexes": [1], "border_colors": ["FFBFBFBF"], "border_count": 2, "cell_style_count": 1, '
+        '"cell_xfs": [{"borderId": "0", "fillId": "0", "fontId": "0", "numFmtId": "0", "xfId": "0"}, '
+        '{"applyBorder": "1", "applyFill": "1", "applyFont": "1", "borderId": "1", "fillId": "2", '
+        '"fontId": "1", "numFmtId": "0", "xfId": "0"}, {"applyAlignment": "1", "applyBorder": "1", '
+        '"borderId": "1", "fillId": "0", "fontId": "0", "numFmtId": "0", "xfId": "0"}], '
+        '"cell_xfs_count": 3, "fill_count": 4, "fill_fg_colors": ["FF1F4E79", "FFD9EAF7"], '
+        '"font_colors": ["theme:1", "FFFFFFFF", "FF666666"], "font_count": 3, '
+        '"font_names": ["Calibri", "Calibri", "Calibri"], "italic_font_indexes": [2]} |' in audit_text
+    )
     assert "| Source Sheet | Generated Sheet | Source Path | Generated Path |" in audit_text
     assert "Source Rows | Generated Rows | Source Columns | Generated Columns" in audit_text
     assert "Source Styled Cells | Generated Styled Cells" in audit_text
