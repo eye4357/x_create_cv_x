@@ -2375,6 +2375,18 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "styles": 1,
         "worksheet": 9,
     }
+    expected_xlsx_workbook_relationship_targets = {
+        "rId1": "xl/worksheets/sheet1.xml",
+        "rId2": "xl/worksheets/sheet2.xml",
+        "rId3": "xl/worksheets/sheet3.xml",
+        "rId4": "xl/worksheets/sheet4.xml",
+        "rId5": "xl/worksheets/sheet5.xml",
+        "rId6": "xl/worksheets/sheet6.xml",
+        "rId7": "xl/worksheets/sheet7.xml",
+        "rId8": "xl/worksheets/sheet8.xml",
+        "rId9": "xl/worksheets/sheet9.xml",
+        "rId10": "xl/styles.xml",
+    }
     assert report["comparisons"][0]["generated"]["structure"]["styles"] == expected_xlsx_styles_summary
     assert report["comparisons"][0]["source"]["structure"]["styles"] == expected_xlsx_styles_summary
     assert (
@@ -2392,6 +2404,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert (
         report["comparisons"][0]["source"]["structure"]["workbook_relationship_type_counts"]
         == expected_xlsx_workbook_relationship_type_counts
+    )
+    assert (
+        report["comparisons"][0]["generated"]["structure"]["workbook_relationship_targets"]
+        == expected_xlsx_workbook_relationship_targets
+    )
+    assert (
+        report["comparisons"][0]["source"]["structure"]["workbook_relationship_targets"]
+        == expected_xlsx_workbook_relationship_targets
     )
     expected_docx_structure_keys = [
         "aligned_paragraph_count",
