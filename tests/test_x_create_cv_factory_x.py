@@ -2632,6 +2632,17 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| has_extended_properties | true | true |" in audit_text
     assert "| has_styles | true | true |" in audit_text
     assert (
+        '| content_type_overrides | ["/docProps/app.xml", "/docProps/core.xml", "/xl/styles.xml", '
+        '"/xl/workbook.xml", "/xl/worksheets/sheet1.xml", "/xl/worksheets/sheet2.xml", '
+        '"/xl/worksheets/sheet3.xml", "/xl/worksheets/sheet4.xml", "/xl/worksheets/sheet5.xml", '
+        '"/xl/worksheets/sheet6.xml", "/xl/worksheets/sheet7.xml", "/xl/worksheets/sheet8.xml", '
+        '"/xl/worksheets/sheet9.xml"] | ["/docProps/app.xml", "/docProps/core.xml", '
+        '"/xl/styles.xml", "/xl/workbook.xml", "/xl/worksheets/sheet1.xml", '
+        '"/xl/worksheets/sheet2.xml", "/xl/worksheets/sheet3.xml", "/xl/worksheets/sheet4.xml", '
+        '"/xl/worksheets/sheet5.xml", "/xl/worksheets/sheet6.xml", "/xl/worksheets/sheet7.xml", '
+        '"/xl/worksheets/sheet8.xml", "/xl/worksheets/sheet9.xml"] |' in audit_text
+    )
+    assert (
         '| root_relationship_type_counts | {"core-properties": 1, "extended-properties": 1, '
         '"officeDocument": 1} | {"core-properties": 1, "extended-properties": 1, "officeDocument": 1} |' in audit_text
     )
