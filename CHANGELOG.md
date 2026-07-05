@@ -364,6 +364,7 @@
 - Extended public fake Office tests to assert Office audit JSON DOCX custom-xml-flag value contracts for comparison 3 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX custom-xml-flag value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX endnotes-flag value contracts for comparison 3 generated and source structures without private data.
+- Extended public fake Office tests to assert Office audit JSON DOCX header-count value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX header-count value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX custom-xml-flag value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX styles-summary value contracts without private data.
