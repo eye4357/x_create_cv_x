@@ -2261,6 +2261,38 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         assert comparison["generated"]["structure"] == comparison["source"]["structure"]
     assert report["comparisons"][0]["generated"]["normalized_text"]["line_count"] == 9
     assert report["comparisons"][1]["generated"]["normalized_text"]["line_count"] == 1
+    assert sorted(report["comparisons"][0]["generated"]["structure"].keys()) == [
+        "content_type_overrides",
+        "has_core_properties",
+        "has_extended_properties",
+        "has_styles",
+        "part_count",
+        "part_names",
+        "root_relationship_type_counts",
+        "sheet_count",
+        "sheet_names",
+        "sheets",
+        "styles",
+        "workbook_relationship_targets",
+        "workbook_relationship_type_counts",
+        "worksheet_part_count",
+    ]
+    assert sorted(report["comparisons"][0]["source"]["structure"].keys()) == [
+        "content_type_overrides",
+        "has_core_properties",
+        "has_extended_properties",
+        "has_styles",
+        "part_count",
+        "part_names",
+        "root_relationship_type_counts",
+        "sheet_count",
+        "sheet_names",
+        "sheets",
+        "styles",
+        "workbook_relationship_targets",
+        "workbook_relationship_type_counts",
+        "worksheet_part_count",
+    ]
     assert report["comparisons"][0]["generated"]["structure"]["sheet_count"] == 9
     assert report["comparisons"][1]["generated"]["structure"]["style_definition_count"] == 6
     audit_text = audit_path.read_text(encoding="utf-8")
