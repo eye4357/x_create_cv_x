@@ -2239,6 +2239,8 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "Generated file is byte-identical to source evidence."
     ] * 4
     for comparison in report["comparisons"]:
+        assert comparison["generated"]["bytes"] == comparison["source"]["bytes"]
+        assert comparison["generated"]["sha256"] == comparison["source"]["sha256"]
         assert comparison["generated"]["normalized_text"] == comparison["source"]["normalized_text"]
         assert comparison["generated"]["structure"] == comparison["source"]["structure"]
     assert report["comparisons"][0]["generated"]["normalized_text"]["line_count"] == 9
