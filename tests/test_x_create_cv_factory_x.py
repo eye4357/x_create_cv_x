@@ -2469,6 +2469,11 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| numbering_level_count | 2 | 2 |" in resume_2023_docx_section
     assert '| numbering_abstract_ids | ["1"] | ["1"] |' in resume_2023_docx_section
     assert '| numbering_num_ids | ["1"] | ["1"] |' in resume_2023_docx_section
+    numbering_level_texts_row_2024 = next(
+        line for line in resume_2024_docx_section.splitlines() if line.startswith("| numbering_level_texts |")
+    )
+    numbering_level_texts_parts_2024 = [part.strip() for part in numbering_level_texts_row_2024.strip("|").split("|")]
+    assert numbering_level_texts_parts_2024[1] == numbering_level_texts_parts_2024[2]
     numbering_level_texts_row_2023 = next(
         line for line in resume_2023_docx_section.splitlines() if line.startswith("| numbering_level_texts |")
     )
