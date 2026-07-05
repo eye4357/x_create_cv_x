@@ -2712,6 +2712,15 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][2]["source"]["structure"]["hyperlink_count"] == expected_docx_hyperlink_count
     assert report["comparisons"][3]["generated"]["structure"]["hyperlink_count"] == expected_docx_hyperlink_count
     assert report["comparisons"][3]["source"]["structure"]["hyperlink_count"] == expected_docx_hyperlink_count
+    expected_docx_indented_paragraph_count = 0
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["indented_paragraph_count"]
+        == expected_docx_indented_paragraph_count
+    )
+    assert (
+        report["comparisons"][1]["source"]["structure"]["indented_paragraph_count"]
+        == expected_docx_indented_paragraph_count
+    )
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
     assert f"Generator: `x_create_cv_x {app.VERSION}`" in audit_text
