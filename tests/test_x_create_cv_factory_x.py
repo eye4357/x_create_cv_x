@@ -2614,6 +2614,18 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     )
     assert "master_profile_a_posteriori.xlsx" in audit_text
     assert "### master_profile_a_posteriori.xlsx" in audit_text
+    assert (
+        '| part_names | ["[Content_Types].xml", "_rels/.rels", "docProps/app.xml", "docProps/core.xml", '
+        '"xl/_rels/workbook.xml.rels", "xl/styles.xml", "xl/workbook.xml", "xl/worksheets/sheet1.xml", '
+        '"xl/worksheets/sheet2.xml", "xl/worksheets/sheet3.xml", "xl/worksheets/sheet4.xml", '
+        '"xl/worksheets/sheet5.xml", "xl/worksheets/sheet6.xml", "xl/worksheets/sheet7.xml", '
+        '"xl/worksheets/sheet8.xml", "xl/worksheets/sheet9.xml"] | ["[Content_Types].xml", '
+        '"_rels/.rels", "docProps/app.xml", "docProps/core.xml", "xl/_rels/workbook.xml.rels", '
+        '"xl/styles.xml", "xl/workbook.xml", "xl/worksheets/sheet1.xml", "xl/worksheets/sheet2.xml", '
+        '"xl/worksheets/sheet3.xml", "xl/worksheets/sheet4.xml", "xl/worksheets/sheet5.xml", '
+        '"xl/worksheets/sheet6.xml", "xl/worksheets/sheet7.xml", "xl/worksheets/sheet8.xml", '
+        '"xl/worksheets/sheet9.xml"] |' in audit_text
+    )
     assert "| part_count | 16 | 16 |" in audit_text
     assert "| worksheet_part_count | 9 | 9 |" in audit_text
     assert "| has_core_properties | true | true |" in audit_text
