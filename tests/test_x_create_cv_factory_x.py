@@ -2650,6 +2650,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         report["comparisons"][1]["source"]["structure"]["external_relationship_count"]
         == expected_docx_external_relationship_count
     )
+    assert (
+        report["comparisons"][2]["generated"]["structure"]["external_relationship_count"]
+        == expected_docx_external_relationship_count
+    )
+    assert (
+        report["comparisons"][2]["source"]["structure"]["external_relationship_count"]
+        == expected_docx_external_relationship_count
+    )
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
     assert f"Generator: `x_create_cv_x {app.VERSION}`" in audit_text
