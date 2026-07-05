@@ -304,6 +304,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2024 numbering-level-texts rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2017 styles rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2023 styles rows.
+- Added public fake-fixture coverage for scoped Office audit Markdown DOCX 2024 styles rows.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.
