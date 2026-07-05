@@ -2279,6 +2279,14 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         len(report["comparisons"][1]["source"]["normalized_text"]["sha256"])
         == expected_docx_normalized_text_sha256_length
     )
+    assert (
+        len(report["comparisons"][2]["generated"]["normalized_text"]["sha256"])
+        == expected_docx_normalized_text_sha256_length
+    )
+    assert (
+        len(report["comparisons"][2]["source"]["normalized_text"]["sha256"])
+        == expected_docx_normalized_text_sha256_length
+    )
     assert sorted(report["comparisons"][0]["generated"]["structure"].keys()) == [
         "content_type_overrides",
         "has_core_properties",
