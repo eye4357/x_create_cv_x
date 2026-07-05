@@ -2590,6 +2590,8 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][1]["source"]["structure"]["has_font_table"] == expected_docx_has_font_table
     assert report["comparisons"][2]["generated"]["structure"]["has_font_table"] == expected_docx_has_font_table
     assert report["comparisons"][2]["source"]["structure"]["has_font_table"] == expected_docx_has_font_table
+    assert report["comparisons"][3]["generated"]["structure"]["has_font_table"] == expected_docx_has_font_table
+    assert report["comparisons"][3]["source"]["structure"]["has_font_table"] == expected_docx_has_font_table
     audit_text = audit_path.read_text(encoding="utf-8")
     assert "# A Posteriori Office Audit" in audit_text
     assert f"Generator: `x_create_cv_x {app.VERSION}`" in audit_text
