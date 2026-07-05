@@ -2325,6 +2325,49 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "font_names",
         "italic_font_indexes",
     ]
+    expected_xlsx_styles_summary = {
+        "font_count": 3,
+        "fill_count": 4,
+        "border_count": 2,
+        "cell_xfs_count": 3,
+        "cell_style_count": 1,
+        "font_names": ["Calibri", "Calibri", "Calibri"],
+        "font_colors": ["theme:1", "FFFFFFFF", "FF666666"],
+        "bold_font_indexes": [1],
+        "italic_font_indexes": [2],
+        "fill_fg_colors": ["FF1F4E79", "FFD9EAF7"],
+        "border_colors": ["FFBFBFBF"],
+        "cell_xfs": [
+            {
+                "numFmtId": "0",
+                "fontId": "0",
+                "fillId": "0",
+                "borderId": "0",
+                "xfId": "0",
+            },
+            {
+                "numFmtId": "0",
+                "fontId": "1",
+                "fillId": "2",
+                "borderId": "1",
+                "xfId": "0",
+                "applyFont": "1",
+                "applyFill": "1",
+                "applyBorder": "1",
+            },
+            {
+                "numFmtId": "0",
+                "fontId": "0",
+                "fillId": "0",
+                "borderId": "1",
+                "xfId": "0",
+                "applyBorder": "1",
+                "applyAlignment": "1",
+            },
+        ],
+    }
+    assert report["comparisons"][0]["generated"]["structure"]["styles"] == expected_xlsx_styles_summary
+    assert report["comparisons"][0]["source"]["structure"]["styles"] == expected_xlsx_styles_summary
     expected_docx_structure_keys = [
         "aligned_paragraph_count",
         "body_child_counts",
