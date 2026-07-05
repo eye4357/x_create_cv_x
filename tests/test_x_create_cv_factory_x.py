@@ -2464,6 +2464,7 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert "| numbering_num_count | 1 | 1 |" in resume_2023_docx_section
     assert "| numbering_level_count | 2 | 2 |" in resume_2023_docx_section
     assert '| numbering_abstract_ids | ["1"] | ["1"] |' in resume_2023_docx_section
+    assert '| numbering_num_ids | ["1"] | ["1"] |' in resume_2023_docx_section
     assert (
         "### resume_2024_a_posteriori.docx\n\n"
         "| Metric | Source | Generated |\n"
