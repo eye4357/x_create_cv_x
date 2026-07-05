@@ -391,6 +391,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON DOCX numbering-abstract-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX numbering-abstract-count value contracts on comparison 3 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX numbering-abstract-ids value contracts on comparison 1 generated and source structures.
+- Added public fake-fixture coverage for Office audit JSON DOCX numbering-abstract-ids value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX custom-xml-flag value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON XLSX styles-summary value contracts.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
