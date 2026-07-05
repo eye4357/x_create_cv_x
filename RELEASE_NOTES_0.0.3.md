@@ -315,6 +315,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON pass-path accepted-difference absence.
 - Added public fake-fixture coverage for Office audit JSON comparison and nested summary key contracts.
 - Added public fake-fixture coverage for Office audit JSON report and audit-policy key contracts.
+- Added public fake-fixture coverage for Office audit JSON normalized-text summary key contracts.
 - Added public fake-fixture coverage for exact lean DOCX document XML.
 - Added public fake-fixture coverage for exact lean DOCX numbering XML.
 - Added public fake-fixture coverage for exact lean DOCX styles XML.

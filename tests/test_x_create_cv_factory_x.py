@@ -2253,6 +2253,8 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     for comparison in report["comparisons"]:
         assert sorted(comparison["generated"].keys()) == ["bytes", "normalized_text", "path", "sha256", "structure"]
         assert sorted(comparison["source"].keys()) == ["bytes", "normalized_text", "path", "sha256", "structure"]
+        assert sorted(comparison["generated"]["normalized_text"].keys()) == ["line_count", "sha256"]
+        assert sorted(comparison["source"]["normalized_text"].keys()) == ["line_count", "sha256"]
         assert comparison["generated"]["bytes"] == comparison["source"]["bytes"]
         assert comparison["generated"]["sha256"] == comparison["source"]["sha256"]
         assert comparison["generated"]["normalized_text"] == comparison["source"]["normalized_text"]
