@@ -509,6 +509,7 @@
 - Extended public fake Office tests to assert Office audit JSON DOCX aligned-paragraph-count parity contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX aligned-paragraph-count parity contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX aligned-paragraph-count parity contracts for comparison 3 generated and source structures without private data.
+- Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count parity contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX underline-run-count value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX underline-run-count value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX underline-run-count value contracts for comparison 3 generated and source structures without private data.
