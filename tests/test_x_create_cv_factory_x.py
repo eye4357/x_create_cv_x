@@ -3294,6 +3294,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         == report["comparisons"][2]["source"]["structure"]["table_paragraph_count"]
     )
     assert (
+        report["comparisons"][3]["generated"]["structure"]["table_paragraph_count"]
+        == report["comparisons"][3]["source"]["structure"]["table_paragraph_count"]
+    )
+    assert (
         report["comparisons"][1]["generated"]["structure"]["table_paragraph_count"]
         == expected_docx_table_paragraph_count
     )
