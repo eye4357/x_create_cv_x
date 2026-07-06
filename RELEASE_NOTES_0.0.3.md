@@ -538,6 +538,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON DOCX has-footnotes parity contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX has-footnotes parity contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX has-footnotes parity contracts on comparison 3 generated and source structures.
+- Added public fake-fixture coverage for Office audit JSON DOCX has-endnotes parity contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX underline-run-count value contracts on comparison 3 generated and source structures.
