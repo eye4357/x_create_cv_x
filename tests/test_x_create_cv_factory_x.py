@@ -3054,6 +3054,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         report["comparisons"][2]["generated"]["structure"]["hyperlink_count"]
         == report["comparisons"][2]["source"]["structure"]["hyperlink_count"]
     )
+    assert (
+        report["comparisons"][3]["generated"]["structure"]["hyperlink_count"]
+        == report["comparisons"][3]["source"]["structure"]["hyperlink_count"]
+    )
     assert report["comparisons"][1]["generated"]["structure"]["hyperlink_count"] == expected_docx_hyperlink_count
     assert report["comparisons"][1]["source"]["structure"]["hyperlink_count"] == expected_docx_hyperlink_count
     assert report["comparisons"][2]["generated"]["structure"]["hyperlink_count"] == expected_docx_hyperlink_count
