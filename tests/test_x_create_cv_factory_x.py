@@ -3422,6 +3422,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         report["comparisons"][2]["generated"]["structure"]["page_size"]
         == report["comparisons"][2]["source"]["structure"]["page_size"]
     )
+    assert (
+        report["comparisons"][3]["generated"]["structure"]["page_size"]
+        == report["comparisons"][3]["source"]["structure"]["page_size"]
+    )
     assert report["comparisons"][1]["generated"]["structure"]["page_size"] == expected_docx_page_size
     assert report["comparisons"][1]["source"]["structure"]["page_size"] == expected_docx_page_size
     assert report["comparisons"][2]["generated"]["structure"]["page_size"] == expected_docx_page_size
