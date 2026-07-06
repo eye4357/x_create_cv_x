@@ -435,6 +435,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-auto-filter parity (`sheets[0].auto_filter_ref`) on comparison 0 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-page-margins parity (`sheets[0].page_margins`) on comparison 0 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-column-widths parity (`sheets[0].column_widths`) on comparison 0 generated and source structures.
+- Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-row-count parity (`sheets[0].row_count`) on comparison 0 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 3 generated and source structures.
