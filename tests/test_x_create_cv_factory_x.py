@@ -3456,6 +3456,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         report["comparisons"][1]["generated"]["structure"]["run_count"]
         == report["comparisons"][1]["source"]["structure"]["run_count"]
     )
+    assert (
+        report["comparisons"][2]["generated"]["structure"]["run_count"]
+        == report["comparisons"][2]["source"]["structure"]["run_count"]
+    )
     assert report["comparisons"][1]["generated"]["structure"]["run_count"] == expected_docx_run_count
     assert report["comparisons"][1]["source"]["structure"]["run_count"] == expected_docx_run_count
     assert report["comparisons"][2]["generated"]["structure"]["run_count"] == expected_docx_run_count
