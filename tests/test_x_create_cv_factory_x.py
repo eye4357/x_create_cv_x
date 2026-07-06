@@ -2744,6 +2744,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         == expected_docx_style_definition_count
     )
     expected_docx_part_count = 17
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["part_count"]
+        == report["comparisons"][1]["source"]["structure"]["part_count"]
+    )
     assert report["comparisons"][1]["generated"]["structure"]["part_count"] == expected_docx_part_count
     assert report["comparisons"][1]["source"]["structure"]["part_count"] == expected_docx_part_count
     assert report["comparisons"][2]["generated"]["structure"]["part_count"] == expected_docx_part_count
