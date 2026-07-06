@@ -444,6 +444,7 @@
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-freeze-pane parity (`sheets[0].freeze_pane`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-auto-filter parity (`sheets[0].auto_filter_ref`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-page-margins parity (`sheets[0].page_margins`) for comparison 0 generated and source structures without private data.
+- Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-column-widths parity (`sheets[0].column_widths`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 3 generated and source structures without private data.
