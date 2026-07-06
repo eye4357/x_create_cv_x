@@ -426,6 +426,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON DOCX aligned-paragraph-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX aligned-paragraph-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX aligned-paragraph-count value contracts on comparison 3 generated and source structures.
+- Added public fake-fixture coverage for Office audit JSON DOCX aligned_paragraph_count comparison-level parity on comparison 3 in the adjacent deterministic closure loop.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 3 generated and source structures.
