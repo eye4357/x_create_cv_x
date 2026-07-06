@@ -3302,6 +3302,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     expected_docx_numbering_level_texts = ["\u2022"]
     assert (
         report["comparisons"][1]["generated"]["structure"]["numbering_level_texts"]
+        == report["comparisons"][1]["source"]["structure"]["numbering_level_texts"]
+    )
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["numbering_level_texts"]
         == expected_docx_numbering_level_texts
     )
     assert (
