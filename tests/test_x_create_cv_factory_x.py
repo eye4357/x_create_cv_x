@@ -3397,6 +3397,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "footer": "720",
         "gutter": "0",
     }
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["page_margins"]
+        == report["comparisons"][1]["source"]["structure"]["page_margins"]
+    )
     assert report["comparisons"][2]["generated"]["structure"]["page_margins"] == expected_docx_page_margins_comparison_2
     assert report["comparisons"][2]["source"]["structure"]["page_margins"] == expected_docx_page_margins_comparison_2
     assert report["comparisons"][3]["generated"]["structure"]["page_margins"] == expected_docx_page_margins
