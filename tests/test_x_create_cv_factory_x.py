@@ -2915,6 +2915,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][3]["generated"]["structure"]["footer_count"] == expected_docx_footer_count
     assert report["comparisons"][3]["source"]["structure"]["footer_count"] == expected_docx_footer_count
     expected_docx_body_child_counts = {"p": 1, "sectPr": 1}
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["body_child_counts"]
+        == report["comparisons"][1]["source"]["structure"]["body_child_counts"]
+    )
     assert report["comparisons"][1]["generated"]["structure"]["body_child_counts"] == expected_docx_body_child_counts
     assert report["comparisons"][1]["source"]["structure"]["body_child_counts"] == expected_docx_body_child_counts
     assert report["comparisons"][2]["generated"]["structure"]["body_child_counts"] == expected_docx_body_child_counts
