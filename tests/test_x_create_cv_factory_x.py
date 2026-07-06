@@ -3268,6 +3268,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     expected_docx_numbering_level_fonts = ["Symbol"]
     assert (
         report["comparisons"][1]["generated"]["structure"]["numbering_level_fonts"]
+        == report["comparisons"][1]["source"]["structure"]["numbering_level_fonts"]
+    )
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["numbering_level_fonts"]
         == expected_docx_numbering_level_fonts
     )
     assert (
