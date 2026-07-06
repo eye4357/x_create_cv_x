@@ -486,6 +486,7 @@ Start renderer conformance hardening on top of the `0.0.2` contract-and-audit lo
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-row-count parity (`sheets[0].row_count`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-column-count parity (`sheets[0].column_count`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-styled-cell-count parity (`sheets[0].styled_cell_count`) for comparison 0 generated and source structures without private data.
+- Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-cell-type-counts parity (`sheets[0].cell_type_counts`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 3 generated and source structures without private data.
