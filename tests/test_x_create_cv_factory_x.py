@@ -2807,6 +2807,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     )
     assert report["comparisons"][1]["generated"]["structure"]["has_web_settings"] == expected_docx_has_web_settings
     assert report["comparisons"][1]["source"]["structure"]["has_web_settings"] == expected_docx_has_web_settings
+    assert (
+        report["comparisons"][2]["generated"]["structure"]["has_web_settings"]
+        == report["comparisons"][2]["source"]["structure"]["has_web_settings"]
+    )
     assert report["comparisons"][2]["generated"]["structure"]["has_web_settings"] == expected_docx_has_web_settings
     assert report["comparisons"][2]["source"]["structure"]["has_web_settings"] == expected_docx_has_web_settings
     assert report["comparisons"][3]["generated"]["structure"]["has_web_settings"] == expected_docx_has_web_settings
