@@ -2788,6 +2788,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     )
     assert report["comparisons"][1]["generated"]["structure"]["has_font_table"] == expected_docx_has_font_table
     assert report["comparisons"][1]["source"]["structure"]["has_font_table"] == expected_docx_has_font_table
+    assert (
+        report["comparisons"][2]["generated"]["structure"]["has_font_table"]
+        == report["comparisons"][2]["source"]["structure"]["has_font_table"]
+    )
     assert report["comparisons"][2]["generated"]["structure"]["has_font_table"] == expected_docx_has_font_table
     assert report["comparisons"][2]["source"]["structure"]["has_font_table"] == expected_docx_has_font_table
     assert report["comparisons"][3]["generated"]["structure"]["has_font_table"] == expected_docx_has_font_table
