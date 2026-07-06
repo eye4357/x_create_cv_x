@@ -431,6 +431,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-path parity (`sheets[0].path`) on comparison 0 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-dimension parity (`sheets[0].dimension`) on comparison 0 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-headers parity (`sheets[0].headers`) on comparison 0 generated and source structures.
+- Added public fake-fixture coverage for Office audit JSON XLSX nested sheet-freeze-pane parity (`sheets[0].freeze_pane`) on comparison 0 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX spaced-paragraph-count value contracts on comparison 3 generated and source structures.
