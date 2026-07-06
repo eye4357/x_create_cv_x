@@ -2529,6 +2529,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         == report["comparisons"][0]["source"]["structure"]["sheets"]
     )
     assert (
+        report["comparisons"][0]["generated"]["structure"]["sheets"][0]["name"]
+        == report["comparisons"][0]["source"]["structure"]["sheets"][0]["name"]
+    )
+    assert (
         report["comparisons"][0]["generated"]["structure"]["styles"]
         == report["comparisons"][0]["source"]["structure"]["styles"]
     )
