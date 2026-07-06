@@ -2733,6 +2733,10 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     )
     assert (
         report["comparisons"][3]["generated"]["structure"]["style_definition_count"]
+        == report["comparisons"][3]["source"]["structure"]["style_definition_count"]
+    )
+    assert (
+        report["comparisons"][3]["generated"]["structure"]["style_definition_count"]
         == expected_docx_style_definition_count
     )
     assert (
