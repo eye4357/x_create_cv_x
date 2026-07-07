@@ -312,7 +312,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON status_reason values on comparisons 0, 1, 2, and 3.
 - Added public fake-fixture coverage for Office audit JSON generated.path and source.path ordering on comparisons 0, 1, 2, and 3.
 - Added public fake-fixture coverage for Office audit JSON generated.bytes/source.bytes and generated.sha256/source.sha256 parity on comparisons 0, 1, 2, and 3.
-- Added public fake-fixture coverage for Office audit JSON pass-path accepted-difference absence.
+- Added public fake-fixture coverage for Office audit JSON pass-path accepted_difference absence on comparisons 0, 1, 2, and 3.
 - Added public fake-fixture coverage for Office audit JSON comparison and nested summary key contracts on comparisons 0, 1, 2, and 3 generated and source payloads.
 - Added public fake-fixture coverage for Office audit JSON top-level report payload and top-level audit_policy payload key contracts.
 - Added public fake-fixture coverage for Office audit JSON normalized-text summary key contracts on comparisons 0, 1, 2, and 3 generated and source normalized_text payloads.
