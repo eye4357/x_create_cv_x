@@ -330,7 +330,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON XLSX extended-properties-flag value contracts.
 - Added public fake-fixture coverage for Office audit JSON XLSX styles-flag value contracts.
 - Added public fake-fixture coverage for Office audit JSON XLSX sheet-count value contracts on both generated and source structures.
-- Added public fake-fixture coverage for Office audit JSON DOCX style-definition-count value contracts on both generated and source structures.
+- Added public fake-fixture coverage for Office audit JSON DOCX style-definition-count value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX style-definition-count value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX style-definition-count value contracts on comparison 3 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX part-count value contracts on comparison 1 generated and source structures.
