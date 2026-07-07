@@ -329,7 +329,7 @@
 - Extended public fake Office tests to assert Office audit JSON XLSX structure key contracts without private data.
 - Extended public fake Office tests to assert Office audit JSON pass-path summary error-sentinel absence without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX structure key contracts without private data.
-- Extended public fake Office tests to assert Office audit JSON DOCX relationship-summary value contracts without private data.
+- Extended public fake Office tests to assert Office audit JSON DOCX relationship-summary value contracts for comparisons 1, 2, and 3 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX relationship-type-count value contracts for comparisons 1, 2, and 3 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX relationship-type-count value contracts for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX workbook-relationship-target value contracts for comparison 0 generated and source structures without private data.
