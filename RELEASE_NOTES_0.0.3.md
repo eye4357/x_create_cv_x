@@ -310,7 +310,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for scoped Office audit Markdown XLSX workbook-relationship-target rows.
 - Added public fake-fixture coverage for scoped Office audit Markdown XLSX styles rows.
 - Added public fake-fixture coverage for Office audit JSON status_reason values on comparisons 0, 1, 2, and 3.
-- Added public fake-fixture coverage for Office audit JSON generated/source path ordering.
+- Added public fake-fixture coverage for Office audit JSON generated.path and source.path ordering on comparisons 0, 1, 2, and 3.
 - Added public fake-fixture coverage for Office audit JSON generated/source byte and SHA parity.
 - Added public fake-fixture coverage for Office audit JSON pass-path accepted-difference absence.
 - Added public fake-fixture coverage for Office audit JSON comparison and nested summary key contracts on comparisons 0, 1, 2, and 3 generated and source payloads.
