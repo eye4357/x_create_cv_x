@@ -336,7 +336,7 @@
 - Extended public fake Office tests to assert Office audit JSON XLSX sheet-name value contracts for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX worksheet-part-count value contracts for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX part-count value contracts for comparison 0 generated and source structures without private data.
-- Extended public fake Office tests to assert Office audit JSON XLSX core-properties-flag value contracts without private data.
+- Extended public fake Office tests to assert Office audit JSON XLSX core-properties-flag value contracts for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX extended-properties-flag value contracts without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX styles-flag value contracts without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX sheet-count value contracts for comparison 0 generated and source structures without private data.
