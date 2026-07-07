@@ -318,7 +318,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON normalized-text summary key contracts on comparisons 0, 1, 2, and 3 generated and source normalized_text payloads.
 - Added public fake-fixture coverage for Office audit JSON XLSX structure key contracts on comparison 0 generated and source structure payloads.
 - Added public fake-fixture coverage for Office audit JSON pass-path summary error-sentinel absence.
-- Added public fake-fixture coverage for Office audit JSON DOCX structure key contracts.
+- Added public fake-fixture coverage for Office audit JSON DOCX structure key contracts on comparisons 1, 2, and 3 generated and source structure payloads.
 - Added public fake-fixture coverage for Office audit JSON DOCX relationship-summary value contracts on comparisons 1, 2, and 3 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX relationship-type-count value contracts on comparisons 1, 2, and 3 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON XLSX relationship-type-count value contracts on comparison 0 generated and source structures.
