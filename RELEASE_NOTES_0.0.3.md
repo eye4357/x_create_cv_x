@@ -350,7 +350,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON DOCX footnotes-flag value contracts on comparison 3 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX endnotes-flag value contracts on comparison 1 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX endnotes-flag value contracts on comparison 2 generated and source structures.
-- Added public fake-fixture coverage for Office audit JSON XLSX styles-summary key contracts.
+- Added public fake-fixture coverage for Office audit JSON XLSX styles-summary key contracts on comparison 0 generated and source structure styles keys.
 - Added public fake-fixture coverage for Office audit JSON DOCX custom-xml-flag value contracts on comparison 3 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX custom-xml-flag value contracts on comparison 2 generated and source structures.
 - Added public fake-fixture coverage for Office audit JSON DOCX endnotes-flag value contracts on comparison 3 generated and source structures.
