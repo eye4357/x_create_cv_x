@@ -319,7 +319,7 @@
 - Extended public fake Office tests to assert scoped Office audit Markdown XLSX content-type-overrides rows without private data.
 - Extended public fake Office tests to assert scoped Office audit Markdown XLSX workbook-relationship-target rows without private data.
 - Extended public fake Office tests to assert scoped Office audit Markdown XLSX styles rows without private data.
-- Extended public fake Office tests to assert Office audit JSON status-reason values without private data.
+- Extended public fake Office tests to assert Office audit JSON status_reason values for comparisons 0, 1, 2, and 3 without private data.
 - Extended public fake Office tests to assert Office audit JSON generated/source path ordering without private data.
 - Extended public fake Office tests to assert Office audit JSON generated/source byte and SHA parity without private data.
 - Extended public fake Office tests to assert Office audit JSON pass-path accepted-difference absence without private data.
