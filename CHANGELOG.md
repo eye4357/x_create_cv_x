@@ -326,7 +326,7 @@
 - Extended public fake Office tests to assert Office audit JSON comparison and nested summary key contracts for comparisons 0, 1, 2, and 3 generated and source payloads without private data.
 - Extended public fake Office tests to assert Office audit JSON top-level report payload and top-level audit_policy payload key contracts without private data.
 - Extended public fake Office tests to assert Office audit JSON normalized-text summary key contracts for comparisons 0, 1, 2, and 3 generated and source normalized_text payloads without private data.
-- Extended public fake Office tests to assert Office audit JSON XLSX structure key contracts without private data.
+- Extended public fake Office tests to assert Office audit JSON XLSX structure key contracts for comparison 0 generated and source structure payloads without private data.
 - Extended public fake Office tests to assert Office audit JSON pass-path summary error-sentinel absence without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX structure key contracts without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX relationship-summary value contracts for comparisons 1, 2, and 3 generated and source structures without private data.
