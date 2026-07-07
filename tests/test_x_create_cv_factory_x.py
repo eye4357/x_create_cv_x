@@ -3745,6 +3745,13 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert report["comparisons"][2]["source"]["structure"]["table_count"] == expected_docx_table_count
     assert report["comparisons"][3]["generated"]["structure"]["table_count"] == expected_docx_table_count
     assert report["comparisons"][3]["source"]["structure"]["table_count"] == expected_docx_table_count
+    expected_docx_table_cell_count = 0
+    assert (
+        report["comparisons"][1]["generated"]["structure"]["table_cell_count"]
+        == report["comparisons"][1]["source"]["structure"]["table_cell_count"]
+    )
+    assert report["comparisons"][1]["generated"]["structure"]["table_cell_count"] == expected_docx_table_cell_count
+    assert report["comparisons"][1]["source"]["structure"]["table_cell_count"] == expected_docx_table_cell_count
     expected_docx_table_grid_widths: list[str] = []
     assert (
         report["comparisons"][1]["generated"]["structure"]["table_grid_widths"]
