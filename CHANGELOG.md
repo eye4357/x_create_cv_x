@@ -474,6 +474,7 @@
 - Extended public fake Office tests to assert Office audit JSON DOCX table-grid-widths value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX table-grid-widths value contracts for comparison 3 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX default-style-ids value contracts for comparison 1 generated and source structures without private data.
+- Extended public fake Office tests to assert Office audit JSON DOCX default-style-ids value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX table-paragraph-count value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX table-paragraph-count value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX table-paragraph-count value contracts for comparison 3 generated and source structures without private data.
