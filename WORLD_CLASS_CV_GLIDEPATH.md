@@ -271,6 +271,31 @@ Acceptance gate:
 - Release notes include known limitations, accepted drift, schema versions, template versions, and evidence tag references.
 - The tool can take a real evidence set from import through targeted export with auditable output.
 
+## Upcoming Slices Compared To `0.3.0`
+
+Reference baseline (`0.3.0`): role-targeted resume generation with structured target-role inputs, scoring and selection rules, targeting explainability, and provenance-safe user overrides.
+
+| Slice | Relative To `0.3.0` | What Changes Beyond Or Before `0.3.0` | Dependency On `0.3.0` |
+| --- | --- | --- | --- |
+| `0.1.0` Template and theme system | Earlier foundation | Adds reusable presentation modes and template contracts; does not yet add role targeting logic. | Indirect prerequisite; should stabilize output surfaces before targeting sophistication. |
+| `0.1.1` Template polish pass | Earlier quality pass | Improves readability, hierarchy, and long-content behavior across templates; no targeting strategy yet. | Indirect prerequisite; improves final rendering quality that targeted resumes later rely on. |
+| `0.2.0` Authoring workflow CLI | Earlier workflow layer | Adds import/authoring/update command flows, diff/explain ergonomics, and deterministic editing UX. | Strong prerequisite; `0.3.0` targeting commands depend on mature CLI workflows. |
+| `0.2.1` Import quality pass | Earlier data-quality pass | Improves extraction fidelity and warning/reporting for ambiguous evidence intake. | Strong prerequisite; better evidence quality increases targeting quality and explainability. |
+| `0.3.0` Role-targeted generation | Baseline | Introduces target-role model, scoring/selection, explain-targeting, and retained provenance. | Baseline definition. |
+| `0.3.1` Targeting quality pass | Direct extension | Adds diagnostics for omissions, keyword coverage semantics, and targeting style controls. | Directly extends `0.3.0` behavior and should reuse its provenance boundaries. |
+| `0.4.0` Field-level provenance and privacy guarantees | Trust hardening after targeting | Moves from section-level explanations to field-level traceability, manifests, and privacy leak guards. | Builds on `0.3.0` provenance expectations and raises trust guarantees. |
+| `0.5.0` Local review experience | Review UX expansion | Adds human review entry points (HTML reports, side-by-side summaries, approval checklists). | Consumes `0.3.0` targeting outputs plus `0.4.0` manifests/provenance in reviewer-friendly form. |
+| `0.6.0` Interface beta | Interaction layer on top | Exposes end-to-end flows in UI while preserving CLI parity for deterministic outcomes. | Requires `0.3.0` targeting logic and explainability to be stable before UI wrapping. |
+| `0.7.0` Export and compatibility expansion | Format/channel expansion | Adds PDF and ATS-safe exports plus compatibility guidance and smoke checks. | Reuses `0.3.0` target-selected content; broadens delivery formats without changing targeting intent. |
+| `0.8.0` Productization and distribution | Operationalization layer | Adds migrations, initialization tooling, packaged installs, and upgrade notes. | Packages and migrates stateful artifacts introduced since `0.3.0` onward. |
+| `0.9.0` Release candidate | Stabilization gate | Freezes contracts and resolves release blockers across audit/privacy/import/render/interface. | Freezes and validates the full stack built on `0.3.0` targeting foundations. |
+| `1.0.0` World-class baseline | Stable culmination | Ships stable schema/CLI contracts, high-quality templates, targeted generation with provenance, and privacy-safe workflows. | Production-grade completion of capabilities that begin materially at `0.3.0`. |
+
+Comparison intent:
+
+- Use this section to keep future slices scoped as explicit deltas from `0.3.0` behavior, not as disconnected feature lists.
+- Any slice that weakens targeting provenance or explainability versus `0.3.0` should be treated as a release blocker.
+
 ## Release Discipline
 
 For every public version:
