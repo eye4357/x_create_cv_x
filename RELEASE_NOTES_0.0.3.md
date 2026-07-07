@@ -315,7 +315,7 @@ Status: Development checkpoint, not a public production release
 - Added public fake-fixture coverage for Office audit JSON pass-path accepted_difference absence on comparisons 0, 1, 2, and 3.
 - Added public fake-fixture coverage for Office audit JSON comparison keys, generated/source keys, and nested normalized_text keys on comparisons 0, 1, 2, and 3.
 - Added public fake-fixture coverage for Office audit JSON top-level report keys (audit_policy, comparisons, generator, purpose, schema_version) and top-level audit_policy keys (accepted_difference_count, name, path, policy_version, schema_version).
-- Added public fake-fixture coverage for Office audit JSON normalized-text summary key contracts on comparisons 0, 1, 2, and 3 generated and source normalized_text payloads.
+- Added public fake-fixture coverage for Office audit JSON generated/source normalized_text keys (line_count, sha256) on comparisons 0, 1, 2, and 3.
 - Added public fake-fixture coverage for Office audit JSON XLSX structure key contracts on comparison 0 generated and source structure payloads.
 - Added public fake-fixture coverage for Office audit JSON pass-path summary error-sentinel absence on comparisons 0, 1, 2, and 3 generated and source normalized_text and structure payloads.
 - Added public fake-fixture coverage for Office audit JSON DOCX structure key contracts on comparisons 1, 2, and 3 generated and source structure payloads.
