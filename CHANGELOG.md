@@ -452,6 +452,7 @@
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-name parity (`sheets[1].name`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-path parity (`sheets[1].path`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-dimension parity (`sheets[1].dimension`) for comparison 0 generated and source structures without private data.
+- Extended public fake Office tests to assert Office audit JSON XLSX nested sheet-row-count parity (`sheets[1].row_count`) for comparison 0 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 1 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 2 generated and source structures without private data.
 - Extended public fake Office tests to assert Office audit JSON DOCX spaced-paragraph-count value contracts for comparison 3 generated and source structures without private data.
