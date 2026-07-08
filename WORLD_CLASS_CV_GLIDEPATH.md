@@ -143,18 +143,28 @@ Acceptance gate:
 
 ### `0.3.1` - Targeting Quality Pass
 
-Goal: make role targeting useful for real revision cycles.
+Goal: make role targeting useful for real revision cycles and repeatable application packets.
 
 Scope:
 
 - Add ranking diagnostics for omitted-but-relevant evidence.
 - Add keyword coverage reports that distinguish exact matches, synonyms, and unsupported claims.
 - Add style controls for concise, executive, technical, academic, and ATS-safe language.
+- Promote the private OpenAI application packet exercise, including the first throwaway OpenAI resume/cover-letter script, into the initial company-specialized targeting pattern.
+- Introduce company plugin conventions for role series such as OpenAI: source evidence, job-description capture, tailored resume JSON, cover-letter JSON, rendered DOCX outputs, role-fit notes, manifests, and application tracking logs.
+- Support serialized application exercises from URL pairs: one URL for job-description evidence and one URL for the application flow.
+- Split application automation into a first smoke exercise for a single URL pair and a second batch exercise for remaining URL pairs.
+- Keep browser/application automation review-gated so scripts can prepare, log, and navigate application flows without silently submitting applications or inventing answers.
+- Capture reusable application-answer profiles for recurring questions such as demographic disclosures, military service, work authorization, language fluency, location, and voluntary self-identification while preserving privacy and user review.
 
 Acceptance gate:
 
 - Reports make it clear what changed between two targeted resumes and why.
 - The tool does not invent unsupported accomplishments.
+- A company plugin can generate a private evidence-backed resume and cover letter from a captured job description and master profile data.
+- The OpenAI packet pattern records source job evidence, generated artifacts, role-fit notes, hashes, and application status in a repeatable private evidence structure.
+- The smoke exercise proves the application URL can be opened, inspected, and logged without unintended submission.
+- Batch application runs require explicit approval before any final submission action and leave an audit trail for each URL pair.
 
 ### `0.4.0` - Field-Level Provenance And Privacy Guarantees
 
