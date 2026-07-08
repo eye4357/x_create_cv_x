@@ -94,23 +94,59 @@ DEFAULT_WORKBOOK_SHEETS = [
     (
         "Standards Development",
         "standards",
-        ["id", "label", "organization", "title_of_standard", "role", "start_date", "end_date", "time_spent"],
+        [
+            "id",
+            "label",
+            "organization",
+            "title_of_standard",
+            "role",
+            "start_date",
+            "end_date",
+            "time_spent",
+        ],
     ),
     (
         "School",
         "education",
-        ["id", "label", "school", "address", "degree", "start_date", "end_date", "time_spent"],
+        [
+            "id",
+            "label",
+            "school",
+            "address",
+            "degree",
+            "start_date",
+            "end_date",
+            "time_spent",
+        ],
     ),
     (
         "Certifications",
         "certifications",
-        ["id", "label", "certificate_subject", "certificate_name", "certificate_number"],
+        [
+            "id",
+            "label",
+            "certificate_subject",
+            "certificate_name",
+            "certificate_number",
+        ],
     ),
-    ("Patents", "patents", ["id", "label", "patent_name", "patent_number", "patent_url"]),
+    (
+        "Patents",
+        "patents",
+        ["id", "label", "patent_name", "patent_number", "patent_url"],
+    ),
     (
         "Publications",
         "publications",
-        ["id", "label", "year", "publication_name", "publisher", "publication_reference", "publication_url"],
+        [
+            "id",
+            "label",
+            "year",
+            "publication_name",
+            "publisher",
+            "publication_reference",
+            "publication_url",
+        ],
     ),
     (
         "Lectures",
@@ -125,15 +161,42 @@ DEFAULT_WORKBOOK_SHEETS = [
 ]
 DEFAULT_DOCUMENT_MARGINS: dict[str, dict[str, Any]] = {
     "resume_2017_a_posteriori.docx": {
-        "margins": {"top": "1440", "right": "1440", "bottom": "1440", "left": "1440", "header": "720", "footer": "720"},
+        "margins": {
+            "top": "1440",
+            "right": "1440",
+            "bottom": "1440",
+            "left": "1440",
+            "header": "720",
+            "footer": "720",
+        },
     },
     "resume_2023_a_posteriori.docx": {
-        "margins": {"top": "1440", "right": "1800", "bottom": "1440", "left": "1800", "header": "720", "footer": "720"},
+        "margins": {
+            "top": "1440",
+            "right": "1800",
+            "bottom": "1440",
+            "left": "1800",
+            "header": "720",
+            "footer": "720",
+        },
     },
 }
 DEFAULT_DOCX_STYLES: list[dict[str, Any]] = [
-    {"id": "Normal", "name": "Normal", "default": True, "font": "Calibri", "size": "22"},
-    {"id": "Title", "name": "Title", "based_on": "Normal", "bold": True, "size": "32", "spacing_after": "120"},
+    {
+        "id": "Normal",
+        "name": "Normal",
+        "default": True,
+        "font": "Calibri",
+        "size": "22",
+    },
+    {
+        "id": "Title",
+        "name": "Title",
+        "based_on": "Normal",
+        "bold": True,
+        "size": "32",
+        "spacing_after": "120",
+    },
     {
         "id": "Heading1",
         "name": "heading 1",
@@ -152,7 +215,12 @@ DEFAULT_DOCX_STYLES: list[dict[str, Any]] = [
         "spacing_before": "120",
         "spacing_after": "60",
     },
-    {"id": "ListParagraph", "name": "List Paragraph", "based_on": "Normal", "indent_left": "720"},
+    {
+        "id": "ListParagraph",
+        "name": "List Paragraph",
+        "based_on": "Normal",
+        "indent_left": "720",
+    },
     {
         "id": "ListBullet",
         "name": "List Bullet",
@@ -270,8 +338,26 @@ MASTER_FIELD_ORDER = {
         "time_spent",
         "address_id",
     ],
-    "certifications": ["id", "label", "a", "b", "c", "certificate_subject", "certificate_name", "certificate_number"],
-    "patents": ["id", "label", "a", "b", "c", "patent_name", "patent_number", "patent_url"],
+    "certifications": [
+        "id",
+        "label",
+        "a",
+        "b",
+        "c",
+        "certificate_subject",
+        "certificate_name",
+        "certificate_number",
+    ],
+    "patents": [
+        "id",
+        "label",
+        "a",
+        "b",
+        "c",
+        "patent_name",
+        "patent_number",
+        "patent_url",
+    ],
     "publications": [
         "id",
         "label",
@@ -286,7 +372,16 @@ MASTER_FIELD_ORDER = {
         "publication_reference",
         "publication_url",
     ],
-    "lectures": ["id", "label", "a", "b", "c", "year", "publication_or_lecture_name", "publisher_name"],
+    "lectures": [
+        "id",
+        "label",
+        "a",
+        "b",
+        "c",
+        "year",
+        "publication_or_lecture_name",
+        "publisher_name",
+    ],
     "residences": [
         "id",
         "label",
@@ -301,7 +396,13 @@ MASTER_FIELD_ORDER = {
         "address_id",
     ],
     "skills": ["id", "name", "category"],
-    "text_blocks": ["id", "text", "section_label", "used_in_resume_ids", "is_job_related"],
+    "text_blocks": [
+        "id",
+        "text",
+        "section_label",
+        "used_in_resume_ids",
+        "is_job_related",
+    ],
 }
 
 RESUME_FIELD_ORDER = ["id", "label", "status", "created_at", "updated_at"]
@@ -317,7 +418,13 @@ ITEM_FIELD_ORDER = [
     "is_visible",
 ]
 BOOL_FIELDS = {"is_primary", "is_job_related", "is_visible"}
-LIST_FIELDS = {"achievement_ids", "item_ids", "master_record_refs", "project_ids", "used_in_resume_ids"}
+LIST_FIELDS = {
+    "achievement_ids",
+    "item_ids",
+    "master_record_refs",
+    "project_ids",
+    "used_in_resume_ids",
+}
 DICT_FIELDS = {"formatting"}
 
 
@@ -435,7 +542,11 @@ def validate_json_schema_subset(value: Any, schema: dict[str, Any], path: str = 
             for key, child_value in value.items():
                 if key not in property_schemas:
                     failures.extend(
-                        validate_json_schema_subset(child_value, additional_properties, child_json_path(path, str(key)))
+                        validate_json_schema_subset(
+                            child_value,
+                            additional_properties,
+                            child_json_path(path, str(key)),
+                        )
                     )
 
     if isinstance(value, list):
@@ -490,7 +601,17 @@ def infer_contract_schema_name(data: dict[str, Any], path: Path) -> str:
     if "sheets" in data:
         return "workbook_layout"
     if any(
-        key in data for key in ["margins", "page_size", "package", "styles", "numbering", "header", "footer", "flow"]
+        key in data
+        for key in [
+            "margins",
+            "page_size",
+            "package",
+            "styles",
+            "numbering",
+            "header",
+            "footer",
+            "flow",
+        ]
     ):
         return "document_layout"
     raise ValueError(f"Could not infer contract schema for {path}")
@@ -662,7 +783,12 @@ def default_document_layout(file_name: str) -> dict[str, Any]:
             "fonts": ["Calibri", "Symbol"],
         },
         "styles": [dict(style) for style in DEFAULT_DOCX_STYLES],
-        "numbering": {"bullet_text": "•", "font": "Symbol", "left": "720", "hanging": "360"},
+        "numbering": {
+            "bullet_text": "•",
+            "font": "Symbol",
+            "left": "720",
+            "hanging": "360",
+        },
     }
 
 
@@ -769,7 +895,10 @@ def column_widths(rows: list[list[str]], sheet: dict[str, Any]) -> list[float]:
         if configured_width is not None:
             widths.append(configured_width)
             continue
-        width = max((len(row[column_index]) for row in rows if column_index < len(row)), default=8)
+        width = max(
+            (len(row[column_index]) for row in rows if column_index < len(row)),
+            default=8,
+        )
         widths.append(float(max(10, min(width + 2, 42))))
     return widths
 
@@ -1181,7 +1310,11 @@ def paragraph_layout_options(value: dict[str, Any]) -> dict[str, Any]:
 
 
 def paragraph_contract(
-    *, style: str | None, numbering: dict[str, Any] | None, runs: list[dict[str, Any]], layout: dict[str, Any]
+    *,
+    style: str | None,
+    numbering: dict[str, Any] | None,
+    runs: list[dict[str, Any]],
+    layout: dict[str, Any],
 ) -> dict[str, Any]:
     paragraph: dict[str, Any] = {"style": style, "numbering": numbering, "runs": runs}
     paragraph.update(paragraph_layout_options(layout))
@@ -1201,7 +1334,12 @@ def item_paragraphs(item: dict[str, Any], records_by_id: dict[str, dict[str, Any
     for paragraph in text.splitlines() or [text]:
         if paragraph.strip():
             paragraphs.append(
-                paragraph_contract(style=style, numbering=numbering, runs=[{"text": paragraph}], layout=formatting)
+                paragraph_contract(
+                    style=style,
+                    numbering=numbering,
+                    runs=[{"text": paragraph}],
+                    layout=formatting,
+                )
             )
     return paragraphs
 
@@ -1237,7 +1375,9 @@ def visible_resume_item_lookup(resume: dict[str, Any]) -> dict[str, dict[str, An
 
 
 def flow_item_paragraphs(
-    item_ids: Any, item_lookup: dict[str, dict[str, Any]], records_by_id: dict[str, dict[str, Any]]
+    item_ids: Any,
+    item_lookup: dict[str, dict[str, Any]],
+    records_by_id: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     if not isinstance(item_ids, list):
         return []
@@ -1249,7 +1389,9 @@ def flow_item_paragraphs(
 
 
 def flow_cell_paragraphs(
-    cell: Any, item_lookup: dict[str, dict[str, Any]], records_by_id: dict[str, dict[str, Any]]
+    cell: Any,
+    item_lookup: dict[str, dict[str, Any]],
+    records_by_id: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     if not isinstance(cell, dict):
         return []
@@ -1327,7 +1469,10 @@ def resume_paragraphs(master: dict[str, Any], resume: dict[str, Any]) -> list[di
     paragraphs: list[dict[str, Any]] = []
     for item in sorted(
         item_records,
-        key=lambda record: (section_order.get(record.get("section_id"), 1_000_000), sort_order(record)),
+        key=lambda record: (
+            section_order.get(record.get("section_id"), 1_000_000),
+            sort_order(record),
+        ),
     ):
         if item.get("is_visible") is False:
             continue
@@ -1406,7 +1551,12 @@ def docx_paragraph_spacing(paragraph: dict[str, Any]) -> str:
     if not isinstance(spacing, dict):
         return ""
     attrs: list[str] = []
-    for key, word_key in [("before", "before"), ("after", "after"), ("line", "line"), ("line_rule", "lineRule")]:
+    for key, word_key in [
+        ("before", "before"),
+        ("after", "after"),
+        ("line", "line"),
+        ("line_rule", "lineRule"),
+    ]:
         value = scalar_text(spacing.get(key)) or scalar_text(spacing.get(word_key))
         if value:
             attrs.append(f'w:{word_key}="{xml_attr(value)}"')
@@ -1518,7 +1668,9 @@ def docx_table(table: dict[str, Any], hyperlink_ids: dict[str, str]) -> str:
             continue
         cells = "".join(
             docx_table_cell(
-                cell if isinstance(cell, list) else [], widths[index] if index < len(widths) else "2160", hyperlink_ids
+                cell if isinstance(cell, list) else [],
+                widths[index] if index < len(widths) else "2160",
+                hyperlink_ids,
             )
             for index, cell in enumerate(row)
         )
@@ -1825,17 +1977,37 @@ def docx_numbering_xml(paragraphs: list[dict[str, Any]], layout: dict[str, Any])
 
 def docx_document_relationships(layout: dict[str, Any]) -> list[Relationship]:
     relationships: list[Relationship] = [
-        ("rId1", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles", "styles.xml"),
-        ("rId2", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering", "numbering.xml"),
-        ("rId3", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings", "settings.xml"),
+        (
+            "rId1",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+            "styles.xml",
+        ),
+        (
+            "rId2",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering",
+            "numbering.xml",
+        ),
+        (
+            "rId3",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings",
+            "settings.xml",
+        ),
     ]
     if package_enabled(layout, "theme"):
         relationships.append(
-            ("rId4", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme", "theme/theme1.xml")
+            (
+                "rId4",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme",
+                "theme/theme1.xml",
+            )
         )
     if package_enabled(layout, "font_table"):
         relationships.append(
-            ("rId5", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable", "fontTable.xml")
+            (
+                "rId5",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable",
+                "fontTable.xml",
+            )
         )
     if package_enabled(layout, "web_settings"):
         relationships.append(
@@ -1847,19 +2019,35 @@ def docx_document_relationships(layout: dict[str, Any]) -> list[Relationship]:
         )
     if isinstance(layout.get("header"), dict):
         relationships.append(
-            ("rId7", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header", "header1.xml")
+            (
+                "rId7",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header",
+                "header1.xml",
+            )
         )
     if isinstance(layout.get("footer"), dict):
         relationships.append(
-            ("rId8", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer", "footer1.xml")
+            (
+                "rId8",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer",
+                "footer1.xml",
+            )
         )
     if package_enabled(layout, "footnotes"):
         relationships.append(
-            ("rId9", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes", "footnotes.xml")
+            (
+                "rId9",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes",
+                "footnotes.xml",
+            )
         )
     if package_enabled(layout, "endnotes"):
         relationships.append(
-            ("rId10", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes", "endnotes.xml")
+            (
+                "rId10",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes",
+                "endnotes.xml",
+            )
         )
     if package_enabled(layout, "custom_xml"):
         relationships.append(
@@ -2045,8 +2233,14 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
     entries = [
         ("[Content_Types].xml", document_content_types(layout)),
         ("_rels/.rels", relationships_xml(root_relationships)),
-        ("word/_rels/document.xml.rels", docx_document_relationships_with_links_xml(layout, blocks)),
-        ("word/document.xml", docx_document_xml(blocks, layout, docx_hyperlink_relationship_ids(blocks))),
+        (
+            "word/_rels/document.xml.rels",
+            docx_document_relationships_with_links_xml(layout, blocks),
+        ),
+        (
+            "word/document.xml",
+            docx_document_xml(blocks, layout, docx_hyperlink_relationship_ids(blocks)),
+        ),
         ("word/styles.xml", docx_styles_xml(layout)),
         ("word/numbering.xml", docx_numbering_xml(paragraphs, layout)),
         ("word/settings.xml", docx_settings_xml()),
@@ -2105,7 +2299,9 @@ def write_resume_document(master: dict[str, Any], resume: dict[str, Any], path: 
     write_zip_entries(path, entries)
 
 
-def load_golden_json(evidence_dir: Path) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+def load_golden_json(
+    evidence_dir: Path,
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     json_dir = evidence_dir / "generated" / "json" / "a_posteriori"
     master = read_json(json_dir / "master_profile_a_posteriori.json")
     validate_contract(master, "master_profile")
@@ -2185,7 +2381,11 @@ def normalized_text_summary(path: Path) -> dict[str, Any]:
 
 
 def docx_structure_summary(path: Path) -> dict[str, Any]:
-    namespace = {"w": WORD_NS, "r": REL_NS, "rel": "http://schemas.openxmlformats.org/package/2006/relationships"}
+    namespace = {
+        "w": WORD_NS,
+        "r": REL_NS,
+        "rel": "http://schemas.openxmlformats.org/package/2006/relationships",
+    }
     with zipfile.ZipFile(path) as archive:
         part_names = archive.namelist()
         document = ET.fromstring(archive.read("word/document.xml"))
@@ -2381,7 +2581,7 @@ def docx_structure_summary(path: Path) -> dict[str, Any]:
             if style_num_id is not None:
                 style_level = style.find("w:pPr/w:numPr/w:ilvl", namespace)
                 style_numbering[style_id] = {
-                    "level": style_level.attrib.get(f"{{{WORD_NS}}}val", "0") if style_level is not None else "0",
+                    "level": (style_level.attrib.get(f"{{{WORD_NS}}}val", "0") if style_level is not None else "0"),
                     "num_id": style_num_id.attrib.get(f"{{{WORD_NS}}}val", ""),
                 }
     styles = sorted(
@@ -2599,7 +2799,7 @@ def xlsx_sheet_summary(archive: zipfile.ZipFile, worksheet_path: str, shared_str
         "headers": headers,
         "styled_cell_count": styled_cell_count,
         "cell_type_counts": cell_type_counts,
-        "auto_filter_ref": auto_filter.attrib.get("ref", "") if auto_filter is not None else "",
+        "auto_filter_ref": (auto_filter.attrib.get("ref", "") if auto_filter is not None else ""),
         "freeze_pane": dict(pane.attrib) if pane is not None else {},
         "page_margins": dict(page_margins.attrib) if page_margins is not None else {},
         "column_widths": [col.attrib.get("width", "") for col in root.findall("s:cols/s:col", namespace)],
@@ -2658,7 +2858,11 @@ def office_structure_summary(path: Path) -> dict[str, Any]:
 
 
 def office_file_summary(relative_path: str, path: Path) -> dict[str, Any]:
-    summary: dict[str, Any] = {"path": relative_path, "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+    summary: dict[str, Any] = {
+        "path": relative_path,
+        "bytes": path.stat().st_size,
+        "sha256": sha256_file(path),
+    }
     try:
         summary["normalized_text"] = normalized_text_summary(path)
         summary["structure"] = office_structure_summary(path)
@@ -2679,7 +2883,12 @@ def accepted_difference_for(comparison: dict[str, Any], audit_policy: dict[str, 
     generated_path = str(generated.get("path", "")) if isinstance(generated, dict) else ""
     generated_path_normalized = generated_path.replace("\\", "/")
     generated_name = office_report_name(generated_path)
-    generated_candidates = {generated_path, generated_path_normalized, generated_name, "*"}
+    generated_candidates = {
+        generated_path,
+        generated_path_normalized,
+        generated_name,
+        "*",
+    }
     entries = audit_policy.get("accepted_differences")
     if not isinstance(entries, list):
         return None
@@ -2794,7 +3003,10 @@ def normalized_metric(summary: dict[str, Any], key: str) -> Any:
 
 
 def append_metric_table(
-    lines: list[str], generated: dict[str, Any], source: dict[str, Any], metrics: list[str]
+    lines: list[str],
+    generated: dict[str, Any],
+    source: dict[str, Any],
+    metrics: list[str],
 ) -> None:
     lines.extend(["| Metric | Source | Generated |", "| --- | ---: | ---: |"])
     for metric in metrics:
@@ -3143,7 +3355,10 @@ def append_unique(records: list[Any], record: dict[str, Any], replace: bool) -> 
 
 
 def init_database(
-    db_dir: Path, profile: dict[str, Any], force: bool, workbook_layout_value: dict[str, Any] | None = None
+    db_dir: Path,
+    profile: dict[str, Any],
+    force: bool,
+    workbook_layout_value: dict[str, Any] | None = None,
 ) -> None:
     if db_dir.exists() and force:
         shutil.rmtree(db_dir)
@@ -3175,7 +3390,10 @@ def add_master_record(db_dir: Path, collection: str, record: dict[str, Any], rep
 
 
 def add_resume(
-    db_dir: Path, resume: dict[str, Any], replace: bool, document_layout_value: dict[str, Any] | None = None
+    db_dir: Path,
+    resume: dict[str, Any],
+    replace: bool,
+    document_layout_value: dict[str, Any] | None = None,
 ) -> None:
     resume_id = resume.get("id")
     if not isinstance(resume_id, str) or not resume_id:
@@ -3239,9 +3457,23 @@ def init_master_profile(
     )
 
 
-def add_user(db_dir: Path, *, record_id: str, display_name: str, preferred_name: str, replace: bool = False) -> str:
+def add_user(
+    db_dir: Path,
+    *,
+    record_id: str,
+    display_name: str,
+    preferred_name: str,
+    replace: bool = False,
+) -> str:
     return add_ordered_master_record(
-        db_dir, "people", {"id": record_id, "display_name": display_name, "preferred_name": preferred_name}, replace
+        db_dir,
+        "people",
+        {
+            "id": record_id,
+            "display_name": display_name,
+            "preferred_name": preferred_name,
+        },
+        replace,
     )
 
 
@@ -3258,14 +3490,30 @@ def add_contact_method(
     return add_ordered_master_record(
         db_dir,
         "contact_methods",
-        {"id": record_id, "person_id": person_id, "kind": kind, "value": value, "is_primary": is_primary},
+        {
+            "id": record_id,
+            "person_id": person_id,
+            "kind": kind,
+            "value": value,
+            "is_primary": is_primary,
+        },
         replace,
     )
 
 
-def add_address(db_dir: Path, *, record_id: str, label: str, address_text: str, replace: bool = False) -> str:
+def add_address(
+    db_dir: Path,
+    *,
+    record_id: str,
+    label: str,
+    address_text: str,
+    replace: bool = False,
+) -> str:
     return add_ordered_master_record(
-        db_dir, "addresses", {"id": record_id, "label": label, "address_text": address_text}, replace
+        db_dir,
+        "addresses",
+        {"id": record_id, "label": label, "address_text": address_text},
+        replace,
     )
 
 
@@ -3305,7 +3553,12 @@ def add_job(
 
 
 def add_achievement(db_dir: Path, *, record_id: str, text: str, job_id: str, replace: bool = False) -> str:
-    return add_ordered_master_record(db_dir, "achievements", {"id": record_id, "text": text, "job_id": job_id}, replace)
+    return add_ordered_master_record(
+        db_dir,
+        "achievements",
+        {"id": record_id, "text": text, "job_id": job_id},
+        replace,
+    )
 
 
 def add_project(db_dir: Path, *, record_id: str, name: str, replace: bool = False) -> str:
@@ -3497,7 +3750,13 @@ def create_resume(
 ) -> str:
     resume = ordered_record(
         RESUME_FIELD_ORDER,
-        {"id": resume_id, "label": label, "status": status, "created_at": created_at, "updated_at": updated_at},
+        {
+            "id": resume_id,
+            "label": label,
+            "status": status,
+            "created_at": created_at,
+            "updated_at": updated_at,
+        },
     )
     add_resume(db_dir, resume, replace, document_layout)
     return resume_id
@@ -3589,17 +3848,28 @@ def validate_against_zip(db_dir: Path, expected_zip: Path, zip_prefix: str) -> N
 
 def add_payload_options(parser: argparse.ArgumentParser, payload_label: str) -> None:
     parser.add_argument("--json", dest="json_text", help=f"{payload_label} JSON object")
-    parser.add_argument("--json-base64", dest="json_base64", help=f"Base64-encoded {payload_label} JSON object")
+    parser.add_argument(
+        "--json-base64",
+        dest="json_base64",
+        help=f"Base64-encoded {payload_label} JSON object",
+    )
 
 
 def add_common_db_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
-        "--db-dir", type=Path, default=DEFAULT_DB_DIR, help="Directory containing generated private CV JSON"
+        "--db-dir",
+        type=Path,
+        default=DEFAULT_DB_DIR,
+        help="Directory containing generated private CV JSON",
     )
 
 
 def add_replace_option(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--replace", action="store_true", help="Replace an existing record with the same id")
+    parser.add_argument(
+        "--replace",
+        action="store_true",
+        help="Replace an existing record with the same id",
+    )
 
 
 def parse_bool(value: str) -> bool:
@@ -3633,9 +3903,19 @@ def add_field_options(parser: argparse.ArgumentParser, field_order: list[str]) -
     for field in field_order:
         destination = f"field_{field}"
         if field in LIST_FIELDS:
-            parser.add_argument(list_flag(field), dest=destination, action="append", help=f"Add one {field} value")
+            parser.add_argument(
+                list_flag(field),
+                dest=destination,
+                action="append",
+                help=f"Add one {field} value",
+            )
         elif field in BOOL_FIELDS:
-            parser.add_argument("--" + field.replace("_", "-"), dest=destination, type=parse_bool, help=f"Set {field}")
+            parser.add_argument(
+                "--" + field.replace("_", "-"),
+                dest=destination,
+                type=parse_bool,
+                help=f"Set {field}",
+            )
         elif field in DICT_FIELDS:
             parser.add_argument(
                 "--" + field.replace("_", "-") + "-json",
@@ -3671,8 +3951,16 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_db_options(init_parser)
     add_payload_options(init_parser, "profile")
     add_field_options(init_parser, ["id", "person_id", "label", "created_at", "updated_at"])
-    init_parser.add_argument("--workbook-layout-json", type=parse_object, help="Set workbook office_layout from JSON")
-    init_parser.add_argument("--force", action="store_true", help="Delete and recreate the target database directory")
+    init_parser.add_argument(
+        "--workbook-layout-json",
+        type=parse_object,
+        help="Set workbook office_layout from JSON",
+    )
+    init_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Delete and recreate the target database directory",
+    )
 
     profile_parser = subparsers.add_parser("set-profile", help="Replace the master profile metadata")
     add_common_db_options(profile_parser)
@@ -3691,7 +3979,9 @@ def build_parser() -> argparse.ArgumentParser:
     add_payload_options(add_resume_parser, "resume")
     add_field_options(add_resume_parser, RESUME_FIELD_ORDER)
     add_resume_parser.add_argument(
-        "--document-layout-json", type=parse_object, help="Set document office_layout from JSON"
+        "--document-layout-json",
+        type=parse_object,
+        help="Set document office_layout from JSON",
     )
     add_replace_option(add_resume_parser)
 
@@ -3700,7 +3990,9 @@ def build_parser() -> argparse.ArgumentParser:
     add_payload_options(create_resume_parser, "resume")
     add_field_options(create_resume_parser, RESUME_FIELD_ORDER)
     create_resume_parser.add_argument(
-        "--document-layout-json", type=parse_object, help="Set document office_layout from JSON"
+        "--document-layout-json",
+        type=parse_object,
+        help="Set document office_layout from JSON",
     )
     add_replace_option(create_resume_parser)
 
@@ -3739,30 +4031,45 @@ def build_parser() -> argparse.ArgumentParser:
 
     schema_parser = subparsers.add_parser("validate-schema", help="Validate JSON files against public contracts")
     schema_parser.add_argument(
-        "--schema", choices=sorted(CONTRACT_SCHEMA_FILES), help="Schema name; inferred if omitted"
+        "--schema",
+        choices=sorted(CONTRACT_SCHEMA_FILES),
+        help="Schema name; inferred if omitted",
     )
     schema_parser.add_argument("paths", nargs="+", type=Path, help="JSON contract files to validate")
 
     check_evidence_parser = subparsers.add_parser(
-        "check-evidence", help="Fast-fail if private a priori Office evidence has changed"
+        "check-evidence",
+        help="Fast-fail if private a priori Office evidence has changed",
     )
     check_evidence_parser.add_argument("--manifest", type=Path, default=DEFAULT_EVIDENCE_MANIFEST)
 
     exercise_golden_parser = subparsers.add_parser(
-        "exercise-golden", help="Run the side-by-side private golden evidence smoke test"
+        "exercise-golden",
+        help="Run the side-by-side private golden evidence smoke test",
     )
     exercise_golden_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
 
     generate_office_parser = subparsers.add_parser(
-        "generate-golden-office", help="Generate private _a_posteriori Office evidence from golden JSON"
+        "generate-golden-office",
+        help="Generate private _a_posteriori Office evidence from golden JSON",
     )
     generate_office_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
     generate_office_parser.add_argument("--no-report", action="store_true", help="Skip the comparison report")
 
     audit_parser = subparsers.add_parser("audit", help="Write private-safe Office parity audit reports")
     audit_parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_GOLDEN_EVIDENCE_DIR)
-    audit_parser.add_argument("--policy", type=Path, default=DEFAULT_AUDIT_POLICY, help="Office audit policy JSON")
+    audit_parser.add_argument(
+        "--policy",
+        type=Path,
+        default=DEFAULT_AUDIT_POLICY,
+        help="Office audit policy JSON",
+    )
     audit_parser.add_argument("--no-json", action="store_true", help="Skip the machine-readable JSON report")
+
+    render_document_parser = subparsers.add_parser("render-document", help="Render one resume JSON file to DOCX")
+    render_document_parser.add_argument("--master", type=Path, required=True, help="Master profile JSON path")
+    render_document_parser.add_argument("--resume", type=Path, required=True, help="Resume document JSON path")
+    render_document_parser.add_argument("--output", type=Path, required=True, help="Output DOCX path")
     return parser
 
 
@@ -3774,7 +4081,12 @@ def run(args: argparse.Namespace) -> int:
         return 0
     if command == "set-profile":
         set_profile(
-            args.db_dir, typed_payload(args, ["id", "person_id", "label", "created_at", "updated_at"], "profile")
+            args.db_dir,
+            typed_payload(
+                args,
+                ["id", "person_id", "label", "created_at", "updated_at"],
+                "profile",
+            ),
         )
         return 0
     if command in MASTER_COMMANDS:
@@ -3833,6 +4145,14 @@ def run(args: argparse.Namespace) -> int:
         if json_report is not None:
             reports.append(str(json_report))
         print("Office audit written: " + "; ".join(reports))
+        return 0
+    if command == "render-document":
+        master = read_json(args.master)
+        resume = read_json(args.resume)
+        validate_contract(master, "master_profile")
+        validate_contract(resume, "resume")
+        write_resume_document(master, resume, args.output)
+        print(f"Document written: {args.output}")
         return 0
     raise ValueError(f"Unknown command: {command}")
 

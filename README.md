@@ -44,6 +44,14 @@ Validate generated JSON against the public contract schemas:
 python .\x_create_cv_factory_x.py validate-schema data\private\cv_factory_output\master_profile.json data\private\cv_factory_output\resume_2023.json
 ```
 
+Render a resume JSON file to DOCX from an explicit master/resume pair:
+
+```powershell
+python .\x_create_cv_factory_x.py render-document --master data\private\cv_factory_output\master_profile.json --resume data\private\cv_factory_output\resume_2023.json --output data\private\cv_factory_output\resume_2023.docx
+```
+
+`render-document` is intentionally generic: public examples and tests use fake data, while private application packets can pass private master and resume JSON files from the side-by-side evidence repository.
+
 ## Public Tests And Fake Data
 
 CI and local public validation use only synthetic data from `tests/fixtures/`. The fake fixture proves the schema and CLI workflow without exposing the private CV.

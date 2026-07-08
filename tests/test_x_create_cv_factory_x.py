@@ -85,11 +85,17 @@ def build_fake_database(db_dir: Path) -> None:
         is_primary=bool(contact["is_primary"]),
     )
     app.add_address(
-        db_dir, record_id=str(address["id"]), label=str(address["label"]), address_text=str(address["address_text"])
+        db_dir,
+        record_id=str(address["id"]),
+        label=str(address["label"]),
+        address_text=str(address["address_text"]),
     )
     app.add_project(db_dir, record_id=str(project["id"]), name=str(project["name"]))
     app.add_achievement(
-        db_dir, record_id=str(achievement["id"]), text=str(achievement["text"]), job_id=str(achievement["job_id"])
+        db_dir,
+        record_id=str(achievement["id"]),
+        text=str(achievement["text"]),
+        job_id=str(achievement["job_id"]),
     )
     app.add_job(
         db_dir,
@@ -103,7 +109,12 @@ def build_fake_database(db_dir: Path) -> None:
         project_ids=string_list(job["project_ids"]),
         achievement_ids=string_list(job["achievement_ids"]),
     )
-    app.add_skill(db_dir, record_id=str(skill["id"]), name=str(skill["name"]), category=str(skill["category"]))
+    app.add_skill(
+        db_dir,
+        record_id=str(skill["id"]),
+        name=str(skill["name"]),
+        category=str(skill["category"]),
+    )
     app.add_text_block(
         db_dir,
         record_id=str(text_block["id"]),
@@ -250,9 +261,42 @@ def test_fake_seed_rebuilds_master_and_resume_json(tmp_path: Path) -> None:
 def test_cli_validate_schema_accepts_generated_fake_json(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     build_fake_database(tmp_path)
 
-    assert app.main(["validate-schema", str(tmp_path / app.MASTER_FILE), str(tmp_path / "resume_2023.json")]) == 0
+    assert (
+        app.main(
+            [
+                "validate-schema",
+                str(tmp_path / app.MASTER_FILE),
+                str(tmp_path / "resume_2023.json"),
+            ]
+        )
+        == 0
+    )
 
     assert "Schema validation passed: 1 master_profile, 1 resume" in capsys.readouterr().out
+
+
+def test_cli_render_document_writes_docx_from_fake_json(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    build_fake_database(tmp_path)
+    output_path = tmp_path / "rendered_fake_resume.docx"
+
+    assert (
+        app.main(
+            [
+                "render-document",
+                "--master",
+                str(tmp_path / app.MASTER_FILE),
+                "--resume",
+                str(tmp_path / "resume_2023.json"),
+                "--output",
+                str(output_path),
+            ]
+        )
+        == 0
+    )
+
+    assert output_path.exists()
+    assert "Document written:" in capsys.readouterr().out
+    assert "Fake public resume summary for automated tests." in app.docx_text_lines(output_path)
 
 
 def test_schema_validation_reports_contract_path() -> None:
@@ -266,7 +310,13 @@ def test_schema_validation_reports_contract_path() -> None:
         }
     )
     invalid_resume["collections"]["sections"].append(
-        {"id": "section_invalid", "title": "Broken", "kind": "summary", "sort_order": "1", "item_ids": []}
+        {
+            "id": "section_invalid",
+            "title": "Broken",
+            "kind": "summary",
+            "sort_order": "1",
+            "item_ids": [],
+        }
     )
 
     with pytest.raises(ValueError, match=r"\$\.collections\.sections\[0\]\.sort_order"):
@@ -384,8 +434,16 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
                             {"field": "id", "header": "ID"},
                             {"field": "label", "header": "Label"},
                             {"field": "highlights", "header": "Highlights"},
-                            {"field": "score", "header": "Score", "value_type": "number"},
-                            {"field": "is_current", "header": "Current", "value_type": "boolean"},
+                            {
+                                "field": "score",
+                                "header": "Score",
+                                "value_type": "number",
+                            },
+                            {
+                                "field": "is_current",
+                                "header": "Current",
+                                "value_type": "boolean",
+                            },
                         ],
                     }
                 ],
@@ -551,8 +609,20 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
         "</styleSheet>"
     )
-    assert worksheet_row_values(workbook_path, 1) == ["ID", "Label", "Highlights", "Score", "Current"]
-    assert worksheet_row_values(workbook_path, 2) == ["highlight_001", "One", "Structured value", "", ""]
+    assert worksheet_row_values(workbook_path, 1) == [
+        "ID",
+        "Label",
+        "Highlights",
+        "Score",
+        "Current",
+    ]
+    assert worksheet_row_values(workbook_path, 2) == [
+        "highlight_001",
+        "One",
+        "Structured value",
+        "",
+        "",
+    ]
     sheet_summary = first_worksheet_summary(workbook_path)
     assert sheet_summary["path"] == "xl/worksheets/sheet1.xml"
     assert sheet_summary["dimension"] == "A1:E2"
@@ -575,7 +645,13 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "header": "0.1",
         "footer": "0.3",
     }
-    assert sheet_summary["column_widths"] == ["8.50", "13.00", "28.25", "10.00", "10.00"]
+    assert sheet_summary["column_widths"] == [
+        "8.50",
+        "13.00",
+        "28.25",
+        "10.00",
+        "10.00",
+    ]
     assert sheet_summary["cell_type_counts"] == {"inlineStr": 8, "number": 1, "b": 1}
     workbook_summary = app.xlsx_structure_summary(workbook_path)
     assert workbook_summary["part_names"] == [
@@ -605,7 +681,10 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         "core-properties": 1,
         "extended-properties": 1,
     }
-    assert workbook_summary["workbook_relationship_type_counts"] == {"worksheet": 1, "styles": 1}
+    assert workbook_summary["workbook_relationship_type_counts"] == {
+        "worksheet": 1,
+        "styles": 1,
+    }
     assert workbook_summary["workbook_relationship_targets"] == {
         "rId1": "xl/worksheets/sheet1.xml",
         "rId2": "xl/styles.xml",
@@ -741,8 +820,18 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
                         "block_style": "Heading1",
                         "numbering": {"level": "0", "num_id": "7"},
                         "runs": [
-                            {"text": "Styled", "bold": True, "italic": False, "underline": False},
-                            {"text": " run", "bold": False, "italic": True, "underline": True},
+                            {
+                                "text": "Styled",
+                                "bold": True,
+                                "italic": False,
+                                "underline": False,
+                            },
+                            {
+                                "text": " run",
+                                "bold": False,
+                                "italic": True,
+                                "underline": True,
+                            },
                         ],
                     },
                     "is_visible": True,
@@ -814,7 +903,11 @@ def test_office_generation_consumes_layout_contracts(tmp_path: Path) -> None:
         '<w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" '
         'w:header="720" w:footer="720" w:gutter="0"/>' in document_xml
     )
-    assert structure_summary["page_size"] == {"w": "12240", "h": "15840", "orient": "portrait"}
+    assert structure_summary["page_size"] == {
+        "w": "12240",
+        "h": "15840",
+        "orient": "portrait",
+    }
     assert structure_summary["page_margins"] == {
         "top": "1440",
         "right": "1800",
@@ -1091,7 +1184,10 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
                         "rows": [
                             [{"item_ids": ["item_left"]}, {"item_ids": ["item_right"]}],
                             [
-                                {"item_ids": ["item_bottom"], "paragraphs": [{"empty": True}]},
+                                {
+                                    "item_ids": ["item_bottom"],
+                                    "paragraphs": [{"empty": True}],
+                                },
                                 {
                                     "runs": [
                                         {
@@ -1120,7 +1216,12 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
                     "title": "API-backed section",
                     "kind": "summary",
                     "sort_order": 1,
-                    "item_ids": ["item_intro", "item_left", "item_right", "item_bottom"],
+                    "item_ids": [
+                        "item_intro",
+                        "item_left",
+                        "item_right",
+                        "item_bottom",
+                    ],
                     "is_visible": True,
                 }
             ],
@@ -1150,7 +1251,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
                     "sort_order": 2,
                     "master_record_refs": [],
                     "text_override": "Left",
-                    "formatting": {"block_style": None, "numbering": None, "runs": [{"text": "Left"}]},
+                    "formatting": {
+                        "block_style": None,
+                        "numbering": None,
+                        "runs": [{"text": "Left"}],
+                    },
                     "is_visible": True,
                 },
                 {
@@ -1160,7 +1265,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
                     "sort_order": 3,
                     "master_record_refs": [],
                     "text_override": "Right",
-                    "formatting": {"block_style": None, "numbering": None, "runs": [{"text": "Right"}]},
+                    "formatting": {
+                        "block_style": None,
+                        "numbering": None,
+                        "runs": [{"text": "Right"}],
+                    },
                     "is_visible": True,
                 },
                 {
@@ -1170,7 +1279,11 @@ def test_docx_generation_consumes_flow_and_package_contracts(tmp_path: Path) -> 
                     "sort_order": 4,
                     "master_record_refs": [],
                     "text_override": "Bottom",
-                    "formatting": {"block_style": None, "numbering": None, "runs": [{"text": "Bottom"}]},
+                    "formatting": {
+                        "block_style": None,
+                        "numbering": None,
+                        "runs": [{"text": "Bottom"}],
+                    },
                     "is_visible": True,
                 },
             ],
@@ -2064,15 +2177,28 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
     }
     expected_json = {
         "master_profile.json": (master_contract, "master_profile_a_posteriori.json"),
-        "resume_2017.json": (resume_contracts["resume_2017"], "resume_2017_a_posteriori.json"),
-        "resume_2023.json": (resume_contracts["resume_2023"], "resume_2023_a_posteriori.json"),
-        "resume_2024.json": (resume_contracts["resume_2024"], "resume_2024_a_posteriori.json"),
+        "resume_2017.json": (
+            resume_contracts["resume_2017"],
+            "resume_2017_a_posteriori.json",
+        ),
+        "resume_2023.json": (
+            resume_contracts["resume_2023"],
+            "resume_2023_a_posteriori.json",
+        ),
+        "resume_2024.json": (
+            resume_contracts["resume_2024"],
+            "resume_2024_a_posteriori.json",
+        ),
     }
     script_outputs = [
         ("01_build_master_data.py", "master_profile.json", master_contract),
         ("02_build_old_resume.py", "resume_2017.json", resume_contracts["resume_2017"]),
         ("03_build_new_resume.py", "resume_2023.json", resume_contracts["resume_2023"]),
-        ("04_build_current_resume.py", "resume_2024.json", resume_contracts["resume_2024"]),
+        (
+            "04_build_current_resume.py",
+            "resume_2024.json",
+            resume_contracts["resume_2024"],
+        ),
     ]
     for script_name, output_name, output_json in script_outputs:
         (script_dir / script_name).write_text(
@@ -2140,7 +2266,10 @@ def test_cli_exercise_golden_uses_evidence_dir(tmp_path: Path, capsys: pytest.Ca
                         "bytes": (expected_json_dir / expected_name).stat().st_size,
                         "sha256": app.sha256_file(expected_json_dir / expected_name),
                     }
-                    for _generated_name, (_content, expected_name) in expected_json.items()
+                    for _generated_name, (
+                        _content,
+                        expected_name,
+                    ) in expected_json.items()
                 ],
                 *[
                     {
@@ -2210,7 +2339,13 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
     assert audit_path.exists()
     assert json_path.exists()
     report = app.read_json(json_path)
-    assert sorted(report.keys()) == ["audit_policy", "comparisons", "generator", "purpose", "schema_version"]
+    assert sorted(report.keys()) == [
+        "audit_policy",
+        "comparisons",
+        "generator",
+        "purpose",
+        "schema_version",
+    ]
     assert report["schema_version"] == app.SCHEMA_VERSION
     assert report["generator"] == f"x_create_cv_x {app.VERSION}"
     assert report["purpose"] == "Private comparison report for generated _a_posteriori Office evidence"
@@ -2247,14 +2382,39 @@ def test_cli_audit_writes_human_readable_office_report(tmp_path: Path, capsys: p
         "Generated file is byte-identical to source evidence."
     ] * 4
     assert [sorted(comparison.keys()) for comparison in report["comparisons"]] == [
-        ["byte_identical", "generated", "normalized_text_match", "source", "status", "status_reason"]
+        [
+            "byte_identical",
+            "generated",
+            "normalized_text_match",
+            "source",
+            "status",
+            "status_reason",
+        ]
     ] * 4
     assert ["accepted_difference" in comparison for comparison in report["comparisons"]] == [False] * 4
     for comparison in report["comparisons"]:
-        assert sorted(comparison["generated"].keys()) == ["bytes", "normalized_text", "path", "sha256", "structure"]
-        assert sorted(comparison["source"].keys()) == ["bytes", "normalized_text", "path", "sha256", "structure"]
-        assert sorted(comparison["generated"]["normalized_text"].keys()) == ["line_count", "sha256"]
-        assert sorted(comparison["source"]["normalized_text"].keys()) == ["line_count", "sha256"]
+        assert sorted(comparison["generated"].keys()) == [
+            "bytes",
+            "normalized_text",
+            "path",
+            "sha256",
+            "structure",
+        ]
+        assert sorted(comparison["source"].keys()) == [
+            "bytes",
+            "normalized_text",
+            "path",
+            "sha256",
+            "structure",
+        ]
+        assert sorted(comparison["generated"]["normalized_text"].keys()) == [
+            "line_count",
+            "sha256",
+        ]
+        assert sorted(comparison["source"]["normalized_text"].keys()) == [
+            "line_count",
+            "sha256",
+        ]
         assert "error" not in comparison["generated"]["normalized_text"]
         assert "error" not in comparison["source"]["normalized_text"]
         assert "error" not in comparison["generated"]["structure"]
